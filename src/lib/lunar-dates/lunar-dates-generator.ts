@@ -8,9 +8,8 @@ import { resolveStartFromOptions } from './lunar-dates-solar';
 import type {
 	LunarDateNotification,
 	LunarDateNotificationsOptions,
+	MonthsInYear,
 } from './lunar-dates.type';
-
-type MonthsInYear = ReturnType<LunarYear['getMonthsInYear']>;
 
 const getFirstYearMonthIndex = (
 	monthsInYear: MonthsInYear,

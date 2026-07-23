@@ -1,5 +1,5 @@
 import { Lunar } from 'lunar-javascript';
-import { CALENDAR_DEFAULTS, LUNAR_MILESTONE_DAYS } from './constants';
+import { CALENDAR_DEFAULTS, DEFAULT_CALENDAR_NAME, LUNAR_MILESTONE_DAYS } from './constants';
 import {
 	getFirstAndFifteenDay,
 	solarToDateParts,
@@ -8,13 +8,19 @@ import { getLunarDateNotifications } from './lunar-dates-generator';
 import { resolveLunarStartFromSolarMonth } from './lunar-dates-solar';
 
 export type {
+	GenerateLunarCalendarIcsOptions,
+	GregorianDateParts,
 	LunarDateNotification,
 	LunarDateNotificationsOptions,
 	LunarDateType,
+	LunarStart,
+	MonthRule,
+	SolarStartInput,
 } from './lunar-dates.type';
 
 export {
 	CALENDAR_DEFAULTS,
+	DEFAULT_CALENDAR_NAME,
 	LUNAR_MILESTONE_DAYS,
 	getFirstAndFifteenDay,
 	getLunarDateNotifications,

@@ -1,15 +1,6 @@
 import { Solar } from 'lunar-javascript';
 import { CALENDAR_DEFAULTS, SOLAR_MONTH } from './constants';
-
-type LunarStart = {
-	startYear: number;
-	startMonth: number;
-};
-
-type SolarStartInput = {
-	startSolarYear?: number;
-	startSolarMonth?: number;
-};
+import type { LunarStart, SolarStartInput } from './lunar-dates.type';
 
 const validateSolarMonth = (solarMonth: number): void => {
 	if (solarMonth < SOLAR_MONTH.min || solarMonth > SOLAR_MONTH.max) {
@@ -62,7 +53,6 @@ const resolveStartFromOptions = (
 	};
 };
 
-export type { LunarStart, SolarStartInput };
 export {
 	resolveLunarStartFromSolarMonth,
 	resolveStartFromOptions,

@@ -1,10 +1,6 @@
 import { LunarMonth, Solar } from 'lunar-javascript';
-import { SOLAR_MONTH } from '../../src/lib/lunar-dates/constants';
-
-type LunarStart = {
-	startYear: number;
-	startMonth: number;
-};
+import { SOLAR_MONTH } from '@lunar-dates/constants';
+import type { LunarStart } from '@lunar-dates/lunar-dates.type';
 
 const expectedLunarStartFromSolarMonth = (
 	solarYear: number,
