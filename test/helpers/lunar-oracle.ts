@@ -1,6 +1,6 @@
 import { LunarMonth, Solar } from 'lunar-javascript';
 import { SOLAR_MONTH } from '@lunar-dates/constants';
-import type { LunarStart } from '@lunar-dates/lunar-dates.type';
+import type { GregorianDateParts, LunarStart } from '@lunar-dates/lunar-dates.type';
 
 const expectedLunarStartFromSolarMonth = (
 	solarYear: number,
@@ -16,7 +16,7 @@ const expectedLunarStartFromSolarMonth = (
 const expectedChuyiSolarParts = (
 	lunarYear: number,
 	lunarMonth: number,
-): number[] => {
+): GregorianDateParts => {
 	const month = LunarMonth.fromYm(lunarYear, lunarMonth);
 	if (!month) {
 		throw new Error(`Invalid lunar month: ${lunarYear}-${lunarMonth}`);
@@ -26,11 +26,14 @@ const expectedChuyiSolarParts = (
 	return [solar.getYear(), solar.getMonth(), solar.getDay()];
 };
 
-const solarPartsToDate = (parts: number[]): Date => {
-	return new Date(parts[0]!, parts[1]! - 1, parts[2]!);
+const solarPartsToDate = (parts: GregorianDateParts): Date => {
+	return new Date(parts[0], parts[1] - 1, parts[2]);
 };
 
-const daysBetweenSolarParts = (from: number[], to: number[]): number => {
+const daysBetweenSolarParts = (
+	from: GregorianDateParts,
+	to: GregorianDateParts,
+): number => {
 	const fromDate = solarPartsToDate(from);
 	const toDate = solarPartsToDate(to);
 	const millisecondsPerDay = 1000 * 60 * 60 * 24;

@@ -5,7 +5,7 @@ import {
 	getLunarDateNotifications,
 	resolveLunarStartFromSolarMonth,
 	type LunarDateNotification,
-} from '../src/lib/lunar-dates/lunar-dates';
+} from '@lunar-dates/lunar-dates';
 import {
 	daysBetweenSolarParts,
 	expectedChuyiSolarParts,
@@ -123,9 +123,12 @@ describe('getLunarDateNotifications — orchestration', () => {
 		for (let i = 0; i < notifications.length; i += 2) {
 			const chuyi = notifications[i];
 			const shiwu = notifications[i + 1];
-			expect(chuyi?.type).toBe('chuyi');
-			expect(shiwu?.type).toBe('shiwu');
-			expect(daysBetweenSolarParts(chuyi!.date, shiwu!.date)).toBe(14);
+			if (!chuyi || !shiwu) {
+				throw new Error('Expected chuyi/shiwu notification pair');
+			}
+			expect(chuyi.type).toBe('chuyi');
+			expect(shiwu.type).toBe('shiwu');
+			expect(daysBetweenSolarParts(chuyi.date, shiwu.date)).toBe(14);
 		}
 	});
 });
