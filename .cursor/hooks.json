@@ -1,0 +1,27 @@
+{
+	"version": 1,
+	"hooks": {
+		"afterFileEdit": [
+			{
+				"command": ".cursor/hooks/biome-file.ts"
+			}
+		],
+		"afterTabFileEdit": [
+			{
+				"command": ".cursor/hooks/biome-file.ts"
+			}
+		],
+		"postToolUse": [
+			{
+				"command": ".cursor/hooks/typecheck-feedback.ts",
+				"matcher": "Write|StrReplace|EditNotebook"
+			}
+		],
+		"stop": [
+			{
+				"command": ".cursor/hooks/stop-gate.ts",
+				"loop_limit": 3
+			}
+		]
+	}
+}
