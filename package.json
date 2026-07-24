@@ -7,7 +7,8 @@
     "dev": "bun --hot src/index.ts",
     "start": "NODE_ENV=production bun src/index.ts",
     "build": "bun run build.ts",
-    "test": "TZ=Asia/Kuala_Lumpur bun test"
+    "test": "TZ=Asia/Kuala_Lumpur bun test",
+    "typecheck": "tsc --noEmit"
   },
   "dependencies": {
     "@radix-ui/react-label": "^2.1.7",
@@ -29,6 +30,7 @@
     "@types/bun": "latest",
     "@types/react": "^19",
     "@types/react-dom": "^19",
-    "tailwindcss": "^4.1.11"
+    "tailwindcss": "^4.1.11",
+    "typescript": "^7.0.2"
   }
 }
