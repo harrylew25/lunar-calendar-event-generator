@@ -1,16 +1,15 @@
 import { LunarYear } from 'lunar-javascript';
-import { CALENDAR_DEFAULTS } from './constants';
+import { CALENDAR_DEFAULTS } from '@lunar-dates/constants';
 import {
 	createMonthNotifications,
 	getMonthRule,
-} from './lunar-dates-notifications';
-import { resolveStartFromOptions } from './lunar-dates-solar';
+} from '@lunar-dates/lunar-dates-notifications';
+import { resolveStartFromOptions } from '@lunar-dates/lunar-dates-solar';
 import type {
 	LunarDateNotification,
 	LunarDateNotificationsOptions,
-} from './lunar-dates.type';
-
-type MonthsInYear = ReturnType<LunarYear['getMonthsInYear']>;
+	MonthsInYear,
+} from '@lunar-dates/lunar-dates.type';
 
 const getFirstYearMonthIndex = (
 	monthsInYear: MonthsInYear,

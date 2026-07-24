@@ -23,7 +23,9 @@
     "noImplicitOverride": true,
 
     "paths": {
-      "@/*": ["./src/*"]
+      "@/*": ["./src/*"],
+      "@lib/*": ["./src/lib/*"],
+      "@lunar-dates/*": ["./src/lib/lunar-dates/*"]
     },
 
     // Some stricter flags (disabled by default)

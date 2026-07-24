@@ -1,13 +1,12 @@
-import { LunarMonth } from 'lunar-javascript';
 import { LUNAR_MILESTONE_DAYS, monthRules } from './constants';
 import { getChuyiShiwuFromLunarMonth } from './lunar-dates-calendar';
 import type {
+	GregorianDateParts,
 	LunarDateNotification,
 	LunarDateType,
+	LunarMonthInstance,
 	MonthRule,
 } from './lunar-dates.type';
-
-type LunarMonthInstance = NonNullable<ReturnType<typeof LunarMonth.fromYm>>;
 
 const LUNAR_DAY_LABELS: Record<
 	LunarDateType,
@@ -34,7 +33,7 @@ const getMonthRule = (monthValue: number): MonthRule | undefined => {
 };
 
 const createLunarDateNotification = (
-	date: number[],
+	date: GregorianDateParts,
 	type: LunarDateType,
 	rule: MonthRule,
 ): LunarDateNotification => {
@@ -64,5 +63,6 @@ const createMonthNotifications = (
 export {
 	createLunarDateNotification,
 	createMonthNotifications,
-	getMonthRule,
+	getMonthRule
 };
+
