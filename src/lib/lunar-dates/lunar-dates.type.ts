@@ -45,8 +45,5 @@ export type {
 	LunarDateNotificationsOptions,
 	LunarDateType,
 	LunarMonthInstance,
-	LunarStart,
-	MonthsInYear,
-	MonthRule,
-	SolarStartInput,
+	LunarStart, MonthRule, MonthsInYear, SolarStartInput
 };

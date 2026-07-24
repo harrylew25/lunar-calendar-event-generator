@@ -1,6 +1,6 @@
 import { LunarMonth, Solar } from 'lunar-javascript';
-import { LUNAR_MILESTONE_DAYS } from './constants';
-import type { GregorianDateParts, LunarMonthInstance } from './lunar-dates.type';
+import { LUNAR_MILESTONE_DAYS } from '@lunar-dates/constants';
+import type { GregorianDateParts, LunarMonthInstance } from '@lunar-dates/lunar-dates.type';
 
 const SHIWU_DAY_OFFSET =
 	LUNAR_MILESTONE_DAYS.shiwu - LUNAR_MILESTONE_DAYS.chuyi;
@@ -33,5 +33,5 @@ const getFirstAndFifteenDay = (
 export {
 	getChuyiShiwuFromLunarMonth,
 	getFirstAndFifteenDay,
-	solarToDateParts,
+	solarToDateParts
 };

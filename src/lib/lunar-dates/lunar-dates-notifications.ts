@@ -63,5 +63,6 @@ const createMonthNotifications = (
 export {
 	createLunarDateNotification,
 	createMonthNotifications,
-	getMonthRule,
+	getMonthRule
 };
+
