@@ -3,9 +3,9 @@ import { CALENDAR_DEFAULTS, DEFAULT_CALENDAR_NAME, LUNAR_MILESTONE_DAYS } from '
 import {
 	getFirstAndFifteenDay,
 	solarToDateParts,
-} from './lunar-dates-calendar';
-import { getLunarDateNotifications } from './lunar-dates-generator';
-import { resolveLunarStartFromSolarMonth } from './lunar-dates-solar';
+} from '@lunar-dates/lunar-dates-calendar';
+import { getLunarDateNotifications } from '@lunar-dates/lunar-dates-generator';
+import { resolveLunarStartFromSolarMonth } from '@lunar-dates/lunar-dates-solar';
 
 export type {
 	GenerateLunarCalendarIcsOptions,
@@ -16,7 +16,7 @@ export type {
 	LunarStart,
 	MonthRule,
 	SolarStartInput,
-} from './lunar-dates.type';
+} from '@lunar-dates/lunar-dates.type';
 
 export {
 	CALENDAR_DEFAULTS,
