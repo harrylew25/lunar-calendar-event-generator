@@ -1,9 +1,25 @@
+import { generateLunarCalendarIcs, notificationToIcsEvent } from '@lib/lunar-dates-ics';
+import { getLunarDateNotifications } from '@lunar-dates/lunar-dates';
+import type {
+	GregorianDateParts,
+	LunarDateNotification,
+} from '@lunar-dates/lunar-dates.type';
 import { describe, expect, test } from 'bun:test';
 import { generateIcsEvent } from 'ts-ics';
-import type { LunarDateNotification } from '@lunar-dates/lunar-dates.type';
-import { getLunarDateNotifications } from '@lunar-dates/lunar-dates';
-import { notificationToIcsEvent, generateLunarCalendarIcs } from '@lib/lunar-dates-ics';
 import { expectedChuyiSolarParts } from './helpers/lunar-oracle';
+
+const padYmd = ([year, month, day]: GregorianDateParts): string => {
+	return `${year}${String(month).padStart(2, '0')}${String(day).padStart(2, '0')}`;
+};
+
+const nextGregorianDay = ([
+	year,
+	month,
+	day,
+]: GregorianDateParts): GregorianDateParts => {
+	const next = new Date(Date.UTC(year, month - 1, day + 1));
+	return [next.getUTCFullYear(), next.getUTCMonth() + 1, next.getUTCDate()];
+};
 
 const chuyiNotification = (
 	date: LunarDateNotification['date'],
@@ -23,10 +39,8 @@ describe('notificationToIcsEvent — Gregorian DTSTART', () => {
 		const notification = chuyiNotification(oracleDate);
 		const event = notificationToIcsEvent(notification);
 		const icsEventString = generateIcsEvent(event);
-		const [year, month, day] = oracleDate;
-		const paddedDate = `${year}${String(month).padStart(2, '0')}${String(day).padStart(2, '0')}`;
 
-		expect(icsEventString).toContain(`DTSTART;VALUE=DATE:${paddedDate}`);
+		expect(icsEventString).toContain(`DTSTART;VALUE=DATE:${padYmd(oracleDate)}`);
 		expect(icsEventString).not.toContain('T000000');
 	});
 });
@@ -37,11 +51,29 @@ describe('notificationToIcsEvent — exclusive end date', () => {
 		const notification = chuyiNotification(oracleDate);
 		const event = notificationToIcsEvent(notification);
 		const icsEventString = generateIcsEvent(event);
-		const [year, month, day] = oracleDate;
-		const nextDay = new Date(year, month - 1, day + 1);
-		const paddedEndDate = `${nextDay.getFullYear()}${String(nextDay.getMonth() + 1).padStart(2, '0')}${String(nextDay.getDate()).padStart(2, '0')}`;
+		const paddedEndDate = padYmd(nextGregorianDay(oracleDate));
 
 		expect(icsEventString).toContain(`DTEND;VALUE=DATE:${paddedEndDate}`);
+	});
+});
+
+describe('notificationToIcsEvent — all-day DATE timezone', () => {
+	test('keeps calendar day as UTC midnight DATE values', () => {
+		const date: GregorianDateParts = [2026, 5, 17];
+		const notification = chuyiNotification(date);
+		const event = notificationToIcsEvent(notification);
+		const icsEventString = generateIcsEvent(event);
+
+		expect(event.end).toBeDefined();
+		if (!event.end) {
+			return;
+		}
+
+		expect(event.start.date.toISOString()).toBe('2026-05-17T00:00:00.000Z');
+		expect(event.end.date.toISOString()).toBe('2026-05-18T00:00:00.000Z');
+		expect(icsEventString).toContain('DTSTART;VALUE=DATE:20260517');
+		expect(icsEventString).toContain('DTEND;VALUE=DATE:20260518');
+		expect(icsEventString).not.toContain('T000000');
 	});
 });
 
@@ -91,12 +123,33 @@ describe('generateLunarCalendarIcs — integration', () => {
 		});
 		const ics = generateLunarCalendarIcs(notifications);
 		const expectedChuyi = expectedChuyiSolarParts(2020, 4);
-		const [year, month, day] = expectedChuyi;
-		const paddedDate = `${year}${String(month).padStart(2, '0')}${String(day).padStart(2, '0')}`;
 
-		expect(ics).toContain(`DTSTART;VALUE=DATE:${paddedDate}`);
+		expect(ics).toContain(`DTSTART;VALUE=DATE:${padYmd(expectedChuyi)}`);
 		expect((ics.match(/BEGIN:VEVENT/g) ?? []).length).toBe(
 			notifications.length,
 		);
+	});
+
+	test('preserves chuyi DATE start and exclusive end end-to-end', () => {
+		const notifications = getLunarDateNotifications({
+			startYear: 2020,
+			startMonth: 4,
+			numberOfYears: 0,
+		});
+		const chuyi = notifications.find((notification) => {
+			return notification.type === 'chuyi';
+		});
+
+		expect(chuyi).toBeDefined();
+		if (!chuyi) {
+			return;
+		}
+
+		const ics = generateLunarCalendarIcs(notifications);
+		const startYmd = padYmd(chuyi.date);
+		const endYmd = padYmd(nextGregorianDay(chuyi.date));
+
+		expect(ics).toContain(`DTSTART;VALUE=DATE:${startYmd}`);
+		expect(ics).toContain(`DTEND;VALUE=DATE:${endYmd}`);
 	});
 });
