@@ -8,16 +8,15 @@ import type {
 
 const toGregorianDate = (parts: GregorianDateParts): Date => {
 	const [year, month, day] = parts;
-	return new Date(year, month - 1, day);
+	return new Date(Date.UTC(year, month - 1, day));
 };
 
 const notificationToIcsEvent = (
 	notification: LunarDateNotification,
 ): IcsEvent => {
-	const start = toGregorianDate(notification.date);
-	const end = new Date(start);
-	end.setDate(end.getDate() + 1);
 	const [year, month, day] = notification.date;
+	const start = toGregorianDate(notification.date);
+	const end = new Date(Date.UTC(year, month - 1, day + 1));
 
 	return {
 		uid: `lunar-${notification.type}-${year}-${month}-${day}@lunar-calendar-event-generator`,
