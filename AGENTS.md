@@ -1,37 +1,71 @@
-# AGENTS.md
+---
+title: AGENTS
+description: Agent guidelines for the Lunar Calendar Event Generator repository.
+creation-time: 2026-07-24T00:00:00+08:00
+updated-time: 2026-07-24T19:25:00+08:00
+tags:
+  - agents
+  - lunar-calendar
+type: guide
+---
 
-You are an expert full-stack engineer operating inside this repository. You write highly type-safe, performant, and self-documenting code. You must read and strictly adhere to the guidelines below before executing any task.
+# AGENTS
+
+You are an expert full-stack engineer operating inside this repository. Write highly type-safe, performant, and self-documenting code. Read and follow these guidelines before any task.
 
 ## Project Overview
 
-Project Name: Lunar Calendar Event Generator
-Goal: A simple calendar application converter that Gregorian calendar dates into lunisolar calendar dates, and create `.ics` file for download and use.
+**Name:** Lunar Calendar Event Generator
+
+**Goal:** Convert lunisolar calendar milestones (e.g. 初一 / 十五) into Gregorian dates and export them as downloadable `.ics` files for calendar apps.
+
+**Key paths:**
+
+- Domain logic: `src/lib/lunar-dates/`
+- ICS export: `src/lib/lunar-dates-ics.ts`
+- UI: `src/App.tsx`, `src/components/ui/`
+- Tests: `test/`
 
 ## Development Environment & Tooling
 
-### Setup and Running
+- **Package manager / runtime:** Bun (`bun install`, `bun run`, `bun test`)
+- **Language:** TypeScript, React
+- **UI:** Shadcn UI, Tailwind CSS v4
+- **Calendar engine:** `lunar-javascript`
+- **ICS:** `ts-ics`
+- **Lint / format / imports:** Biome (do not hand-format; do not add Prettier or ESLint)
+- **Types:** `bun run typecheck` (`tsc --noEmit`)
+- **Tests:** `bun run test` (sets `TZ=Asia/Kuala_Lumpur` — required for date-sensitive tests)
 
-The agent must use `bun` as the package manager
+### Cursor hooks (do not duplicate these)
 
-Language: Typescript, React
-Runtime: bun
-UI Component: Shadcn UI
+Project hooks under `.cursor/hooks/` already cover post-edit hygiene. Prefer fixing hook feedback over re-running the same commands yourself after every edit.
+
+| Hook | Responsibility | Not responsible for |
+|------|----------------|---------------------|
+| `afterFileEdit` / `afterTabFileEdit` | File-scoped Biome (`check --write`) | `tsc`, tests |
+| `postToolUse` (Write / StrReplace / EditNotebook) | Mid-turn `tsc --noEmit` via `additional_context` | Biome, tests |
+| `stop` (`loop_limit: 3`) | Final gate: `tsc` + `bun run test` via `followup_message` | Biome / formatting |
+
+`tsc` on both `postToolUse` and `stop` is intentional: early feedback vs don't-finish-red. Only Biome formats; only stop runs the test suite.
+
+### Common scripts
+
+- `bun run dev` — hot-reload app (`src/index.ts`)
+- `bun run test` — unit tests (for local/debug use; stop hook also runs this)
+- `bun run typecheck` — TypeScript check (for local/debug use; hooks also run this)
+- `bun run build` — production build
 
 ## Code and TypeScript Principles
 
-- **Biome:** Code is automatically formatted using **Biome**. The agent should never make manual formatting changes.
+- **Biome:** Formatting, lint, and import organization are handled by Biome via hooks. Do not make manual formatting-only edits.
+- **TypeScript:** Explicit types on function arguments, return values, and complex state. Never use `any`; use `unknown` when the type is not known.
+- **KISS:** Keep functions and components small, focused, and easy to understand.
+- **DRY:** Extract shared logic into `src/lib/` (or focused modules under it), shared types, or reusable components — not a separate `src/utils/` tree.
+- **Tailwind CSS:** Prefer utility classes. Avoid custom CSS unless necessary. Never use dynamic class interpolation (e.g. `col-span-${span}`); use a static class lookup map for Tailwind v4.
+- **File size:** Keep files under `src/` under **150 lines** where possible. If a file must exceed that, stop and ask the user for an exception before continuing.
 
-
-The agent must strictly adhere to the following principles when writing or refactoring code:
-
-- **TypeScript (TS):** Always use **explicit typing** for function arguments, return values, and complex object states. There should always be **no** usage of the `any` type in the codebase. If a type is not known, you must use the `unknown` type instead.
-- **KISS (Keep It Simple, Stupid):** Functions and components must be small, focused, and easy to understand. Prioritize clear, minimal implementations over complex or clever ones.
-- **DRY (Don't Repeat Yourself):** Identify and abstract repeated logic, types, or component structures into reusable utility functions (`src/utils/`), interfaces, or generic components.
-- **Tailwind CSS:** Use Tailwind utility classes for styling. Avoid custom CSS unless absolutely necessary. Follow the existing design system and spacing conventions. Never use dynamic class interpolation (e.g. `col-span-${span}`); use a static class lookup map to ensure compatibility with Tailwind CSS v4 compilation.
-- **File Lines & Component Size:** Keep all files and components within the /src folder under **150 lines** where possible. If a component or file must exceed this limit, the agent **MUST halt execution and prompt the user** with a clear explanation of the reason and seek a manual exception/approval before proceeding.
-
-In the case of the `if/else` case, always include the bracket in all case.
-For a singular line of the `if` case, please include bracket as well. Snippet below
+Always use braces for `if` / `else`, including single-line bodies:
 
 ```typescript
 // no
@@ -39,32 +73,34 @@ if (value === 'new_line') return '\n';
 
 // yes
 if (value === 'new_line') {
-  return '\n';
+	return '\n';
 }
 ```
 
+## Commit Messages
 
-## PR instructions
+Follow [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/).
 
-All commit messages must follow the **[Conventional Commits specification](https://www.conventionalcommits.org/en/v1.0.0/)**.
+**Format:** `<type>([optional scope]): <description>`
 
-**Format**: `<type>([optional scope]): <description>`
+**Types:**
 
-**Types**: Use a standardized type:
+- `feature` — new capability
+- `fix` — bug fix
+- `docs` — documentation only (README, AGENTS, PLAN, etc.)
+- `style` — formatting-only changes that do not affect logic
+- `refactor` — neither fix nor feature
+- `perf` — performance improvement
+- `test` — add or correct tests
+- `chore` — tooling, deps, scripts
 
-- `feature`: A new feature (e.g., adding a new section/feature)
-- `fix`: A bug fix (e.g., correcting layout issue)
-- `docs`: Documentation only changes (e.g., adding documentation, updating a README, AGENTS, PLAN)
-- `style`: Changes that do not affect the code logic (e.g., formatting, semi-colons, adding spaces)
-- `refactor`: A code change that neither fixes a bug nor adds a feature
-- `perf`: A change that improves the performance (e.g., loading speed, render speed)
-- `test`: Adding missing tests or correcting existing tests
+**Scopes (optional):** Prefer domain areas such as `lunar-dates`, `ics`, `App`, `hooks`.
 
-Scopes (Optional): Use the feature name or file path for scope (e.g., feature(contact-form), fix(button))
-Breaking Changes: Must include `BREAKING CHANGE:` in the footer or append an exclamation mark (`!`) after the type/scope (e.g., `feature!:`).
+**Breaking changes:** Use `BREAKING CHANGE:` in the footer, or `!` after the type/scope (e.g. `feature!:`).
 
-**Example commit message**:
+**Examples:**
 
-- `feature: add project showcase section`
-- `fix(navigation): correct hide mobile menu after click`
-- `refactor(utils): convert all helper functions to arrow functions`
+- `feature(ics): add all-day lunar milestone calendar export`
+- `fix(lunar-dates): use UTC date parts for ICS DATE values`
+- `test(lunar-dates): cover leap-month 初一 notifications`
+- `docs: clarify AGENTS tooling and key paths`

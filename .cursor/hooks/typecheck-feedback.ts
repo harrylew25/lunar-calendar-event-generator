@@ -1,13 +1,14 @@
 #!/usr/bin/env bun
 /**
- * postToolUse (Write|StrReplace|EditNotebook): project tsc --noEmit feedback via additional_context.
+ * postToolUse only: mid-turn `tsc --noEmit` → additional_context.
+ * Not responsible for Biome (afterFileEdit) or tests (stop).
  */
 import {
 	combinedOutput,
 	emitJson,
 	isRelevantSourceFile,
 	readStdinJson,
-	runCommand,
+	runTypecheck,
 	truncateOutput,
 } from './lib.ts';
 
@@ -41,7 +42,7 @@ if (
 	process.exit(0);
 }
 
-const result = await runCommand(['bunx', 'tsc', '--noEmit']);
+const result = await runTypecheck();
 
 if (result.exitCode === 0) {
 	emitJson({});

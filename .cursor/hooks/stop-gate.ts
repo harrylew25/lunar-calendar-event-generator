@@ -1,12 +1,15 @@
 #!/usr/bin/env bun
 /**
- * stop: don't finish red — run tsc + bun run test; follow up on failure (loop_limit in hooks.json).
+ * stop only: final health gate (`tsc` + `bun run test`) → followup_message.
+ * Biome stays on afterFileEdit; mid-turn type hints stay on postToolUse.
+ * `tsc` here is intentional (don't finish red) even if postToolUse already ran it.
  */
 import {
 	combinedOutput,
 	emitJson,
 	readStdinJson,
-	runCommand,
+	runTests,
+	runTypecheck,
 	truncateOutput,
 } from './lib.ts';
 
@@ -22,8 +25,8 @@ if (input.status === 'aborted') {
 	process.exit(0);
 }
 
-const tscResult = await runCommand(['bunx', 'tsc', '--noEmit']);
-const testResult = await runCommand(['bun', 'run', 'test']);
+const tscResult = await runTypecheck();
+const testResult = await runTests();
 
 if (tscResult.exitCode === 0 && testResult.exitCode === 0) {
 	emitJson({});

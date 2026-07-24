@@ -72,3 +72,13 @@ export function combinedOutput(result: CommandResult): string {
 		})
 		.join('\n');
 }
+
+/** Shared by postToolUse (mid-turn feedback) and stop (final gate). */
+export async function runTypecheck(): Promise<CommandResult> {
+	return runCommand(['bunx', 'tsc', '--noEmit']);
+}
+
+/** Stop-gate only — not run on every edit. */
+export async function runTests(): Promise<CommandResult> {
+	return runCommand(['bun', 'run', 'test']);
+}

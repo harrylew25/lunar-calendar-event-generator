@@ -1,7 +1,7 @@
 #!/usr/bin/env bun
 /**
- * afterFileEdit / afterTabFileEdit: file-scoped Biome (lint + safe fixes + format + organize imports).
- * Fail open — never block the agent loop on Biome failures.
+ * afterFileEdit / afterTabFileEdit only: file-scoped Biome (lint + safe fixes + format + imports).
+ * Fail open. Do not run tsc or tests here — those belong to postToolUse / stop.
  */
 import {
 	emitJson,
