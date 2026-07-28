@@ -2,7 +2,7 @@
 title: README
 description: Lunar Calendar Event Generator — setup, scripts, and project overview.
 creation-time: 2026-07-24T19:45:00+08:00
-updated-time: 2026-07-24T19:45:00+08:00
+updated-time: 2026-07-27T15:30:00+08:00
 tags:
   - lunar-calendar
   - ics
@@ -65,4 +65,4 @@ test/                     # bun:test suites
 ## Notes
 
 - Tests pin `TZ=Asia/Kuala_Lumpur` so lunar/Gregorian conversions stay stable. Prefer `bun run test` over bare `bun test`.
-- Agent and coding conventions live in [`AGENTS.md`](AGENTS.md). Remaining product work is tracked in [`PLAN.md`](PLAN.md) (some items there may lag the current ICS UI).
+- Agent and coding conventions live in [`.cursor/rules/`](.cursor/rules/). Remaining product work is tracked in [`PLAN.md`](PLAN.md) (some items there may lag the current ICS UI).

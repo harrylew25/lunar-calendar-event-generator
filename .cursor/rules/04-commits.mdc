@@ -1,0 +1,36 @@
+---
+description: Conventional commit standards for git commits.
+alwaysApply: false
+---
+
+# Commit Message Standards
+
+Follow [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/).
+
+**Format:** `<type>([optional scope]): <description>`
+
+## Allowed Commit Types
+
+- `feature` — new capability
+- `fix` — bug fix
+- `docs` — documentation only (e.g. README, `.cursor/rules/`, `PLAN.md`)
+- `style` — formatting changes that do not affect logic
+- `refactor` — neither fix nor feature
+- `perf` — performance improvement
+- `test` — add or correct tests
+- `chore` — tooling, dependencies, build scripts
+
+## Scopes
+
+Prefer domain scopes: `lunar-dates`, `ics`, `App`, `hooks`, `ui`.
+
+## Breaking Changes
+
+Use `BREAKING CHANGE:` in the footer, or `!` after the type/scope (e.g. `feature!:`).
+
+## Examples
+
+- `feature(ics): add all-day lunar milestone calendar export`
+- `fix(lunar-dates): use UTC date parts for ICS DATE values`
+- `test(lunar-dates): cover leap-month 初一 notifications`
+- `docs: clarify cursor rules and file sizing caps`

@@ -1,0 +1,26 @@
+---
+description: Code sizing, KISS/DRY, file organization, colocation, and abstraction strategy.
+alwaysApply: false
+globs: src/**/*.{ts,tsx}
+---
+
+# Architectural & Sizing Principles
+
+## KISS & DRY
+
+- **KISS:** Keep functions and components small, focused, and easy to understand.
+- **DRY:** Extract shared logic into `src/lib/` (or focused modules under it), shared types, or reusable components — not a separate `src/utils/` tree.
+- **AHA over premature extraction:** Do not extract on first or second use; prefer inline code until logic is duplicated in 3+ distinct places.
+
+## File Length
+
+- **Target:** 150–200 lines per file for cohesion and editability.
+- **Hard cap:** 250 lines — enforced by Biome `noExcessiveLinesPerFile` in `biome.json`.
+- **Refactoring:** When a file approaches 200 lines, split along domain boundaries. Only skip splitting for auto-generated files or irreducible state machines.
+
+## Colocation
+
+- Do not split into artificial micro-files (`Component.types.ts`, `Component.hooks.ts`) prematurely.
+- Keep local state, UI types, and helpers in the primary `.tsx` until it outgrows the 200-line target.
+- Place generic helpers in `src/lib/` or shared UI in `src/components/ui/`.
+- Group feature logic, domain functions, and hooks near the components that consume them.

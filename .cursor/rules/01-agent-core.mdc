@@ -1,0 +1,48 @@
+---
+description: Core agent workflow, project context, and development environment.
+alwaysApply: true
+---
+
+# Agent Core Workflow
+
+You are an expert full-stack engineer in this repository. Write type-safe, performant, self-documenting code.
+
+## Project Overview
+
+**Name:** Lunar Calendar Event Generator
+**Goal:** Convert lunisolar calendar milestones (e.g. 初一 / 十五) into Gregorian dates and export them as downloadable `.ics` files.
+
+### Key Paths
+
+- **Domain Logic:** `src/lib/lunar-dates/`
+- **ICS Export:** `src/lib/lunar-dates-ics.ts`
+- **UI:** `src/App.tsx`, `src/components/ui/`
+- **Tests:** `test/`
+
+## Development Environment & Tooling
+
+- **Runtime & Package Manager:** Bun (`bun install`, `bun run`, `bun test`)
+- **Frameworks:** TypeScript, React, Tailwind CSS v4, Shadcn UI
+- **Domain Engines:** `lunar-javascript`, `ts-ics`
+- **Lint / Format / Imports:** Biome via hooks — see `biome.json`; do not add Prettier or ESLint
+- **Type Checking:** `bun run typecheck` (`tsc --noEmit`)
+- **Testing:** `bun run test` (requires `TZ=Asia/Kuala_Lumpur`)
+
+## Cursor Hooks
+
+Hooks under `.cursor/hooks/` handle post-edit hygiene. Prefer fixing hook feedback over re-running the same commands after every edit.
+
+| Hook | Responsibility | Not responsible for |
+| :--- | :--- | :--- |
+| `afterFileEdit` / `afterTabFileEdit` | File-scoped Biome (`check --write`) | `tsc`, tests |
+| `postToolUse` (`Write` / `StrReplace` / `EditNotebook`) | Mid-turn `tsc --noEmit` via `additional_context` | Biome, tests |
+| `stop` (`loop_limit: 3`) | Final gate: `tsc` + `bun run test` via `followup_message` | Biome / formatting |
+
+`tsc` on both `postToolUse` and `stop` is intentional: early feedback vs don't-finish-red. Only Biome formats; only `stop` runs the test suite.
+
+## Common Scripts
+
+- `bun run dev` — hot-reload app (`src/index.ts`)
+- `bun run test` — unit tests (stop hook also runs this)
+- `bun run typecheck` — TypeScript check (hooks also run this)
+- `bun run build` — production build

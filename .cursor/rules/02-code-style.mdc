@@ -1,0 +1,26 @@
+---
+description: TypeScript typing standards and Tailwind conventions not covered by Biome.
+alwaysApply: false
+globs: src/**/*.{ts,tsx},test/**/*.{ts,tsx}
+---
+
+# Code Style & TypeScript Standards
+
+Formatting, lint, import order, block statements, and naming conventions are enforced by Biome (`biome.json`) via hooks. Do not make manual formatting-only edits.
+
+## TypeScript Standards
+
+- **Explicit annotations:** Return types and parameter types on functions.
+- **Strict typing:** Never use `any`; use `unknown` when the type is not known.
+
+## Tailwind CSS v4
+
+- Prefer utility classes; avoid custom CSS unless necessary.
+- No dynamic class interpolation (e.g. `col-span-${span}`). Use a static lookup map:
+
+```typescript
+const spanClasses: Record<number, string> = {
+	1: 'col-span-1',
+	2: 'col-span-2',
+};
+```
