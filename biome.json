@@ -6,7 +6,7 @@
 		"useIgnoreFile": true
 	},
 	"files": {
-		"ignoreUnknown": false
+		"ignoreUnknown": true
 	},
 	"formatter": {
 		"enabled": true,
@@ -15,19 +15,43 @@
 	"linter": {
 		"enabled": true,
 		"rules": {
-			"preset": "recommended"
+			"preset": "recommended",
+			"style": {
+				"useBlockStatements": "error",
+				"useNamingConvention": {
+					"level": "error",
+					"options": {
+						"strictCase": false,
+						"conventions": [
+							{
+								"selector": {
+									"kind": "const"
+								},
+								"formats": ["camelCase", "PascalCase", "CONSTANT_CASE"]
+							}
+						]
+					}
+				},
+				"noExcessiveLinesPerFile": {
+					"level": "error",
+					"options": {
+						"maxLines": 250,
+						"skipBlankLines": true
+					}
+				}
+			}
 		}
 	},
 	"javascript": {
 		"formatter": {
 			"quoteStyle": "single",
+			"jsxQuoteStyle": "double",
+			"semicolons": "always",
 			"arrowParentheses": "always",
 			"bracketSameLine": true,
 			"bracketSpacing": true,
-			"jsxQuoteStyle": "double",
-			"semicolons": "always",
 			"trailingCommas": "all"
-		}	
+		}
 	},
 	"assist": {
 		"enabled": true,
@@ -36,5 +60,17 @@
 				"organizeImports": "on"
 			}
 		}
-	}
+	},
+	"overrides": [
+		{
+			"includes": ["**/*.d.ts"],
+			"linter": {
+				"rules": {
+					"style": {
+						"noExcessiveLinesPerFile": "off"
+					}
+				}
+			}
+		}
+	]
 }
