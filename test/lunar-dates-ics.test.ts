@@ -1,16 +1,13 @@
 import { describe, expect, test } from 'bun:test';
-import {
-	generateLunarCalendarIcs,
-	notificationToIcsEvent,
-} from '@lib/ics/index';
-import { getLunarDateNotifications } from '@lunar-dates/index';
+import { generateLunarCalendarIcs, notificationToIcsEvent } from '@ics';
+import { getLunarDateNotifications } from '@lunar-dates';
 import type {
 	GregorianDateParts,
 	LunarDateNotification,
 } from '@lunar-dates/lunar-dates.type';
+import { subtractCalendarDays } from '@test/helpers/ics-oracle';
+import { expectedChuyiSolarParts } from '@test/helpers/lunar-oracle';
 import { generateIcsEvent } from 'ts-ics';
-import { subtractCalendarDays } from './helpers/ics-oracle';
-import { expectedChuyiSolarParts } from './helpers/lunar-oracle';
 
 const padYmd = ([year, month, day]: GregorianDateParts): string => {
 	return `${year}${String(month).padStart(2, '0')}${String(day).padStart(2, '0')}`;

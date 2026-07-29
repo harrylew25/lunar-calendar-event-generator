@@ -25,7 +25,11 @@
     "paths": {
       "@/*": ["./src/*"],
       "@lib/*": ["./src/lib/*"],
-      "@lunar-dates/*": ["./src/lib/lunar-dates/*"]
+      "@lunar-dates": ["./src/lib/lunar-dates/index.ts"],
+      "@lunar-dates/*": ["./src/lib/lunar-dates/*"],
+      "@ics": ["./src/lib/ics/index.ts"],
+      "@ics/*": ["./src/lib/ics/*"],
+      "@test/helpers/*": ["./test/helpers/*"]
     },
 
     // Some stricter flags (disabled by default)

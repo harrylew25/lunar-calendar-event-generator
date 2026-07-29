@@ -14,8 +14,8 @@ You are an expert full-stack engineer in this repository. Write type-safe, perfo
 
 ### Key Paths
 
-- **Domain Logic:** `src/lib/lunar-dates/`
-- **ICS Export:** `src/lib/lunar-dates-ics.ts`
+- **Domain Logic:** `src/lib/lunar-dates/` (`conversion.ts`, `milestones.ts`, `custom-dates.ts`)
+- **ICS Export:** `src/lib/ics/`
 - **UI:** `src/App.tsx`, `src/components/ui/`
 - **Tests:** `test/`
 

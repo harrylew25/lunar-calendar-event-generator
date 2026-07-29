@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'bun:test';
-import { getLunarDateNotifications } from '@lunar-dates/index';
+import { getLunarDateNotifications } from '@lunar-dates';
 import type {
 	CustomDateInput,
 	GregorianDateParts,
@@ -9,7 +9,7 @@ import type {
 import {
 	expectedChuyiSolarParts,
 	expectedGregorianPartsFromLunar,
-} from './helpers/lunar-oracle';
+} from '@test/helpers/lunar-oracle';
 
 type SolarAnchor = Pick<
 	SolarCustomDateInput,

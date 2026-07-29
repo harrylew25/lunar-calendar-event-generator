@@ -4,7 +4,7 @@ import {
 	getLunarDateNotifications,
 	type LunarDateNotification,
 	resolveLunarStartFromSolarMonth,
-} from '@lunar-dates/index';
+} from '@lunar-dates';
 import {
 	daysBetweenSolarParts,
 	expectedChuyiSolarParts,

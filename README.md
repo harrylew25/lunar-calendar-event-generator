@@ -2,7 +2,7 @@
 title: README
 description: Lunar Calendar Event Generator — setup, scripts, and project overview.
 creation-time: 2026-07-24T19:45:00+08:00
-updated-time: 2026-07-27T15:30:00+08:00
+updated-time: 2026-07-29T16:30:00+08:00
 tags:
   - lunar-calendar
   - ics
@@ -56,11 +56,17 @@ Open the URL printed by `bun run dev`, then use **Download ICS File** to save th
 ```text
 src/
   App.tsx                 # UI + ICS download
-  lib/lunar-dates/        # lunisolar notification engine
-  lib/lunar-dates-ics.ts  # notifications → .ics string
+  lib/
+    lunar-dates/          # lunisolar notification engine
+      conversion.ts       # solar/lunar conversion
+      milestones.ts       # chuyi/shiwu generation
+      custom-dates.ts     # personal custom dates
+    ics/                  # notifications → .ics string
   components/ui/          # Shadcn components
 test/                     # bun:test suites
 ```
+
+Import aliases: `@lunar-dates`, `@lunar-dates/*`, `@ics`, `@ics/*`.
 
 ## Notes
 

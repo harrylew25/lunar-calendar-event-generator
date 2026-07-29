@@ -1,6 +1,6 @@
+import { generateLunarCalendarIcs } from '@ics';
+import { getLunarDateNotifications } from '@lunar-dates';
 import { Button } from './components/ui/button';
-import { generateLunarCalendarIcs } from './lib/ics/index';
-import { getLunarDateNotifications } from './lib/lunar-dates/index';
 import './index.css';
 
 const lunarDatesNotifications = getLunarDateNotifications({
