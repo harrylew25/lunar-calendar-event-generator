@@ -1,16 +1,16 @@
 import { describe, expect, test } from 'bun:test';
-import { LunarYear, Solar } from 'lunar-javascript';
 import {
 	getFirstAndFifteenDay,
 	getLunarDateNotifications,
-	resolveLunarStartFromSolarMonth,
 	type LunarDateNotification,
-} from '@lunar-dates/lunar-dates';
+	resolveLunarStartFromSolarMonth,
+} from '@lunar-dates/index';
 import {
 	daysBetweenSolarParts,
 	expectedChuyiSolarParts,
 	expectedLunarStartFromSolarMonth,
-} from './helpers/lunar-oracle';
+} from '@test/helpers/lunar-oracle';
+import { LunarYear, Solar } from 'lunar-javascript';
 
 describe('resolveLunarStartFromSolarMonth', () => {
 	test('converts mid-year solar month using day 1 anchor', () => {
@@ -142,13 +142,13 @@ describe('getFirstAndFifteenDay', () => {
 });
 
 describe('notification contract', () => {
-	const isLunarDateNotification = (
-		value: LunarDateNotification,
-	): boolean => {
+	const isLunarDateNotification = (value: LunarDateNotification): boolean => {
 		return (
 			Array.isArray(value.date) &&
 			value.date.length === 3 &&
-			(value.type === 'chuyi' || value.type === 'shiwu') &&
+			(value.type === 'chuyi' ||
+				value.type === 'shiwu' ||
+				value.type === 'custom') &&
 			typeof value.title === 'string' &&
 			typeof value.summary === 'string' &&
 			typeof value.description === 'string'
@@ -181,6 +181,8 @@ describe('notification contract', () => {
 
 describe('lunar-javascript smoke', () => {
 	test('library reference date from README', () => {
-		expect(Solar.fromYmd(1986, 5, 29).getLunar().getDayInChinese()).toBe('廿一');
+		expect(Solar.fromYmd(1986, 5, 29).getLunar().getDayInChinese()).toBe(
+			'廿一',
+		);
 	});
 });

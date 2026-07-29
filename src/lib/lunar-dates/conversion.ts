@@ -1,6 +1,18 @@
-import { CALENDAR_DEFAULTS, SOLAR_MONTH } from '@lunar-dates/constants';
-import type { LunarStart, SolarStartInput } from '@lunar-dates/lunar-dates.type';
-import { Solar } from 'lunar-javascript';
+import { LunarMonth, Solar } from 'lunar-javascript';
+import {
+	CALENDAR_DEFAULTS,
+	LUNAR_MILESTONE_DAYS,
+	SOLAR_MONTH,
+} from './constants';
+import type {
+	GregorianDateParts,
+	LunarMonthInstance,
+	LunarStart,
+	SolarStartInput,
+} from './lunar-dates.type';
+
+const SHIWU_DAY_OFFSET =
+	LUNAR_MILESTONE_DAYS.shiwu - LUNAR_MILESTONE_DAYS.chuyi;
 
 const validateSolarMonth = (solarMonth: number): void => {
 	if (solarMonth < SOLAR_MONTH.min || solarMonth > SOLAR_MONTH.max) {
@@ -27,7 +39,9 @@ const resolveLunarStartFromSolarMonth = (
 	};
 };
 
-const isSolarStartMode = (options: SolarStartInput & Partial<LunarStart>): boolean => {
+const isSolarStartMode = (
+	options: SolarStartInput & Partial<LunarStart>,
+): boolean => {
 	const hasSolarInput =
 		options.startSolarYear !== undefined ||
 		options.startSolarMonth !== undefined;
@@ -53,8 +67,36 @@ const resolveStartFromOptions = (
 	};
 };
 
+const solarToDateParts = (solar: Solar): GregorianDateParts => {
+	return [solar.getYear(), solar.getMonth(), solar.getDay()];
+};
+
+const getChuyiShiwuFromLunarMonth = (
+	lunarMonth: LunarMonthInstance,
+): [GregorianDateParts, GregorianDateParts] => {
+	const chuyi = Solar.fromJulianDay(lunarMonth.getFirstJulianDay());
+	const shiwu = chuyi.next(SHIWU_DAY_OFFSET);
+
+	return [solarToDateParts(chuyi), solarToDateParts(shiwu)];
+};
+
+const getFirstAndFifteenDay = (
+	year: number,
+	lunarMonth: number,
+): [GregorianDateParts, GregorianDateParts] | null => {
+	const month = LunarMonth.fromYm(year, lunarMonth);
+	if (!month) {
+		return null;
+	}
+
+	return getChuyiShiwuFromLunarMonth(month);
+};
+
 export {
+	getChuyiShiwuFromLunarMonth,
+	getFirstAndFifteenDay,
 	resolveLunarStartFromSolarMonth,
 	resolveStartFromOptions,
-	validateSolarMonth
+	solarToDateParts,
+	validateSolarMonth,
 };

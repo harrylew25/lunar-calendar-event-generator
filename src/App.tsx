@@ -1,19 +1,40 @@
-import { getLunarDateNotifications } from '@lib/lunar-dates/lunar-dates';
 import { Button } from './components/ui/button';
-import './index.css';
+import { getLunarDateNotifications } from './lib/lunar-dates/index';
 import { generateLunarCalendarIcs } from './lib/lunar-dates-ics';
+import './index.css';
 
 const lunarDatesNotifications = getLunarDateNotifications({
 	startSolarYear: 2026,
 	startSolarMonth: 6,
-	numberOfYears: 5,
+	numberOfYears: 2,
+	customDates: [
+		{
+			kind: 'lunar',
+			lunarMonth: 1,
+			lunarDay: 15,
+			title: '正月十五 (from lunar)',
+			description: '农历正月十五',
+		},
+		{
+			kind: 'lunar',
+			lunarMonth: 5,
+			lunarDay: 5,
+			title: '五月初五 (from lunar)',
+			description: '农历五月初五',
+		},
+		{
+			kind: 'lunar',
+			lunarMonth: 9,
+			lunarDay: 9,
+			title: '九月初九 (from lunar)',
+			description: '农历九月初九',
+		},
+	],
 });
 
 const icsFile = generateLunarCalendarIcs(lunarDatesNotifications);
 
-
 export function App() {
-
 	const onClick = (): void => {
 		const blob = new Blob([icsFile], { type: 'text/calendar;charset=utf-8' });
 		const url = URL.createObjectURL(blob);
@@ -27,9 +48,7 @@ export function App() {
 	return (
 		<div>
 			<h1>Hello Bun App</h1>
-			<Button onClick={onClick}>
-				Download ICS File
-			</Button>
+			<Button onClick={onClick}>Download ICS File</Button>
 		</div>
 	);
 }

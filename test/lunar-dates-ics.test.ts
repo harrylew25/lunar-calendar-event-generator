@@ -1,10 +1,13 @@
-import { generateLunarCalendarIcs, notificationToIcsEvent } from '@lib/lunar-dates-ics';
-import { getLunarDateNotifications } from '@lunar-dates/lunar-dates';
+import { describe, expect, test } from 'bun:test';
+import {
+	generateLunarCalendarIcs,
+	notificationToIcsEvent,
+} from '@lib/lunar-dates-ics';
+import { getLunarDateNotifications } from '@lunar-dates/index';
 import type {
 	GregorianDateParts,
 	LunarDateNotification,
 } from '@lunar-dates/lunar-dates.type';
-import { describe, expect, test } from 'bun:test';
 import { generateIcsEvent } from 'ts-ics';
 import { expectedChuyiSolarParts } from './helpers/lunar-oracle';
 
@@ -40,7 +43,9 @@ describe('notificationToIcsEvent — Gregorian DTSTART', () => {
 		const event = notificationToIcsEvent(notification);
 		const icsEventString = generateIcsEvent(event);
 
-		expect(icsEventString).toContain(`DTSTART;VALUE=DATE:${padYmd(oracleDate)}`);
+		expect(icsEventString).toContain(
+			`DTSTART;VALUE=DATE:${padYmd(oracleDate)}`,
+		);
 		expect(icsEventString).not.toContain('T000000');
 	});
 });
