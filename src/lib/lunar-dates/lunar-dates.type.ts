@@ -74,10 +74,6 @@ type LunarDateNotificationsOptions = SolarStartInput &
 		customDates?: CustomDateInput[];
 	};
 
-type GenerateLunarCalendarIcsOptions = {
-	calendarName?: string;
-};
-
 type MonthRule = (typeof monthRules)[number];
 
 type LunarMonthInstance = NonNullable<ReturnType<typeof LunarMonth.fromYm>>;
@@ -87,7 +83,6 @@ type MonthsInYear = ReturnType<LunarYear['getMonthsInYear']>;
 export type {
 	CustomDateInput,
 	CustomYearRange,
-	GenerateLunarCalendarIcsOptions,
 	GregorianDateParts,
 	IcsEventOverrides,
 	IcsEventVisibility,
