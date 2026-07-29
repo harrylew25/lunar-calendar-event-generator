@@ -1,12 +1,13 @@
-import { generateLunarCalendarIcs, notificationToIcsEvent } from '@lib/lunar-dates-ics';
-import { getLunarDateNotifications } from '@lunar-dates/lunar-dates';
+import { describe, expect, test } from 'bun:test';
+import { generateLunarCalendarIcs, notificationToIcsEvent } from '@ics';
+import { getLunarDateNotifications } from '@lunar-dates';
 import type {
 	GregorianDateParts,
 	LunarDateNotification,
 } from '@lunar-dates/lunar-dates.type';
-import { describe, expect, test } from 'bun:test';
+import { subtractCalendarDays } from '@test/helpers/ics-oracle';
+import { expectedChuyiSolarParts } from '@test/helpers/lunar-oracle';
 import { generateIcsEvent } from 'ts-ics';
-import { expectedChuyiSolarParts } from './helpers/lunar-oracle';
 
 const padYmd = ([year, month, day]: GregorianDateParts): string => {
 	return `${year}${String(month).padStart(2, '0')}${String(day).padStart(2, '0')}`;
@@ -40,7 +41,9 @@ describe('notificationToIcsEvent — Gregorian DTSTART', () => {
 		const event = notificationToIcsEvent(notification);
 		const icsEventString = generateIcsEvent(event);
 
-		expect(icsEventString).toContain(`DTSTART;VALUE=DATE:${padYmd(oracleDate)}`);
+		expect(icsEventString).toContain(
+			`DTSTART;VALUE=DATE:${padYmd(oracleDate)}`,
+		);
 		expect(icsEventString).not.toContain('T000000');
 	});
 });
@@ -87,6 +90,88 @@ describe('notificationToIcsEvent — deterministic UID', () => {
 			'lunar-chuyi-2020-4-23@lunar-calendar-event-generator',
 		);
 		expect(second.uid).toBe(first.uid);
+	});
+
+	test('two custom events on same day with different titles get distinct UIDs', () => {
+		const date: LunarDateNotification['date'] = [2020, 10, 1];
+		const notifications: LunarDateNotification[] = [
+			{
+				date,
+				type: 'custom',
+				title: 'Event Alpha',
+				summary: 'Event Alpha',
+				description: '',
+			},
+			{
+				date,
+				type: 'custom',
+				title: 'Event Beta',
+				summary: 'Event Beta',
+				description: '',
+			},
+		];
+		const uids = notifications.map(
+			(notification) => notificationToIcsEvent(notification).uid,
+		);
+
+		expect(new Set(uids).size).toBe(2);
+	});
+});
+
+describe('notificationToIcsEvent — default event attributes', () => {
+	test('includes VALARM one day before at 9:00 AM Kuala Lumpur', () => {
+		const eventDate: GregorianDateParts = [2020, 4, 23];
+		const notification = chuyiNotification(eventDate);
+		const icsEventString = generateIcsEvent(
+			notificationToIcsEvent(notification),
+		);
+		const alarmDate = subtractCalendarDays(eventDate, 1);
+
+		expect(icsEventString).toContain('BEGIN:VALARM');
+		expect(icsEventString).toContain('ACTION:DISPLAY');
+		expect(icsEventString).toContain(`TRIGGER:${padYmd(alarmDate)}T010000Z`);
+	});
+
+	test('sets TRANSPARENT and PUBLIC by default', () => {
+		const notification = chuyiNotification([2020, 4, 23]);
+		const icsEventString = generateIcsEvent(
+			notificationToIcsEvent(notification),
+		);
+
+		expect(icsEventString).toContain('TRANSP:TRANSPARENT');
+		expect(icsEventString).toContain('CLASS:PUBLIC');
+	});
+
+	test('omits RRULE and LOCATION by default', () => {
+		const notification = chuyiNotification([2020, 4, 23]);
+		const icsEventString = generateIcsEvent(
+			notificationToIcsEvent(notification),
+		);
+
+		expect(icsEventString).not.toContain('RRULE:');
+		expect(icsEventString).not.toContain('LOCATION:');
+	});
+
+	test('applies custom location and alarmDaysBefore overrides', () => {
+		const eventDate: GregorianDateParts = [2020, 10, 1];
+		const notification: LunarDateNotification = {
+			date: eventDate,
+			type: 'custom',
+			title: 'Temple visit',
+			summary: 'Temple visit',
+			description: '',
+			icsOverrides: {
+				location: 'Temple',
+				alarmDaysBefore: 2,
+			},
+		};
+		const icsEventString = generateIcsEvent(
+			notificationToIcsEvent(notification),
+		);
+		const alarmDate = subtractCalendarDays(eventDate, 2);
+
+		expect(icsEventString).toContain('LOCATION:Temple');
+		expect(icsEventString).toContain(`TRIGGER:${padYmd(alarmDate)}T010000Z`);
 	});
 });
 
@@ -151,5 +236,25 @@ describe('generateLunarCalendarIcs — integration', () => {
 
 		expect(ics).toContain(`DTSTART;VALUE=DATE:${startYmd}`);
 		expect(ics).toContain(`DTEND;VALUE=DATE:${endYmd}`);
+	});
+
+	test('includes VALARM on auto and custom events end-to-end', () => {
+		const notifications = getLunarDateNotifications({
+			startYear: 2020,
+			startMonth: 4,
+			numberOfYears: 0,
+			customDates: [
+				{
+					kind: 'lunar',
+					lunarMonth: 1,
+					lunarDay: 15,
+					title: '正月十五',
+				},
+			],
+		});
+		const ics = generateLunarCalendarIcs(notifications);
+		const alarmCount = (ics.match(/BEGIN:VALARM/g) ?? []).length;
+
+		expect(alarmCount).toBe(notifications.length);
 	});
 });

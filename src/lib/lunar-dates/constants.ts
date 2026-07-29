@@ -46,12 +46,4 @@ const LUNAR_MILESTONE_DAYS = {
 	shiwu: 15,
 } as const;
 
-const DEFAULT_CALENDAR_NAME = 'Lunar 1st & 15th Milestones';
-
-export {
-	CALENDAR_DEFAULTS,
-	DEFAULT_CALENDAR_NAME,
-	LUNAR_MILESTONE_DAYS,
-	monthRules,
-	SOLAR_MONTH,
-};
+export { CALENDAR_DEFAULTS, LUNAR_MILESTONE_DAYS, monthRules, SOLAR_MONTH };
