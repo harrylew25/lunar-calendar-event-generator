@@ -92,11 +92,16 @@ const getFirstAndFifteenDay = (
 	return getChuyiShiwuFromLunarMonth(month);
 };
 
+const resolveStartLunarYearFromGregorian = (gregorianYear: number): number => {
+	return Solar.fromYmd(gregorianYear, 1, 1).getLunar().getYear();
+};
+
 export {
 	getChuyiShiwuFromLunarMonth,
 	getFirstAndFifteenDay,
 	resolveLunarStartFromSolarMonth,
 	resolveStartFromOptions,
+	resolveStartLunarYearFromGregorian,
 	solarToDateParts,
 	validateSolarMonth,
 };
