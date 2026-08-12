@@ -1,56 +1,29 @@
-import { generateLunarCalendarIcs } from '@ics';
-import { getLunarDateNotifications } from '@lunar-dates';
-import { Button } from './components/ui/button';
+import { CartStep } from '@/components/steps/CartStep';
+import { DateSelectionStep } from '@/components/steps/DateSelectionStep';
+import { PreviewStep } from '@/components/steps/PreviewStep';
+import { useCalendarStore } from '@/store/calendar-store';
 import './index.css';
 
-const lunarDatesNotifications = getLunarDateNotifications({
-	startSolarYear: 2026,
-	startSolarMonth: 6,
-	numberOfYears: 2,
-	customDates: [
-		{
-			kind: 'lunar',
-			lunarMonth: 1,
-			lunarDay: 15,
-			title: '正月十五 (from lunar)',
-			description: '农历正月十五',
-		},
-		{
-			kind: 'lunar',
-			lunarMonth: 5,
-			lunarDay: 5,
-			title: '五月初五 (from lunar)',
-			description: '农历五月初五',
-		},
-		{
-			kind: 'lunar',
-			lunarMonth: 9,
-			lunarDay: 9,
-			title: '九月初九 (from lunar)',
-			description: '农历九月初九',
-		},
-	],
-});
-
-const icsFile = generateLunarCalendarIcs(lunarDatesNotifications);
-
-export function App() {
-	const onClick = (): void => {
-		const blob = new Blob([icsFile], { type: 'text/calendar;charset=utf-8' });
-		const url = URL.createObjectURL(blob);
-		const link = document.createElement('a');
-		link.href = url;
-		link.download = 'lunar-calendar.ics';
-		link.click();
-		URL.revokeObjectURL(url);
-	};
+const App = () => {
+	const step = useCalendarStore((state) => state.step);
 
 	return (
-		<div>
-			<h1>Hello Bun App</h1>
-			<Button onClick={onClick}>Download ICS File</Button>
-		</div>
+		<main className="min-h-screen bg-background px-4 py-10 text-foreground">
+			<div className="mx-auto mb-8 max-w-6xl">
+				<h1 className="text-3xl font-bold tracking-tight">
+					Lunar Calendar Event Generator
+				</h1>
+				<p className="text-muted-foreground mt-2">
+					Build custom lunar recurrence rules and export them as an ICS
+					calendar.
+				</p>
+			</div>
+
+			{step === 'select' && <DateSelectionStep />}
+			{step === 'cart' && <CartStep />}
+			{step === 'preview' && <PreviewStep />}
+		</main>
 	);
-}
+};
 
 export default App;
