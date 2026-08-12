@@ -164,7 +164,7 @@ const DateSelectionStep = () => {
 						<Label htmlFor="solar-date">Solar date</Label>
 						<Input
 							id="solar-date"
-							type="date"
+							placeholder="YYYY-MM-DD"
 							value={solarDate}
 							onChange={(event) => setSolarDate(event.target.value)}
 						/>
