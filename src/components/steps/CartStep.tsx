@@ -17,6 +17,7 @@ const CartStep = () => {
 	const setStep = useCalendarStore((state) => state.setStep);
 	const setLoopYears = useCalendarStore((state) => state.setLoopYears);
 	const confirmAndExpand = useCalendarStore((state) => state.confirmAndExpand);
+	const clearAll = useCalendarStore((state) => state.clearAll);
 
 	return (
 		<div className="mx-auto flex w-full max-w-3xl flex-col gap-8">
@@ -68,6 +69,13 @@ const CartStep = () => {
 					onClick={confirmAndExpand}
 					disabled={cart.length === 0}>
 					Confirm & preview
+				</Button>
+				<Button
+					type="button" 
+					variant="destructive" 
+					onClick={clearAll}
+					disabled={cart.length === 0}>
+					Clear all
 				</Button>
 			</div>
 		</div>

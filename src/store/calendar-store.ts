@@ -31,6 +31,7 @@ type CalendarStore = {
 	updateItem: (id: string, patch: Partial<CartItemInput>) => void;
 	removeItem: (id: string) => void;
 	confirmAndExpand: () => void;
+	clearAll: () => void;
 };
 
 const DEFAULT_LOOP_YEARS = 100;
@@ -108,6 +109,10 @@ const useCalendarStore = create<CalendarStore>((set, get) => ({
 		);
 
 		set({ expandedEvents, step: 'preview' });
+	},
+
+	clearAll: () => {
+		set({ cart: [], expandedEvents: null });
 	},
 }));
 
