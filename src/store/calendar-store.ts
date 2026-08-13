@@ -22,11 +22,13 @@ type CartItemInput = Omit<CartItem, 'id'>;
 type CalendarStore = {
 	step: WizardStep;
 	loopYears: number;
+	startYear: number;
 	cart: CartItem[];
 	expandedEvents: LunarDateNotification[] | null;
 
 	setStep: (step: WizardStep) => void;
 	setLoopYears: (loopYears: number) => void;
+	setStartYear: (startYear: number) => void;
 	addItem: (item: CartItemInput) => void;
 	updateItem: (id: string, patch: Partial<CartItemInput>) => void;
 	removeItem: (id: string) => void;
@@ -54,12 +56,13 @@ const toCustomDateInput = (item: CartItem): LunarCustomDateInput => ({
 
 const useCalendarStore = create<CalendarStore>((set, get) => ({
 	step: 'select',
+	startYear: new Date().getFullYear(),
 	loopYears: DEFAULT_LOOP_YEARS,
 	cart: [],
 	expandedEvents: null,
 
 	setStep: (step) => set({ step }),
-
+	setStartYear: (startYear) => set({ startYear }),
 	setLoopYears: (loopYears) => set({ loopYears }),
 
 	addItem: (item) => {
@@ -95,17 +98,16 @@ const useCalendarStore = create<CalendarStore>((set, get) => ({
 	},
 
 	confirmAndExpand: () => {
-		const { cart, loopYears } = get();
+		const { cart, loopYears, startYear } = get();
 		if (cart.length === 0) {
 			return;
 		}
-
-		const startYear = resolveStartLunarYearFromGregorian(
-			new Date().getFullYear(),
+		const resolvedStartYear = resolveStartLunarYearFromGregorian(
+			startYear,
 		);
 		const expandedEvents = collectCustomNotifications(
 			cart.map(toCustomDateInput),
-			{ startYear, numberOfYears: loopYears },
+			{ startYear: resolvedStartYear, numberOfYears: loopYears },
 		);
 
 		set({ expandedEvents, step: 'preview' });
