@@ -17,12 +17,22 @@ import {
 } from '@/lib/wizard/constants';
 import { useCalendarStore } from '@/store/calendar-store';
 
+const DEFAULT_START_YEAR = 2020;
+const currentYear = new Date().getFullYear();
+const YEARS_OPTIONS = Array.from(
+	{ length: currentYear - DEFAULT_START_YEAR + 1 },
+	(_, index) => index + DEFAULT_START_YEAR
+);
+
+
 const DateSelectionStep = () => {
 	const cart = useCalendarStore((state) => state.cart);
 	const loopYears = useCalendarStore((state) => state.loopYears);
+	const startYear = useCalendarStore((state) => state.startYear);
 	const addItem = useCalendarStore((state) => state.addItem);
 	const setStep = useCalendarStore((state) => state.setStep);
 	const setLoopYears = useCalendarStore((state) => state.setLoopYears);
+	const setStartYear = useCalendarStore((state) => state.setStartYear);
 
 	const [lunarMonth, setLunarMonth] = useState('1');
 	const [lunarDay, setLunarDay] = useState('1');
@@ -80,6 +90,24 @@ const DateSelectionStep = () => {
 					Add lunar recurrence rules to your cart, then review before generating
 					the calendar.
 				</p>
+			</div>
+
+			<div className="space-y-2">
+				<Label htmlFor="start-year">Start year</Label>
+				<Select
+					value={String(startYear)}
+					onValueChange={(value) => setStartYear(Number(value))}>
+					<SelectTrigger id="start-year" className="w-full max-w-xs">
+						<SelectValue />
+					</SelectTrigger>
+					<SelectContent>
+						{YEARS_OPTIONS.map((years) => (
+							<SelectItem key={years} value={String(years)}>
+								{years}
+							</SelectItem>
+						))}
+					</SelectContent>
+				</Select>
 			</div>
 
 			<div className="space-y-2">
