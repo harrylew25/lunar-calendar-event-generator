@@ -1,21 +1,12 @@
-import { CartItemRow } from '@/components/cart/CartItemRow';
+import CartItemRow from '@/components/cart/CartItemRow';
 import { Button } from '@/components/ui/button';
-import { Label } from '@/components/ui/label';
-import {
-	Select,
-	SelectContent,
-	SelectItem,
-	SelectTrigger,
-	SelectValue,
-} from '@/components/ui/select';
-import { LOOP_YEAR_PRESETS } from '@/lib/wizard/constants';
 import { useCalendarStore } from '@/store/calendar-store';
 
 const CartStep = () => {
 	const cart = useCalendarStore((state) => state.cart);
+	const startYear = useCalendarStore((state) => state.startYear);
 	const loopYears = useCalendarStore((state) => state.loopYears);
 	const setStep = useCalendarStore((state) => state.setStep);
-	const setLoopYears = useCalendarStore((state) => state.setLoopYears);
 	const confirmAndExpand = useCalendarStore((state) => state.confirmAndExpand);
 	const clearAll = useCalendarStore((state) => state.clearAll);
 
@@ -28,23 +19,9 @@ const CartStep = () => {
 					{loopYears + 1} lunar years.
 				</p>
 			</div>
-
 			<div className="space-y-2">
-				<Label htmlFor="cart-loop-years">Loop years</Label>
-				<Select
-					value={String(loopYears)}
-					onValueChange={(value) => setLoopYears(Number(value))}>
-					<SelectTrigger id="cart-loop-years" className="w-full max-w-xs">
-						<SelectValue />
-					</SelectTrigger>
-					<SelectContent>
-						{LOOP_YEAR_PRESETS.map((years) => (
-							<SelectItem key={years} value={String(years)}>
-								{years} years ({years + 1} occurrences)
-							</SelectItem>
-						))}
-					</SelectContent>
-				</Select>
+				<h2>Loop years: {loopYears} years</h2>
+				<h2>Start year: {startYear}</h2>
 			</div>
 
 			<div className="flex flex-col gap-4">
@@ -71,8 +48,8 @@ const CartStep = () => {
 					Confirm & preview
 				</Button>
 				<Button
-					type="button" 
-					variant="destructive" 
+					type="button"
+					variant="destructive"
 					onClick={clearAll}
 					disabled={cart.length === 0}>
 					Clear all
