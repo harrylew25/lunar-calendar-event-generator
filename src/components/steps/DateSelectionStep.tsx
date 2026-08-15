@@ -183,7 +183,7 @@ const DateSelectionStep = () => {
 											{day}
 										</SelectItem>
 									))}
-								</SelectContent>
+								</SelectContent> (1-29/30 depending on the month)
 							</Select>
 						</div>
 					</div>
