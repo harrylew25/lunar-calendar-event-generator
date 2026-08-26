@@ -19,6 +19,7 @@
     "clsx": "^2.1.1",
     "lucide-react": "^1",
     "lunar-javascript": "^1.7.7",
+    "radix-ui": "^1.6.7",
     "react": "^19",
     "react-dom": "^19",
     "tailwind-merge": "^3.3.1",
