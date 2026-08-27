@@ -36,7 +36,7 @@ type CalendarStore = {
 	clearAll: () => void;
 };
 
-const DEFAULT_LOOP_YEARS = 100;
+const DEFAULT_LOOP_YEARS = 10;
 
 const isDuplicate = (cart: CartItem[], item: CartItemInput): boolean => {
 	return cart.some(
