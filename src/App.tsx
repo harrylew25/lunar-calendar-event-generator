@@ -1,6 +1,6 @@
-import { CartStep } from '@/components/steps/CartStep';
-import { DateSelectionStep } from '@/components/steps/DateSelectionStep';
-import { PreviewStep } from '@/components/steps/PreviewStep';
+import CartStep from '@/components/steps/CartStep';
+import DateSelectionStep from '@/components/steps/DateSelectionStep';
+import PreviewStep from '@/components/steps/PreviewStep';
 import { useCalendarStore } from '@/store/calendar-store';
 import './index.css';
 
