@@ -6,6 +6,9 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useCalendarStore } from '@/store/calendar-store';
 
+const sortArray = (list: number[]) => list.sort((a, b) => a - b);
+const filterUniqueAndSort = (list: number[]) => sortArray(Array.from(new Set(list)));
+
 const PreviewStep = () => {
 	const expandedEvents = useCalendarStore((state) => state.expandedEvents);
 	const setStep = useCalendarStore((state) => state.setStep);
@@ -14,9 +17,7 @@ const PreviewStep = () => {
 		if (!expandedEvents?.length) {
 			return [] as number[];
 		}
-		return [...new Set(expandedEvents.map((event) => event.date[0]))].sort(
-			(a, b) => a - b,
-		);
+		return filterUniqueAndSort(expandedEvents.map((event) => event.date[0]));
 	}, [expandedEvents]);
 
 	const [yearIndex, setYearIndex] = useState(0);
@@ -56,9 +57,17 @@ const PreviewStep = () => {
 						{expandedEvents.length} events across {availableYears.length} years
 					</p>
 				</div>
-				<Button type="button" onClick={handleDownload}>
-					Download ICS
-				</Button>
+				<div className="flex gap-2">
+					<Button type="button" variant="outline" onClick={() => setStep('select')}>
+						Back to date selection
+					</Button>
+					<Button type="button" variant="outline" onClick={() => setStep('cart')}>
+						Back to cart
+					</Button>
+					<Button type="button" onClick={handleDownload}>
+						Download ICS
+					</Button>
+				</div>
 			</div>
 
 			<Card>
@@ -93,14 +102,8 @@ const PreviewStep = () => {
 					<YearPreviewGrid year={selectedYear} events={expandedEvents} />
 				</CardContent>
 			</Card>
-
-			<div className="flex justify-start">
-				<Button type="button" variant="outline" onClick={() => setStep('cart')}>
-					Back to cart
-				</Button>
-			</div>
 		</div>
 	);
 };
 
-export { PreviewStep };
+export default PreviewStep;
