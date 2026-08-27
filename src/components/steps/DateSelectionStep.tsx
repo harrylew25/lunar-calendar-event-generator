@@ -1,22 +1,17 @@
-import { resolveLunarMonthDay } from '@lunar-dates';
-import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import {
-	Select,
-	SelectContent,
-	SelectItem,
-	SelectTrigger,
-	SelectValue,
-} from '@/components/ui/select';
 import {
 	dedupedMonthRules,
 	LOOP_YEAR_PRESETS,
 	LUNAR_DAY_OPTIONS,
 } from '@/lib/wizard/constants';
 import { useCalendarStore } from '@/store/calendar-store';
+import { resolveLunarMonthDay } from '@lunar-dates';
+import { useState } from 'react';
+import SelectField from '../ui/select-field';
 
+// TODO: need to rework this logic to allow for custom start years
 const DEFAULT_START_YEAR = 2020;
 const currentYear = new Date().getFullYear();
 const YEARS_OPTIONS = Array.from(
@@ -36,7 +31,7 @@ const DateSelectionStep = () => {
 
 	const [lunarMonth, setLunarMonth] = useState('1');
 	const [lunarDay, setLunarDay] = useState('1');
-	const [title, setTitle] = useState('');
+	const [title, setTitle] = useState(`testing ${crypto.randomUUID()}`);
 	const [solarDate, setSolarDate] = useState('');
 	const [inputMode, setInputMode] = useState<'lunar' | 'solar'>('lunar');
 
@@ -54,7 +49,9 @@ const DateSelectionStep = () => {
 			lunarDay: Number(lunarDay),
 			title: trimmedTitle,
 		});
-		setTitle('');
+		setTitle(`testing ${crypto.randomUUID()}`);
+		setLunarMonth('1');
+		setLunarDay('1');
 	};
 
 	const handleAddSolar = (): void => {
@@ -91,41 +88,22 @@ const DateSelectionStep = () => {
 					the calendar.
 				</p>
 			</div>
-
-			<div className="space-y-2">
-				<Label htmlFor="start-year">Start year</Label>
-				<Select
+			<div className="grid gap-4 md:grid-cols-2">
+				<SelectField
+					id="start-year"
+					label="Start year"
 					value={String(startYear)}
-					onValueChange={(value) => setStartYear(Number(value))}>
-					<SelectTrigger id="start-year" className="w-full max-w-xs">
-						<SelectValue />
-					</SelectTrigger>
-					<SelectContent>
-						{YEARS_OPTIONS.map((years) => (
-							<SelectItem key={years} value={String(years)}>
-								{years}
-							</SelectItem>
-						))}
-					</SelectContent>
-				</Select>
-			</div>
+					onValueChange={(value) => setStartYear(Number(value))}
+					options={YEARS_OPTIONS.map((years) => ({ label: String(years), value: String(years) }))}
+				/>
 
-			<div className="space-y-2">
-				<Label htmlFor="loop-years">Loop years</Label>
-				<Select
+				<SelectField
+					id="loop-years"
+					label="Loop years"
 					value={String(loopYears)}
-					onValueChange={(value) => setLoopYears(Number(value))}>
-					<SelectTrigger id="loop-years" className="w-full max-w-xs">
-						<SelectValue />
-					</SelectTrigger>
-					<SelectContent>
-						{LOOP_YEAR_PRESETS.map((years) => (
-							<SelectItem key={years} value={String(years)}>
-								{years} years ({years + 1} occurrences)
-							</SelectItem>
-						))}
-					</SelectContent>
-				</Select>
+					onValueChange={(value) => setLoopYears(Number(value))}
+					options={LOOP_YEAR_PRESETS.map((years) => ({ label: `${years} years (${years + 1} occurrences)`, value: String(years) }))}
+				/>
 			</div>
 
 			<div className="flex gap-2">
@@ -146,6 +124,7 @@ const DateSelectionStep = () => {
 			<div className="space-y-4 rounded-xl border p-6">
 				<div className="space-y-2">
 					<Label htmlFor="event-title">Title</Label>
+					{/* TODO: change this to debounce input */}
 					<Input
 						id="event-title"
 						value={title}
@@ -156,39 +135,24 @@ const DateSelectionStep = () => {
 
 				{inputMode === 'lunar' ? (
 					<div className="grid gap-4 md:grid-cols-2">
-						<div className="space-y-2">
-							<Label htmlFor="lunar-month">Lunar month</Label>
-							<Select value={lunarMonth} onValueChange={setLunarMonth}>
-								<SelectTrigger id="lunar-month">
-									<SelectValue />
-								</SelectTrigger>
-								<SelectContent>
-									{dedupedMonthRules.map((rule) => (
-										<SelectItem key={rule.value} value={String(rule.value)}>
-											{rule.name}
-										</SelectItem>
-									))}
-								</SelectContent>
-							</Select>
-						</div>
-						<div className="space-y-2">
-							<Label htmlFor="lunar-day">Lunar day</Label>
-							<Select value={lunarDay} onValueChange={setLunarDay}>
-								<SelectTrigger id="lunar-day">
-									<SelectValue />
-								</SelectTrigger>
-								<SelectContent>
-									{LUNAR_DAY_OPTIONS.map((day) => (
-										<SelectItem key={day} value={String(day)}>
-											{day}
-										</SelectItem>
-									))}
-								</SelectContent> (1-29/30 depending on the month)
-							</Select>
-						</div>
+						<SelectField
+							id="lunar-month"
+							label="Lunar month"
+							value={lunarMonth}
+							onValueChange={setLunarMonth}
+							options={dedupedMonthRules.map((rule) => ({ label: rule.name, value: String(rule.value) }))}
+						/>
+						<SelectField
+							id="lunar-day"
+							label="Lunar day"
+							value={lunarDay}
+							onValueChange={setLunarDay}
+							options={LUNAR_DAY_OPTIONS.map((day) => ({ label: String(day), value: String(day) }))}
+						/>
 					</div>
 				) : (
 					<div className="space-y-2">
+						{/* TODO: add a date picker and a today option*/}
 						<Label htmlFor="solar-date">Solar date</Label>
 						<Input
 							id="solar-date"
@@ -223,4 +187,4 @@ const DateSelectionStep = () => {
 	);
 };
 
-export { DateSelectionStep };
+export default DateSelectionStep;
