@@ -59,4 +59,4 @@ const CartStep = () => {
 	);
 };
 
-export { CartStep };
+export default CartStep;
