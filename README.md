@@ -2,7 +2,7 @@
 title: README
 description: Lunar Calendar Event Generator — setup, scripts, and project overview.
 creation-time: 2026-07-24
-updated-time: 2026-08-11
+updated-time: 2026-08-27
 tags:
   - lunar-calendar
   - ics
@@ -20,9 +20,9 @@ Build custom **recurrence rules** (e.g. 正月十五, 五月初五) in a stepped
 
 ### Wizard UI (3 steps)
 
-1. **Date selection** — Set loop length (5–100 years, default 100). Add recurrence rules via **lunar input** (month + day + title) or **solar input** (Gregorian date + title, resolved to lunar month/day). Title is required.
-2. **Cart** — Review, edit, or delete rules. Adjust loop years. Confirm to expand.
-3. **Preview** — Browse a 12-month grid for any year in the expanded range. Download ICS for all generated events.
+1. **Date selection** — Choose a Gregorian **start year** and **loop years** (presets 5, 10, 25, 50, 100, 200, 300; default 10). Add recurrence rules via **lunar input** (month + day + title) or **solar input** (Gregorian `YYYY-MM-DD` + title, resolved to lunar month/day). Title is required. Duplicate month/day/title combinations are ignored. An empty cart cannot continue.
+2. **Cart** — Review rules. Rows are read-only; **Edit** opens a dialog (title, lunar month, lunar day). **Delete** a row or **Clear all**. Start year and loop years are shown here but changed on Date selection. Confirm expands the cart; empty cart cannot proceed.
+3. **Preview** — Browse a 12-month grid for years in the expanded range. Download ICS for all generated events.
 
 State is managed with **Zustand** ([`src/store/calendar-store.ts`](src/store/calendar-store.ts)). Session-only — nothing is persisted to localStorage.
 
@@ -30,9 +30,9 @@ State is managed with **Zustand** ([`src/store/calendar-store.ts`](src/store/cal
 
 - **Custom lunar dates** — Any day 1–30 in any lunar month (including leap months), expanded once per lunar year over the loop range ([`src/lib/lunar-dates/custom-dates.ts`](src/lib/lunar-dates/custom-dates.ts))
 - **Milestone dates** — Bulk 初一 / 十五 generation for every lunar month in a range ([`src/lib/lunar-dates/milestones.ts`](src/lib/lunar-dates/milestones.ts)); used by the library API, not the wizard cart flow
-- **ICS export** — All-day events with default reminders ([`src/lib/ics/generate.ts`](src/lib/ics/generate.ts))
+- **ICS export** — All-day events with default reminders (1 day before at 09:00 Asia/Kuala_Lumpur). The wizard does not expose alarm settings ([`src/lib/ics/generate.ts`](src/lib/ics/generate.ts))
 
-Loop semantics: `numberOfYears: 100` produces **101 occurrences** (inclusive, from the lunar year anchored to the current Gregorian year at confirm time).
+Loop semantics: `numberOfYears: 10` produces **11 occurrences** (inclusive). Expansion starts from the lunar year for 1 January of the **user-selected** Gregorian start year (`resolveStartLunarYearFromGregorian`).
 
 ## Stack
 
@@ -74,9 +74,9 @@ src/
   store/calendar-store.ts      # Zustand cart, loop, expand
   components/
     steps/                     # DateSelectionStep, CartStep, PreviewStep
-    cart/                      # CartItemRow
+    cart/                      # CartItemRow (read-only row + edit Dialog)
     preview/                   # YearPreviewGrid, MonthCard
-    ui/                        # Shadcn primitives
+    ui/                        # Shadcn primitives (including Dialog)
   lib/
     lunar-dates/               # lunisolar domain
       conversion.ts            # solar/lunar conversion, loop start helper
@@ -84,7 +84,7 @@ src/
       custom-dates.ts          # custom date expansion (wizard API)
       constants.ts             # month rules, defaults
     ics/                       # notifications → .ics string
-    wizard/                    # UI helpers (month list, preview labels)
+    wizard/                    # UI helpers (month list, loop presets, preview labels)
 test/
   lunar-dates.test.ts          # milestones + conversion
   lunar-dates-custom.test.ts   # custom dates via getLunarDateNotifications
@@ -110,7 +110,7 @@ import {
 const startYear = resolveStartLunarYearFromGregorian(new Date().getFullYear());
 const events = collectCustomNotifications(
   [{ kind: 'lunar', lunarMonth: 1, lunarDay: 15, title: '正月十五' }],
-  { startYear, numberOfYears: 100 },
+  { startYear, numberOfYears: 10 },
 );
 ```
 
@@ -118,4 +118,5 @@ const events = collectCustomNotifications(
 
 - Tests pin `TZ=Asia/Kuala_Lumpur` so lunar/Gregorian conversions stay stable. Prefer `bun run test` over bare `bun test`.
 - **Leap months (闰月):** Selecting a leap month (e.g. 闰六月) only produces events in lunar years that actually contain that leap month; other years are skipped silently. For yearly recurrence, prefer the regular month (六月).
+- **Lunar day 30:** Months with only 29 days skip that year the same way (conversion returns no date).
 - Agent and coding conventions live in [`.cursor/rules/`](.cursor/rules/).
