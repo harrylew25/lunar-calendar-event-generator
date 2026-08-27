@@ -2,8 +2,13 @@ import { CALENDAR_DEFAULTS, LUNAR_MILESTONE_DAYS } from './constants';
 import {
 	getFirstAndFifteenDay,
 	resolveLunarStartFromSolarMonth,
+	resolveStartLunarYearFromGregorian,
 	solarToDateParts,
 } from './conversion';
+import {
+	collectCustomNotifications,
+	resolveLunarMonthDay,
+} from './custom-dates';
 import { getLunarDateNotifications } from './milestones';
 
 export type {
@@ -14,6 +19,7 @@ export type {
 	LunarDateNotification,
 	LunarDateNotificationsOptions,
 	LunarDateType,
+	LunarMonthDay,
 	LunarStart,
 	MonthRule,
 	SolarCustomDateInput,
@@ -22,9 +28,12 @@ export type {
 
 export {
 	CALENDAR_DEFAULTS,
+	collectCustomNotifications,
 	getFirstAndFifteenDay,
 	getLunarDateNotifications,
 	LUNAR_MILESTONE_DAYS,
+	resolveLunarMonthDay,
 	resolveLunarStartFromSolarMonth,
+	resolveStartLunarYearFromGregorian,
 	solarToDateParts,
 };
