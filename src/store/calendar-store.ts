@@ -15,6 +15,7 @@ type CartItem = {
 	lunarMonth: number;
 	lunarDay: number;
 	title: string;
+	description: string;
 };
 
 type CartItemInput = Omit<CartItem, 'id'>;
@@ -52,6 +53,7 @@ const toCustomDateInput = (item: CartItem): LunarCustomDateInput => ({
 	lunarMonth: item.lunarMonth,
 	lunarDay: item.lunarDay,
 	title: item.title,
+	description: item.description,
 });
 
 const useCalendarStore = create<CalendarStore>((set, get) => ({

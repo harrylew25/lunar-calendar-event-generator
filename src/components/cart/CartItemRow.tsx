@@ -19,6 +19,7 @@ import {
 import { Input } from '../ui/input';
 import { Label } from '../ui/label';
 import SelectField from '../ui/select-field';
+import { Textarea } from '../ui/textarea';
 
 type CartItemRowProps = {
 	item: CartItem;
@@ -32,11 +33,13 @@ const CartItemRow = ({ item }: CartItemRowProps) => {
 	const [lunarMonth, setLunarMonth] = useState(String(item.lunarMonth));
 	const [lunarDay, setLunarDay] = useState(String(item.lunarDay));
 	const [title, setTitle] = useState(item.title.trim());
+	const [description, setDescription] = useState(item.description.trim());
 
 	const resetDraftFromItem = () => {
 		setLunarMonth(String(item.lunarMonth));
 		setLunarDay(String(item.lunarDay));
 		setTitle(item.title.trim());
+		setDescription(item.description.trim());
 	};
 
 	const previewDate = (() => {
@@ -61,6 +64,7 @@ const CartItemRow = ({ item }: CartItemRowProps) => {
 			lunarMonth: Number(lunarMonth),
 			lunarDay: Number(lunarDay),
 			title: title.trim(),
+			description: description.trim(),
 		});
 		setOpen(false);
 	};
@@ -116,6 +120,17 @@ const CartItemRow = ({ item }: CartItemRowProps) => {
 									}))}
 								/>
 							</div>
+							<div className="mt-4 mb-4">
+								<Label htmlFor="description" className="mb-2">
+									Description
+								</Label>
+								<Textarea
+									id="description"
+									rows={4}
+									value={description}
+									onChange={(e) => setDescription(e.target.value)}
+								/>
+							</div>
 						</div>
 						<div className="mt-4 flex justify-end gap-2">
 							<Button type="button" variant="outline" onClick={handleCancel}>
@@ -135,6 +150,7 @@ const CartItemRow = ({ item }: CartItemRowProps) => {
 						{getMonthRuleName(item.lunarMonth)} {previewDate} |{' '}
 						{item.lunarMonth} - {item.lunarDay}
 					</div>
+					<div>{item.description}</div>
 				</div>
 				<div className="flex gap-2">
 					<Button type="button" variant="outline" onClick={() => setOpen(true)}>

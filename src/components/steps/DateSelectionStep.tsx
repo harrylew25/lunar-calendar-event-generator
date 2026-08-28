@@ -10,6 +10,7 @@ import { useCalendarStore } from '@/store/calendar-store';
 import { resolveLunarMonthDay } from '@lunar-dates';
 import { useState } from 'react';
 import SelectField from '../ui/select-field';
+import { Textarea } from '../ui/textarea';
 
 // TODO: need to rework this logic to allow for custom start years
 const DEFAULT_START_YEAR = 2020;
@@ -32,6 +33,7 @@ const DateSelectionStep = () => {
 	const [lunarMonth, setLunarMonth] = useState('1');
 	const [lunarDay, setLunarDay] = useState('1');
 	const [title, setTitle] = useState(`testing ${crypto.randomUUID()}`);
+	const [description, setDescription] = useState('');
 	const [solarDate, setSolarDate] = useState('');
 	const [inputMode, setInputMode] = useState<'lunar' | 'solar'>('lunar');
 
@@ -48,8 +50,10 @@ const DateSelectionStep = () => {
 			lunarMonth: Number(lunarMonth),
 			lunarDay: Number(lunarDay),
 			title: trimmedTitle,
+			description: description.trim(),
 		});
 		setTitle(`testing ${crypto.randomUUID()}`);
+		setDescription('');
 		setLunarMonth('1');
 		setLunarDay('1');
 	};
@@ -74,8 +78,10 @@ const DateSelectionStep = () => {
 			lunarMonth: resolvedMonth,
 			lunarDay: resolvedDay,
 			title: trimmedTitle,
+			description: description.trim(),
 		});
 		setTitle('');
+		setDescription('');
 		setSolarDate('');
 	};
 
@@ -162,6 +168,17 @@ const DateSelectionStep = () => {
 						/>
 					</div>
 				)}
+
+				<div className="space-y-2">
+					<Label htmlFor="event-description">Description</Label>
+					<Textarea
+						id="event-description"
+						rows={4}
+						value={description}
+						onChange={(event) => setDescription(event.target.value)}
+						placeholder="e.g. 元宵节提醒"
+					/>
+				</div>
 
 				<Button
 					type="button"
