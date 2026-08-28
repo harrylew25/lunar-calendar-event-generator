@@ -16,7 +16,12 @@ describe('useCalendarStore', () => {
 	});
 
 	test('addItem merges duplicates with same lunarMonth, lunarDay, and title', () => {
-		const item = { lunarMonth: 1, lunarDay: 15, title: '正月十五' };
+		const item = {
+			lunarMonth: 1,
+			lunarDay: 15,
+			title: '正月十五',
+			description: '',
+		};
 		useCalendarStore.getState().addItem(item);
 		useCalendarStore.getState().addItem(item);
 
@@ -28,11 +33,13 @@ describe('useCalendarStore', () => {
 			lunarMonth: 1,
 			lunarDay: 15,
 			title: 'Event A',
+			description: '',
 		});
 		useCalendarStore.getState().addItem({
 			lunarMonth: 1,
 			lunarDay: 15,
 			title: 'Event B',
+			description: '',
 		});
 
 		expect(useCalendarStore.getState().cart).toHaveLength(2);
@@ -43,6 +50,7 @@ describe('useCalendarStore', () => {
 			lunarMonth: 1,
 			lunarDay: 15,
 			title: '正月十五',
+			description: '',
 		});
 		useCalendarStore.getState().confirmAndExpand();
 
