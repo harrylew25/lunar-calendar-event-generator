@@ -12,14 +12,24 @@ import { useState } from 'react';
 import SelectField from '../ui/select-field';
 import { Textarea } from '../ui/textarea';
 
-// TODO: need to rework this logic to allow for custom start years
-const DEFAULT_START_YEAR = 2020;
 const currentYear = new Date().getFullYear();
+const RANGE = 5;
+const formatYearsOption = (years: number) => {
+	const stringYears = String(years);
+	return ({
+		label: stringYears + ` ${years === currentYear ? '(current year)' : ''}`,
+		value: stringYears,
+	})
+};
 const YEARS_OPTIONS = Array.from(
-	{ length: currentYear - DEFAULT_START_YEAR + 1 },
-	(_, index) => index + DEFAULT_START_YEAR
-);
+	{ length: RANGE * 2 + 1 },
+	(_, index) => currentYear - RANGE + index
+).map(formatYearsOption);
 
+const LOOP_YEARS_OPTIONS = LOOP_YEAR_PRESETS.map((years) => ({
+	label: `${years} years (${years + 1} cycles)`,
+	value: String(years),
+}));
 
 const DateSelectionStep = () => {
 	const cart = useCalendarStore((state) => state.cart);
@@ -42,20 +52,24 @@ const DateSelectionStep = () => {
 	const canAddSolar =
 		trimmedTitle.length > 0 && solarDate.length > 0 && inputMode === 'solar';
 
-	const handleAddLunar = (): void => {
-		if (!canAddLunar) {
-			return;
-		}
-		addItem({
-			lunarMonth: Number(lunarMonth),
-			lunarDay: Number(lunarDay),
-			title: trimmedTitle,
-			description: description.trim(),
-		});
+	const resetForm = (): void => {
 		setTitle(`testing ${crypto.randomUUID()}`);
 		setDescription('');
 		setLunarMonth('1');
 		setLunarDay('1');
+		setSolarDate('');
+	};
+
+	const submitRule = (lunarMonth: number, lunarDay: number) => {
+		addItem({ lunarMonth, lunarDay, title: trimmedTitle, description: description.trim() });
+		resetForm();
+	}
+
+	const handleAddLunar = (): void => {
+		if (!canAddLunar) {
+			return;
+		}
+		submitRule(Number(lunarMonth), Number(lunarDay));
 	};
 
 	const handleAddSolar = (): void => {
@@ -74,15 +88,7 @@ const DateSelectionStep = () => {
 				solarDay: day,
 				title: trimmedTitle,
 			});
-		addItem({
-			lunarMonth: resolvedMonth,
-			lunarDay: resolvedDay,
-			title: trimmedTitle,
-			description: description.trim(),
-		});
-		setTitle('');
-		setDescription('');
-		setSolarDate('');
+		submitRule(resolvedMonth, resolvedDay);
 	};
 
 	return (
@@ -100,7 +106,7 @@ const DateSelectionStep = () => {
 					label="Start year"
 					value={String(startYear)}
 					onValueChange={(value) => setStartYear(Number(value))}
-					options={YEARS_OPTIONS.map((years) => ({ label: String(years), value: String(years) }))}
+					options={YEARS_OPTIONS}
 				/>
 
 				<SelectField
@@ -108,7 +114,7 @@ const DateSelectionStep = () => {
 					label="Loop years"
 					value={String(loopYears)}
 					onValueChange={(value) => setLoopYears(Number(value))}
-					options={LOOP_YEAR_PRESETS.map((years) => ({ label: `${years} years (${years + 1} occurrences)`, value: String(years) }))}
+					options={LOOP_YEARS_OPTIONS}
 				/>
 			</div>
 
