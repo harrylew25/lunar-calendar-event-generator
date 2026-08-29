@@ -1,5 +1,6 @@
 import { afterEach, describe, expect, mock, test } from 'bun:test';
 import { cleanup, fireEvent, render, screen } from '@testing-library/react';
+import { act } from 'react';
 import InputField from '@/components/form/input-field';
 
 const DELAY_IN_MS = 20;
@@ -36,7 +37,9 @@ describe('InputField', () => {
 		const onChange = mock((_: string) => {});
 		renderTitleField({ value: '正月十五', onChange });
 
-		await Bun.sleep(DELAY_IN_MS + 10);
+		await act(async () => {
+			await Bun.sleep(DELAY_IN_MS + 10);
+		});
 
 		expect(onChange).not.toHaveBeenCalled();
 	});
@@ -54,7 +57,9 @@ describe('InputField', () => {
 		const { onChange, input } = renderTitleField();
 
 		fireEvent.change(input, { target: { value: '十五' } });
-		await Bun.sleep(DELAY_IN_MS + 10);
+		await act(async () => {
+			await Bun.sleep(DELAY_IN_MS + 10);
+		});
 
 		expect(onChange).toHaveBeenCalledTimes(1);
 		expect(onChange).toHaveBeenCalledWith('十五');
