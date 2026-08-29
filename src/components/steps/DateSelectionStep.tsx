@@ -1,6 +1,4 @@
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import {
 	dedupedMonthRules,
 	LOOP_YEAR_PRESETS,
@@ -9,8 +7,8 @@ import {
 import { useCalendarStore } from '@/store/calendar-store';
 import { resolveLunarMonthDay } from '@lunar-dates';
 import { useState } from 'react';
+import InputField from '../form/input-field';
 import SelectField from '../ui/select-field';
-import { Textarea } from '../ui/textarea';
 
 const currentYear = new Date().getFullYear();
 const RANGE = 5;
@@ -134,16 +132,14 @@ const DateSelectionStep = () => {
 			</div>
 
 			<div className="space-y-4 rounded-xl border p-6">
-				<div className="space-y-2">
-					<Label htmlFor="event-title">Title</Label>
-					{/* TODO: change this to debounce input */}
-					<Input
-						id="event-title"
-						value={title}
-						onChange={(event) => setTitle(event.target.value)}
-						placeholder="e.g. 正月十五 reminder"
-					/>
-				</div>
+				<InputField
+					id="event-title"
+					type="text"
+					label="Event title"
+					value={title}
+					onChange={setTitle}
+					placeholder="e.g. 正月十五 reminder"
+				/>
 
 				{inputMode === 'lunar' ? (
 					<div className="grid gap-4 md:grid-cols-2">
@@ -163,28 +159,24 @@ const DateSelectionStep = () => {
 						/>
 					</div>
 				) : (
-					<div className="space-y-2">
-						{/* TODO: add a date picker and a today option*/}
-						<Label htmlFor="solar-date">Solar date</Label>
-						<Input
-							id="solar-date"
-							placeholder="YYYY-MM-DD"
-							value={solarDate}
-							onChange={(event) => setSolarDate(event.target.value)}
-						/>
-					</div>
+					// TODO: change this to actual date picker and today option
+					<InputField
+						id="solar-date"
+						label="Solar date"
+						value={solarDate}
+						onChange={setSolarDate}
+						placeholder="YYYY-MM-DD"
+					/>
 				)}
 
-				<div className="space-y-2">
-					<Label htmlFor="event-description">Description</Label>
-					<Textarea
-						id="event-description"
-						rows={4}
-						value={description}
-						onChange={(event) => setDescription(event.target.value)}
-						placeholder="e.g. 元宵节提醒"
-					/>
-				</div>
+				<InputField
+					id="event-description"
+					type="textarea"
+					label="Description"
+					value={description}
+					onChange={setDescription}
+					placeholder="e.g. 元宵节提醒"
+				/>
 
 				<Button
 					type="button"
