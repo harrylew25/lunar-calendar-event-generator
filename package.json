@@ -36,6 +36,7 @@
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "happy-dom": "^20.11.15",
+    "lefthook": "^2.1.12",
     "tailwindcss": "^4.1.11",
     "typescript": "^7.0.2"
   }
