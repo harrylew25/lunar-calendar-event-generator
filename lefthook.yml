@@ -1,0 +1,21 @@
+# EXAMPLE USAGE:
+#
+#   Refer for explanation to following link:
+#   https://lefthook.dev/configuration/
+#
+pre-push:
+  jobs:
+    - name: typescript check
+      run: bun run typecheck
+
+    - name: unit tests check
+      run: bun run test
+
+pre-commit:
+  jobs:
+    - name: biome check formatting
+      run: bunx biome check --write --files-ignore-unknown=true --no-errors-on-unmatched -- {staged_files}
+      glob: 
+        - "*.{ts,tsx,js,json,html,css}"
+        - "**/*.{ts,tsx,js,json,html,css}"
+      stage_fixed: true

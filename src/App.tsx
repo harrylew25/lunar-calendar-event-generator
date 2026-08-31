@@ -4,6 +4,7 @@ import PreviewStep from '@/components/steps/PreviewStep';
 import { useCalendarStore } from '@/store/calendar-store';
 import './index.css';
 
+// testing for precommit hook
 const App = () => {
 	const step = useCalendarStore((state) => state.step);
 
