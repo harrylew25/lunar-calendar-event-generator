@@ -2,12 +2,12 @@
 title: README
 description: Lunar Calendar Event Generator — setup, scripts, and project overview.
 creation-time: 2026-07-24
-updated-time: 2026-08-27
+updated-time: 2026-09-01
 tags:
   - lunar-calendar
   - ics
   - bun
-type: guide
+type: readme
 ---
 
 # Lunar Calendar Event Generator
@@ -37,7 +37,7 @@ Loop semantics: `numberOfYears: 10` produces **11 occurrences** (inclusive). Exp
 ## Stack
 
 | Layer | Choice |
-|-------|--------|
+| ------- | -------- |
 | Runtime / package manager | [Bun](https://bun.com) |
 | UI | React 19, Shadcn UI, Tailwind CSS v4 |
 | State | Zustand |
@@ -45,6 +45,8 @@ Loop semantics: `numberOfYears: 10` produces **11 occurrences** (inclusive). Exp
 | ICS export | `ts-ics` |
 | Lint / format | Biome |
 | Types | TypeScript (`tsc --noEmit`) |
+| Git hooks | [Lefthook](https://lefthook.dev/) (`lefthook.yml`) |
+| Component tests | happy-dom, Testing Library (`@testing-library/react`) |
 
 ## Setup
 
@@ -53,6 +55,8 @@ Requires [Bun](https://bun.com) installed.
 ```bash
 bun install
 ```
+
+`lefthook` is listed in `trustedDependencies` so Bun can run its install script. `prepare` runs `lefthook install` so Git hooks are wired after install. If `git commit` never shows Lefthook, run `bunx lefthook install`.
 
 ## Scripts
 
@@ -69,6 +73,7 @@ Open the URL printed by `bun run dev`, then walk through **Date selection → Ca
 ## Project layout
 
 ```text
+lefthook.yml                   # Git pre-commit (Biome) and pre-push (tsc + tests)
 src/
   App.tsx                      # step router (select | cart | preview)
   store/calendar-store.ts      # Zustand cart, loop, expand
@@ -86,11 +91,15 @@ src/
     ics/                       # notifications → .ics string
     wizard/                    # UI helpers (month list, loop presets, preview labels)
 test/
+  happydom.ts                  # happy-dom preload (see bunfig.toml)
   lunar-dates.test.ts          # milestones + conversion
   lunar-dates-custom.test.ts   # custom dates via getLunarDateNotifications
   lunar-dates-wizard-api.test.ts  # collectCustomNotifications (cart-only path)
   lunar-dates-ics.test.ts      # ICS formatting
   calendar-store.test.ts       # Zustand store
+  input-field.test.tsx         # InputField (Testing Library)
+  use-debounce.test.ts
+  use-debounce-controlled-input.test.ts
   helpers/                     # test oracles
 ```
 
@@ -114,9 +123,18 @@ const events = collectCustomNotifications(
 );
 ```
 
+## Git hooks
+
+[Lefthook](https://lefthook.dev/) runs local checks on commit and push ([`lefthook.yml`](lefthook.yml)):
+
+- **pre-commit** — Biome on staged `ts` / `tsx` / `js` / `json` / `html` / `css` (writes fixes and restages them)
+- **pre-push** — `bun run typecheck` then `bun run test`
+
+Dry-run without committing: `bunx lefthook run pre-commit` (stage matching files first) or `bunx lefthook run pre-push`. These are separate from Cursor agent hooks under `.cursor/hooks/`.
+
 ## Notes
 
-- Tests pin `TZ=Asia/Kuala_Lumpur` so lunar/Gregorian conversions stay stable. Prefer `bun run test` over bare `bun test`.
+- Tests pin `TZ=Asia/Kuala_Lumpur` so lunar/Gregorian conversions stay stable. Prefer `bun run test` over bare `bun test`. Component tests preload happy-dom via [`bunfig.toml`](bunfig.toml).
 - **Leap months (闰月):** Selecting a leap month (e.g. 闰六月) only produces events in lunar years that actually contain that leap month; other years are skipped silently. For yearly recurrence, prefer the regular month (六月).
 - **Lunar day 30:** Months with only 29 days skip that year the same way (conversion returns no date).
 - Agent and coding conventions live in [`.cursor/rules/`](.cursor/rules/).
