@@ -6,7 +6,7 @@
 pre-push:
   jobs:
     - name: typescript check
-      run: bun run typescheck
+      run: bun run typecheck
 
     - name: unit tests check
       run: bun run test
