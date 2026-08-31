@@ -132,6 +132,8 @@ const events = collectCustomNotifications(
 
 Dry-run without committing: `bunx lefthook run pre-commit` (stage matching files first) or `bunx lefthook run pre-push`. These are separate from Cursor agent hooks under `.cursor/hooks/`.
 
+Hooks are local only. `git commit --no-verify` and `git push --no-verify` skip them. Merge blocking on GitHub is [ENG-24](https://linear.app/hl-engineering/issue/ENG-24/ci-typecheck-and-build-required-on-every-pr) (CI), not Lefthook.
+
 ## Notes
 
 - Tests pin `TZ=Asia/Kuala_Lumpur` so lunar/Gregorian conversions stay stable. Prefer `bun run test` over bare `bun test`. Component tests preload happy-dom via [`bunfig.toml`](bunfig.toml).
