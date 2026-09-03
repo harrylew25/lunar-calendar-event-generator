@@ -1,14 +1,14 @@
-import { Lunar } from 'lunar-javascript';
-import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import {
 	dedupedMonthRules,
-	getMonthRuleName,
-	LUNAR_DAY_OPTIONS,
+	LUNAR_DAY_OPTIONS
 } from '@/lib/wizard/constants';
-import { getLunarDayLabelFromGregorian } from '@/lib/wizard/preview-format';
+import { getLunarObjectFromDate } from '@/lib/wizard/preview-format';
 import type { CartItem } from '@/store/calendar-store';
 import { useCalendarStore } from '@/store/calendar-store';
+import { Lunar } from 'lunar-javascript';
+import { useState } from 'react';
+import InputField from '../form/input-field';
 import {
 	Dialog,
 	DialogContent,
@@ -16,7 +16,6 @@ import {
 	DialogHeader,
 	DialogTitle,
 } from '../ui/dialog';
-import { Input } from '../ui/input';
 import { Label } from '../ui/label';
 import SelectField from '../ui/select-field';
 import { Textarea } from '../ui/textarea';
@@ -30,6 +29,7 @@ const CartItemRow = ({ item }: CartItemRowProps) => {
 	const removeItem = useCalendarStore((state) => state.removeItem);
 	const updateItem = useCalendarStore((state) => state.updateItem);
 
+	// TODO: move the dialog to a separate component
 	const [lunarMonth, setLunarMonth] = useState(String(item.lunarMonth));
 	const [lunarDay, setLunarDay] = useState(String(item.lunarDay));
 	const [title, setTitle] = useState(item.title.trim());
@@ -49,11 +49,11 @@ const CartItemRow = ({ item }: CartItemRowProps) => {
 				item.lunarMonth,
 				item.lunarDay,
 			).getSolar();
-			return getLunarDayLabelFromGregorian([
+			return getLunarObjectFromDate([
 				solar.getYear(),
 				solar.getMonth(),
 				solar.getDay(),
-			]);
+			]).label;
 		} catch {
 			return `Day ${item.lunarDay}`;
 		}
@@ -87,17 +87,14 @@ const CartItemRow = ({ item }: CartItemRowProps) => {
 						<DialogTitle>Edit Item</DialogTitle>
 						<DialogDescription>Edit the item details</DialogDescription>
 						<div>
-							<div className="mt-4 mb-4">
-								<Label htmlFor="title" className="mb-2">
-									Title
-								</Label>
-								{/* TODO: change this to debounce input */}
-								<Input
-									type="text"
-									value={title}
-									onChange={(e) => setTitle(e.target.value)}
-								/>
-							</div>
+
+							<InputField
+								id="title"
+								label="Title"
+								value={title}
+								onChange={setTitle}
+								className='mb-4'
+							/>
 							<div className="grid gap-4 md:grid-cols-2">
 								<SelectField
 									id="lunar-month"
@@ -147,8 +144,7 @@ const CartItemRow = ({ item }: CartItemRowProps) => {
 				<div>
 					<p className="text-lg font-bold">{item.title}</p>
 					<div>
-						{getMonthRuleName(item.lunarMonth)} {previewDate} |{' '}
-						{item.lunarMonth} - {item.lunarDay}
+						{previewDate} |{' '} {item.lunarMonth} - {item.lunarDay}
 					</div>
 					<div>{item.description}</div>
 				</div>
