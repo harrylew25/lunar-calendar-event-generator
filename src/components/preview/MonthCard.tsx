@@ -1,5 +1,5 @@
 import type { LunarDateNotification } from '@lunar-dates/lunar-dates.type';
-import { getLunarDayLabelFromGregorian } from '@/lib/wizard/preview-format';
+import { getLunarObjectFromDate } from '@/lib/wizard/preview-format';
 
 type MonthCardProps = {
 	monthName: string;
@@ -14,21 +14,23 @@ const MonthCard = ({ monthName, events }: MonthCardProps) => {
 				{events.length === 0 ? (
 					<p className="text-muted-foreground text-xs">No events</p>
 				) : (
-					events.map((event) => {
-						const [, , gregDay] = event.date;
-						const lunarDayLabel = getLunarDayLabelFromGregorian(event.date);
-						return (
-							<div
-								key={`${event.title}-${event.date.join('-')}`}
-								className="rounded-md border bg-muted/40 px-2 py-1 text-xs">
-								{lunarDayLabel} - {event.title} - {gregDay}
-							</div>
-						);
-					})
+					events.map(event => <EventCard key={event.date.join('-')} event={event} />)
 				)}
 			</div>
 		</div>
 	);
 };
 
-export { MonthCard };
+const EventCard = ({ event }: { event: LunarDateNotification }) => {
+	const [, , gregDay] = event.date;
+	const lunarObj = getLunarObjectFromDate(event.date);
+	return (
+		<div
+			id={lunarObj.label}
+			className="rounded-md border bg-muted/40 px-2 py-1 text-xs">
+			{lunarObj.label} - {event.title} - {gregDay}
+		</div>
+	)
+}
+
+export default MonthCard;

@@ -1,5 +1,5 @@
 import type { LunarDateNotification } from '@lunar-dates/lunar-dates.type';
-import { MonthCard } from '@/components/preview/MonthCard';
+import MonthCard from '@/components/preview/MonthCard';
 import { GREGORIAN_MONTH_NAMES } from '@/lib/wizard/constants';
 
 type YearPreviewGridProps = {
@@ -29,4 +29,4 @@ const YearPreviewGrid = ({ year, events }: YearPreviewGridProps) => {
 	);
 };
 
-export { YearPreviewGrid };
+export default YearPreviewGrid;

@@ -1,7 +1,7 @@
 import { generateLunarCalendarIcs } from '@ics';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { useMemo, useState } from 'react';
-import { YearPreviewGrid } from '@/components/preview/YearPreviewGrid';
+import YearPreviewGrid from '@/components/preview/YearPreviewGrid';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useCalendarStore } from '@/store/calendar-store';
