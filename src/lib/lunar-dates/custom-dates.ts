@@ -27,12 +27,18 @@ const lunarToGregorianParts = (
 	lunarYear: number,
 	lunarMonth: number,
 	lunarDay: number,
-): GregorianDateParts | null => {
+): GregorianDateParts => {
+	// TODO: refactor this as we are not handling the error in the catch block
 	try {
-		const solar = Lunar.fromYmd(lunarYear, lunarMonth, lunarDay).getSolar();
+		let solar = null;
+		console.log({ solar, lunarYear, lunarMonth, lunarDay });
+		if (lunarMonth < 0) {
+			solar = Lunar.fromYmd(lunarYear, -lunarMonth, lunarDay).getSolar();
+		}
+		solar = Lunar.fromYmd(lunarYear, lunarMonth, lunarDay).getSolar();
 		return solarToDateParts(solar);
 	} catch {
-		return null;
+		return solarToDateParts(Lunar.fromYmd(lunarYear, Math.abs(lunarMonth), lunarDay - 1).getSolar());
 	}
 };
 
