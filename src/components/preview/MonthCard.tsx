@@ -6,6 +6,11 @@ type MonthCardProps = {
 	events: LunarDateNotification[];
 };
 
+// TODO: move this to util, add tests, and add more sanitization for the id to prevent XSS attacks
+const sanitizeId = (id: string) => {
+	return id.trim().toLowerCase().replaceAll(' ', '-');
+};
+
 const MonthCard = ({ monthName, events }: MonthCardProps) => {
 	return (
 		<div className="flex min-h-36 flex-col gap-3 rounded-xl border bg-card p-4 shadow-sm">
@@ -14,7 +19,9 @@ const MonthCard = ({ monthName, events }: MonthCardProps) => {
 				{events.length === 0 ? (
 					<p className="text-muted-foreground text-xs">No events</p>
 				) : (
-					events.map(event => <EventCard key={event.date.join('-')} event={event} />)
+					events.map((event) => (
+						<EventCard key={sanitizeId(event.title)} event={event} />
+					))
 				)}
 			</div>
 		</div>
@@ -22,15 +29,16 @@ const MonthCard = ({ monthName, events }: MonthCardProps) => {
 };
 
 const EventCard = ({ event }: { event: LunarDateNotification }) => {
-	const [, , gregDay] = event.date;
+	const [, gregMonth, gregDay] = event.date;
 	const lunarObj = getLunarObjectFromDate(event.date);
 	return (
 		<div
-			id={lunarObj.label}
+			id={sanitizeId(event.title)}
 			className="rounded-md border bg-muted/40 px-2 py-1 text-xs">
-			{lunarObj.label} - {event.title} - {gregDay}
+			{/* TODO: format the gregorian date to be more readable, append zero to single digit */}
+			{lunarObj.label}({gregMonth}/{gregDay}) - {event.title}
 		</div>
-	)
-}
+	);
+};
 
 export default MonthCard;
