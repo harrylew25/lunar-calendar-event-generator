@@ -1,4 +1,4 @@
-import { Lunar, Solar } from 'lunar-javascript';
+import { Lunar, LunarMonth, Solar } from 'lunar-javascript';
 import { solarToDateParts } from './conversion';
 import type {
 	CustomDateInput,
@@ -8,6 +8,13 @@ import type {
 	LunarDateNotification,
 	LunarMonthDay,
 } from './lunar-dates.type';
+
+// TODO: merge with exisitng date object types
+export type LunarDateObj = {
+	year: number;
+	month: number;
+	day: number;
+};
 
 const resolveLunarMonthDay = (input: CustomDateInput): LunarMonthDay => {
 	if (input.kind === 'lunar') {
@@ -23,22 +30,22 @@ const resolveLunarMonthDay = (input: CustomDateInput): LunarMonthDay => {
 	return { lunarMonth: lunar.getMonth(), lunarDay: lunar.getDay() };
 };
 
-const lunarToGregorianParts = (
-	lunarYear: number,
-	lunarMonth: number,
-	lunarDay: number,
-): GregorianDateParts => {
-	// TODO: refactor this as we are not handling the error in the catch block
+const getSolarFromLunar = ({ year, month, day }: LunarDateObj) =>
+	solarToDateParts(Lunar.fromYmd(year, month, day).getSolar());
+
+// there is a bug here.
+// current bug data, leap march with 29 days but we are seeing normal march with 30 days.
+const lunarToGregorianParts = ({
+	year,
+	month,
+	day,
+}: LunarDateObj): GregorianDateParts | null => {
 	try {
-		let solar = null;
-		console.log({ solar, lunarYear, lunarMonth, lunarDay });
-		if (lunarMonth < 0) {
-			solar = Lunar.fromYmd(lunarYear, -lunarMonth, lunarDay).getSolar();
-		}
-		solar = Lunar.fromYmd(lunarYear, lunarMonth, lunarDay).getSolar();
-		return solarToDateParts(solar);
+		const daysInLunarMonth = LunarMonth.fromYm(year, month)?.getDayCount() ?? 0;
+		const localDay = day >= daysInLunarMonth ? daysInLunarMonth : day;
+		return getSolarFromLunar({ year, month, day: localDay });
 	} catch {
-		return solarToDateParts(Lunar.fromYmd(lunarYear, Math.abs(lunarMonth), lunarDay - 1).getSolar());
+		throw new Error(`Invalid lunar date - ${year}-${month}-${day}`);
 	}
 };
 
@@ -85,13 +92,22 @@ const expandCustomDate = (
 	const { lunarMonth, lunarDay } = resolveLunarMonthDay(input);
 	const notifications: LunarDateNotification[] = [];
 
+	const isLeapMonthInStartYear =
+		lunarMonth < 0 && LunarMonth.fromYm(startYear, lunarMonth)?.isLeap();
+
 	for (let i = 0; i <= numberOfYears; i++) {
 		const lunarYear = startYear + i;
-		const date = lunarToGregorianParts(lunarYear, lunarMonth, lunarDay);
+		const monthForYear =
+			isLeapMonthInStartYear && i === 0 ? lunarMonth : Math.abs(lunarMonth);
+
+		const date = lunarToGregorianParts({
+			year: lunarYear,
+			month: monthForYear,
+			day: lunarDay,
+		});
 		if (!date) {
 			continue;
 		}
-
 		notifications.push(createCustomNotification(date, input));
 	}
 
