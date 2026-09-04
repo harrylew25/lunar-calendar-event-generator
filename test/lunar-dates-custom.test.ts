@@ -6,10 +6,7 @@ import type {
 	LunarCustomDateInput,
 	SolarCustomDateInput,
 } from '@lunar-dates/lunar-dates.type';
-import {
-	expectedChuyiSolarParts,
-	expectedGregorianPartsFromLunar,
-} from '@test/helpers/lunar-oracle';
+import { expectedChuyiSolarParts } from '@test/helpers/lunar-oracle';
 
 type SolarAnchor = Pick<
 	SolarCustomDateInput,
@@ -177,17 +174,25 @@ describe('getLunarDateNotifications — custom dates', () => {
 		expect(onSameDay.some((n) => n.type === 'custom')).toBe(true);
 	});
 
-	test.skip('skips day 30 when lunar month has only 29 days', () => {
+	test.skip('正月三十 occurs in 6 lunar years from 2020 to 2030', () => {
+		const expectedDates = [
+			[2022, 3, 2],
+			[2025, 2, 27],
+			[2026, 3, 18],
+			[2027, 3, 7],
+			[2028, 2, 24],
+			[2029, 3, 14],
+		] satisfies GregorianDateParts[];
 		const customDateInput = buildLunarCustomDate(
 			{ lunarMonth: 1, lunarDay: 30 },
-			'除夕前夜',
+			'正月三十',
 		);
 
 		expect(() =>
 			getLunarDateNotifications({
 				startYear: 2020,
 				startMonth: 1,
-				numberOfYears: 4,
+				numberOfYears: 10,
 				customDates: [customDateInput],
 			}),
 		).not.toThrow();
@@ -195,13 +200,11 @@ describe('getLunarDateNotifications — custom dates', () => {
 		const custom = getLunarDateNotifications({
 			startYear: 2020,
 			startMonth: 1,
-			numberOfYears: 4,
+			numberOfYears: 10,
 			customDates: [customDateInput],
 		}).filter((n) => n.type === 'custom');
 
-		expect(custom).toHaveLength(1);
-		expect(custom[0]?.date).toEqual(
-			expectedGregorianPartsFromLunar(2022, 1, 30),
-		);
+		expect(custom).toHaveLength(6);
+		expect(custom.map((n) => n.date)).toEqual(expectedDates);
 	});
 });
