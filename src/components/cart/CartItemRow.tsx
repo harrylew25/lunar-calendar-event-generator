@@ -1,24 +1,15 @@
-import { Button } from '@/components/ui/button';
-import {
-	dedupedMonthRules,
-	LUNAR_DAY_OPTIONS
-} from '@/lib/wizard/constants';
+import { Lunar } from 'lunar-javascript';
+import { useState } from 'react';
+import { dedupedMonthRules, LUNAR_DAY_OPTIONS } from '@/lib/wizard/constants';
 import { getLunarObjectFromDate } from '@/lib/wizard/preview-format';
 import type { CartItem } from '@/store/calendar-store';
 import { useCalendarStore } from '@/store/calendar-store';
-import { Lunar } from 'lunar-javascript';
-import { useState } from 'react';
 import InputField from '../form/input-field';
-import {
-	Dialog,
-	DialogContent,
-	DialogDescription,
-	DialogHeader,
-	DialogTitle,
-} from '../ui/dialog';
+import { Button } from '../ui/button';
 import { Label } from '../ui/label';
 import SelectField from '../ui/select-field';
 import { Textarea } from '../ui/textarea';
+import EditDialog from './EditDialog';
 
 type CartItemRowProps = {
 	item: CartItem;
@@ -42,6 +33,7 @@ const CartItemRow = ({ item }: CartItemRowProps) => {
 		setDescription(item.description.trim());
 	};
 
+	// NOTE: there is a bug here, the date something not aligned with the execution loop
 	const previewDate = (() => {
 		try {
 			const solar = Lunar.fromYmd(
@@ -55,7 +47,7 @@ const CartItemRow = ({ item }: CartItemRowProps) => {
 				solar.getDay(),
 			]).label;
 		} catch {
-			return `Day ${item.lunarDay}`;
+			return `Warning: Invalid date ${item.lunarMonth} - ${item.lunarDay}`;
 		}
 	})();
 
@@ -81,70 +73,58 @@ const CartItemRow = ({ item }: CartItemRowProps) => {
 
 	return (
 		<>
-			<Dialog open={open} onOpenChange={onDialogChange}>
-				<DialogContent>
-					<DialogHeader>
-						<DialogTitle>Edit Item</DialogTitle>
-						<DialogDescription>Edit the item details</DialogDescription>
-						<div>
-
-							<InputField
-								id="title"
-								label="Title"
-								value={title}
-								onChange={setTitle}
-								className='mb-4'
-							/>
-							<div className="grid gap-4 md:grid-cols-2">
-								<SelectField
-									id="lunar-month"
-									label="Lunar month"
-									value={lunarMonth}
-									onValueChange={setLunarMonth}
-									options={dedupedMonthRules.map((rule) => ({
-										label: rule.name,
-										value: String(rule.value),
-									}))}
-								/>
-								<SelectField
-									id="lunar-day"
-									label="Lunar day"
-									value={lunarDay}
-									onValueChange={setLunarDay}
-									options={LUNAR_DAY_OPTIONS.map((day) => ({
-										label: String(day),
-										value: String(day),
-									}))}
-								/>
-							</div>
-							<div className="mt-4 mb-4">
-								<Label htmlFor="description" className="mb-2">
-									Description
-								</Label>
-								<Textarea
-									id="description"
-									rows={4}
-									value={description}
-									onChange={(e) => setDescription(e.target.value)}
-								/>
-							</div>
-						</div>
-						<div className="mt-4 flex justify-end gap-2">
-							<Button type="button" variant="outline" onClick={handleCancel}>
-								Cancel
-							</Button>
-							<Button type="button" variant="default" onClick={handleSave}>
-								Save
-							</Button>
-						</div>
-					</DialogHeader>
-				</DialogContent>
-			</Dialog>
+			<EditDialog
+				title="Edit Item"
+				open={open}
+				onOpenChange={onDialogChange}
+				onCancel={handleCancel}
+				onSave={handleSave}>
+				<InputField
+					id="title"
+					label="Title"
+					value={title}
+					onChange={setTitle}
+					className="mb-4"
+				/>
+				<div className="grid gap-4 md:grid-cols-2">
+					<SelectField
+						id="lunar-month"
+						label="Lunar month"
+						value={lunarMonth}
+						onValueChange={setLunarMonth}
+						options={dedupedMonthRules.map((rule) => ({
+							label: rule.name,
+							value: String(rule.value),
+						}))}
+					/>
+					<SelectField
+						id="lunar-day"
+						label="Lunar day"
+						value={lunarDay}
+						onValueChange={setLunarDay}
+						options={LUNAR_DAY_OPTIONS.map((day) => ({
+							label: String(day),
+							value: String(day),
+						}))}
+					/>
+				</div>
+				<div className="mt-4 mb-4">
+					<Label htmlFor="description" className="mb-2">
+						Description
+					</Label>
+					<Textarea
+						id="description"
+						rows={4}
+						value={description}
+						onChange={(e) => setDescription(e.target.value)}
+					/>
+				</div>
+			</EditDialog>
 			<div className="flex justify-between items-center border-2 border-gray-200 rounded-lg p-4">
 				<div>
 					<p className="text-lg font-bold">{item.title}</p>
 					<div>
-						{previewDate} |{' '} {item.lunarMonth} - {item.lunarDay}
+						{previewDate} | {item.lunarMonth} - {item.lunarDay}
 					</div>
 					<div>{item.description}</div>
 				</div>
