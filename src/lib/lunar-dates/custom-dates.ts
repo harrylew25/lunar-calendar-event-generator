@@ -33,8 +33,6 @@ const resolveLunarMonthDay = (input: CustomDateInput): LunarMonthDay => {
 const getSolarFromLunar = ({ year, month, day }: LunarDateObj) =>
 	solarToDateParts(Lunar.fromYmd(year, month, day).getSolar());
 
-// there is a bug here.
-// current bug data, leap march with 29 days but we are seeing normal march with 30 days.
 const lunarToGregorianParts = ({
 	year,
 	month,
