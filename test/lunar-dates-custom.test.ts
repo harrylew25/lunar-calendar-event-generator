@@ -235,4 +235,23 @@ describe('getLunarDateNotifications — custom dates', () => {
 		]);
 		expect(custom.map((n) => n.date)).not.toContainEqual([2028, 7, 7]);
 	});
+
+	test('leap March 29/30 in 2031 stay on leap March, not regular March 30', () => {
+		const expectedLeap29 = [2031, 5, 20] satisfies GregorianDateParts;
+		const regularMarch30 = [2031, 4, 21] satisfies GregorianDateParts;
+
+		for (const lunarDay of [29, 30]) {
+			const custom = getLunarDateNotifications({
+				startYear: 2031,
+				startMonth: 1,
+				numberOfYears: 0,
+				customDates: [
+					buildLunarCustomDate({ lunarMonth: -3, lunarDay }, '闰三月'),
+				],
+			}).filter((n) => n.type === 'custom');
+
+			expect(custom[0]?.date).toEqual(expectedLeap29);
+			expect(custom[0]?.date).not.toEqual(regularMarch30);
+		}
+	});
 });
