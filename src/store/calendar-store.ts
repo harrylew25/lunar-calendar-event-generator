@@ -1,7 +1,4 @@
-import {
-	collectCustomNotifications,
-	resolveStartLunarYearFromGregorian,
-} from '@lunar-dates';
+import { CALENDAR_DEFAULTS, collectCustomNotifications } from '@lunar-dates';
 import type {
 	LunarCustomDateInput,
 	LunarDateNotification,
@@ -37,8 +34,6 @@ type CalendarStore = {
 	clearAll: () => void;
 };
 
-const DEFAULT_LOOP_YEARS = 10;
-
 const isDuplicate = (cart: CartItem[], item: CartItemInput): boolean => {
 	return cart.some(
 		(existing) =>
@@ -56,10 +51,10 @@ const toCustomDateInput = (item: CartItem): LunarCustomDateInput => ({
 	description: item.description,
 });
 
-const useCalendarStore = create<CalendarStore>((set, get) => ({
+export const useCalendarStore = create<CalendarStore>((set, get) => ({
 	step: 'select',
-	startYear: new Date().getFullYear(),
-	loopYears: DEFAULT_LOOP_YEARS,
+	startYear: CALENDAR_DEFAULTS.startYear,
+	loopYears: CALENDAR_DEFAULTS.numberOfYears,
 	cart: [],
 	expandedEvents: null,
 
@@ -104,12 +99,9 @@ const useCalendarStore = create<CalendarStore>((set, get) => ({
 		if (cart.length === 0) {
 			return;
 		}
-		const resolvedStartYear = resolveStartLunarYearFromGregorian(
-			startYear,
-		);
 		const expandedEvents = collectCustomNotifications(
 			cart.map(toCustomDateInput),
-			{ startYear: resolvedStartYear, numberOfYears: loopYears },
+			{ startYear: startYear, numberOfYears: loopYears },
 		);
 
 		set({ expandedEvents, step: 'preview' });
@@ -121,4 +113,3 @@ const useCalendarStore = create<CalendarStore>((set, get) => ({
 }));
 
 export type { CartItem, CartItemInput, WizardStep };
-export { DEFAULT_LOOP_YEARS, useCalendarStore };
