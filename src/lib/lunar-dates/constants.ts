@@ -30,9 +30,9 @@ const monthRules = [
 ] as const;
 
 const CALENDAR_DEFAULTS = {
-	startYear: 2020,
+	startYear: 2026,
 	startMonth: 1,
-	numberOfYears: 5,
+	numberOfYears: 10,
 } as const;
 
 const SOLAR_MONTH = {
