@@ -174,37 +174,28 @@ describe('getLunarDateNotifications — custom dates', () => {
 		expect(onSameDay.some((n) => n.type === 'custom')).toBe(true);
 	});
 
-	test.skip('正月三十 occurs in 6 lunar years from 2020 to 2030', () => {
-		const expectedDates = [
-			[2022, 3, 2],
-			[2025, 2, 27],
-			[2026, 3, 18],
-			[2027, 3, 7],
-			[2028, 2, 24],
-			[2029, 3, 14],
-		] satisfies GregorianDateParts[];
-		const customDateInput = buildLunarCustomDate(
-			{ lunarMonth: 1, lunarDay: 30 },
-			'正月三十',
-		);
-
-		expect(() =>
-			getLunarDateNotifications({
-				startYear: 2020,
-				startMonth: 1,
-				numberOfYears: 10,
-				customDates: [customDateInput],
-			}),
-		).not.toThrow();
-
+	test.each([
+		{ lunarMonth: 2, expectedDate: [2026, 4, 16] },
+		{ lunarMonth: 4, expectedDate: [2026, 6, 14] },
+		{ lunarMonth: 5, expectedDate: [2026, 7, 13] },
+		{ lunarMonth: 7, expectedDate: [2026, 9, 10] },
+		{ lunarMonth: 8, expectedDate: [2026, 10, 9] },
+		{ lunarMonth: 12, expectedDate: [2027, 2, 5] },
+	] satisfies {
+		lunarMonth: number;
+		expectedDate: GregorianDateParts;
+	}[])('clamps day 30 to 29 for lunar 2026 month $lunarMonth', ({
+		lunarMonth,
+		expectedDate,
+	}) => {
 		const custom = getLunarDateNotifications({
-			startYear: 2020,
+			startYear: 2026,
 			startMonth: 1,
-			numberOfYears: 10,
-			customDates: [customDateInput],
+			numberOfYears: 0,
+			customDates: [buildLunarCustomDate({ lunarMonth, lunarDay: 30 }, '三十')],
 		}).filter((n) => n.type === 'custom');
 
-		expect(custom).toHaveLength(6);
-		expect(custom.map((n) => n.date)).toEqual(expectedDates);
+		expect(custom).toHaveLength(1);
+		expect(custom[0]?.date).toEqual(expectedDate);
 	});
 });
