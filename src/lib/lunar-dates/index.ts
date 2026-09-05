@@ -2,7 +2,6 @@ import { CALENDAR_DEFAULTS, LUNAR_MILESTONE_DAYS } from './constants';
 import {
 	getFirstAndFifteenDay,
 	resolveLunarStartFromSolarMonth,
-	resolveStartLunarYearFromGregorian,
 	solarToDateParts,
 } from './conversion';
 import {
@@ -34,6 +33,5 @@ export {
 	LUNAR_MILESTONE_DAYS,
 	resolveLunarMonthDay,
 	resolveLunarStartFromSolarMonth,
-	resolveStartLunarYearFromGregorian,
 	solarToDateParts,
 };

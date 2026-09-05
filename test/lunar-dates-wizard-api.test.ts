@@ -1,17 +1,7 @@
 import { describe, expect, test } from 'bun:test';
-import {
-	collectCustomNotifications,
-	resolveLunarMonthDay,
-	resolveStartLunarYearFromGregorian,
-} from '@lunar-dates';
+import { collectCustomNotifications, resolveLunarMonthDay } from '@lunar-dates';
 import type { LunarDateNotification } from '@lunar-dates/lunar-dates.type';
 import { expectedLunarMonthDayFromSolar } from '@test/helpers/lunar-oracle';
-
-describe('resolveStartLunarYearFromGregorian', () => {
-	test('Gregorian 2025-01-01 anchor maps to lunar year 2024', () => {
-		expect(resolveStartLunarYearFromGregorian(2025)).toBe(2024);
-	});
-});
 
 describe('resolveLunarMonthDay', () => {
 	test('solar 1992-02-18 resolves to lunar month 1 day 15', () => {
