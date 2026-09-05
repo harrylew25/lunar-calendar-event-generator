@@ -198,4 +198,41 @@ describe('getLunarDateNotifications — custom dates', () => {
 		expect(custom).toHaveLength(1);
 		expect(custom[0]?.date).toEqual(expectedDate);
 	});
+
+	const leapMay15 = buildLunarCustomDate(
+		{ lunarMonth: -5, lunarDay: 15 },
+		'闰五月十五',
+	);
+
+	test('uses leap May only in startYear 2028, then regular May including 2039 and 2047', () => {
+		const custom = getLunarDateNotifications({
+			startYear: 2028,
+			startMonth: 1,
+			numberOfYears: 19,
+			customDates: [leapMay15],
+		}).filter((n) => n.type === 'custom');
+
+		expect(custom[0]?.date).toEqual([2028, 7, 7]);
+		expect(custom[1]?.date).toEqual([2029, 6, 26]);
+		expect(custom.map((n) => n.date)).toContainEqual([2039, 6, 6]);
+		expect(custom.map((n) => n.date)).toContainEqual([2047, 6, 8]);
+		expect(custom.map((n) => n.date)).not.toContainEqual([2039, 7, 6]);
+		expect(custom.map((n) => n.date)).not.toContainEqual([2047, 7, 7]);
+	});
+
+	test('ignores leap May when startYear 2026 has no leap May', () => {
+		const custom = getLunarDateNotifications({
+			startYear: 2026,
+			startMonth: 1,
+			numberOfYears: 2,
+			customDates: [leapMay15],
+		}).filter((n) => n.type === 'custom');
+
+		expect(custom.map((n) => n.date)).toEqual([
+			[2026, 6, 29],
+			[2027, 6, 19],
+			[2028, 6, 7],
+		]);
+		expect(custom.map((n) => n.date)).not.toContainEqual([2028, 7, 7]);
+	});
 });
