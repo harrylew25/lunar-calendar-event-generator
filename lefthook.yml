@@ -19,3 +19,27 @@ pre-commit:
         - "*.{ts,tsx,js,json,html,css}"
         - "**/*.{ts,tsx,js,json,html,css}"
       stage_fixed: true
+
+prepare-commit-msg:
+  skip:
+    - merge
+    - rebase
+    - ref: develop
+    - ref: staging
+    - ref: release
+    - ref: release/*
+  jobs:
+    - name: prepend ENG ticket
+      run: bun scripts/prepend-eng-ticket.ts {1} {2}
+
+commit-msg:
+  skip:
+    - merge
+    - rebase
+    - ref: develop
+    - ref: staging
+    - ref: release
+    - ref: release/*
+  jobs:
+    - name: commitlint
+      run: bunx commitlint --edit {1}
