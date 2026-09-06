@@ -2,7 +2,7 @@
 title: README
 description: Lunar Calendar Event Generator — setup, scripts, and project overview.
 creation-time: 2026-07-24
-updated-time: 2026-09-05
+updated-time: 2026-09-07
 tags:
   - lunar-calendar
   - ics
@@ -44,6 +44,7 @@ Loop semantics: `numberOfYears: 10` produces **11 occurrences** (inclusive). The
 | Calendar engine | `lunar-javascript` |
 | ICS export | `ts-ics` |
 | Lint / format | Biome |
+| Commit messages | [commitlint](https://commitlint.js.org/) (`@commitlint/config-conventional`) + `[ENG-n]` from the branch |
 | Types | TypeScript (`tsc --noEmit`) |
 | Git hooks | [Lefthook](https://lefthook.dev/) (`lefthook.yml`) |
 | Component tests | happy-dom, Testing Library (`@testing-library/react`) |
@@ -73,7 +74,9 @@ Open the URL printed by `bun run dev`, then walk through **Date selection → Ca
 ## Project layout
 
 ```text
-lefthook.yml                   # Git pre-commit (Biome) and pre-push (tsc + tests)
+lefthook.yml                   # Git hooks: Biome, commitlint, ticket prefix, pre-push
+scripts/prepend-eng-ticket.ts  # prepare-commit-msg: prepend [ENG-n] from branch
+commitlint.config.ts           # Conventional Commits + optional [ENG-n] prefix
 src/
   App.tsx                      # step router (select | cart | preview)
   store/calendar-store.ts      # Zustand cart, loop, expand
@@ -124,10 +127,12 @@ const events = collectCustomNotifications(
 
 [Lefthook](https://lefthook.dev/) runs local checks on commit and push ([`lefthook.yml`](lefthook.yml)):
 
+- **prepare-commit-msg** — prepends `[ENG-n]` from the current branch (`ENG-\d+`, case-insensitive) when missing. Skipped on `develop`, `staging`, `release`, `release/*`, and merge/squash
+- **commit-msg** — [commitlint](https://commitlint.js.org/) with `@commitlint/config-conventional` plus an optional `[ENG-n]` subject prefix. Same skip refs as prepare-commit-msg
 - **pre-commit** — Biome on staged `ts` / `tsx` / `js` / `json` / `html` / `css` (writes fixes and restages them)
 - **pre-push** — `bun run typecheck` then `bun run test`
 
-Dry-run without committing: `bunx lefthook run pre-commit` (stage matching files first) or `bunx lefthook run pre-push`. These are separate from Cursor agent hooks under `.cursor/hooks/`.
+Dry-run without committing: `bunx lefthook run pre-commit` (stage matching files first) or `bunx lefthook run pre-push`. Validate a subject with `echo 'feat(ics): example' | bunx commitlint`. These are separate from Cursor agent hooks under `.cursor/hooks/`.
 
 Hooks are local only. `git commit --no-verify` and `git push --no-verify` skip them. Merge blocking on GitHub is [ENG-24](https://linear.app/hl-engineering/issue/ENG-24/ci-typecheck-and-build-required-on-every-pr) (CI), not Lefthook.
 
