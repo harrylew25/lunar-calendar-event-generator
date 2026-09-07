@@ -45,6 +45,7 @@
 		"typescript": "^7.0.2"
 	},
 	"trustedDependencies": [
-		"lefthook"
+		"lefthook",
+		"bun"
 	]
 }
