@@ -1,42 +1,42 @@
 {
-  "compilerOptions": {
-    // Environment setup & latest features
-    "lib": ["ESNext", "DOM"],
-    "target": "ESNext",
-    "module": "Preserve",
-    "moduleDetection": "force",
-    "jsx": "react-jsx",
-    "allowJs": true,
-    "types": ["bun", "react"],
+	"compilerOptions": {
+		// Environment setup & latest features
+		"lib": ["ESNext", "DOM"],
+		"target": "ESNext",
+		"module": "Preserve",
+		"moduleDetection": "force",
+		"jsx": "react-jsx",
+		"allowJs": true,
+		"types": ["bun", "react"],
 
-    // Bundler mode
-    "moduleResolution": "bundler",
-    "allowImportingTsExtensions": true,
-    "verbatimModuleSyntax": true,
-    "noEmit": true,
+		// Bundler mode
+		"moduleResolution": "bundler",
+		"allowImportingTsExtensions": true,
+		"verbatimModuleSyntax": true,
+		"noEmit": true,
 
-    // Best practices
-    "strict": true,
-    "skipLibCheck": true,
-    "noFallthroughCasesInSwitch": true,
-    "noUncheckedIndexedAccess": true,
-    "noImplicitOverride": true,
+		// Best practices
+		"strict": true,
+		"skipLibCheck": true,
+		"noFallthroughCasesInSwitch": true,
+		"noUncheckedIndexedAccess": true,
+		"noImplicitOverride": true,
 
-    "paths": {
-      "@/*": ["./src/*"],
-      "@lib/*": ["./src/lib/*"],
-      "@lunar-dates": ["./src/lib/lunar-dates/index.ts"],
-      "@lunar-dates/*": ["./src/lib/lunar-dates/*"],
-      "@ics": ["./src/lib/ics/index.ts"],
-      "@ics/*": ["./src/lib/ics/*"],
-      "@test/helpers/*": ["./test/helpers/*"]
-    },
+		"paths": {
+			"@/*": ["./src/*"],
+			"@lib/*": ["./src/lib/*"],
+			"@lunar-dates": ["./src/lib/lunar-dates/index.ts"],
+			"@lunar-dates/*": ["./src/lib/lunar-dates/*"],
+			"@ics": ["./src/lib/ics/index.ts"],
+			"@ics/*": ["./src/lib/ics/*"],
+			"@test/helpers/*": ["./test/helpers/*"]
+		},
 
-    // Some stricter flags (disabled by default)
-    "noUnusedLocals": false,
-    "noUnusedParameters": false,
-    "noPropertyAccessFromIndexSignature": false
-  },
+		// Some stricter flags (disabled by default)
+		"noUnusedLocals": false,
+		"noUnusedParameters": false,
+		"noPropertyAccessFromIndexSignature": false
+	},
 
-  "exclude": ["dist", "node_modules"]
+	"exclude": ["dist", "node_modules"]
 }

@@ -7,7 +7,8 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useCalendarStore } from '@/store/calendar-store';
 
 const sortArray = (list: number[]) => list.sort((a, b) => a - b);
-const filterUniqueAndSort = (list: number[]) => sortArray(Array.from(new Set(list)));
+const filterUniqueAndSort = (list: number[]) =>
+	sortArray(Array.from(new Set(list)));
 
 const PreviewStep = () => {
 	const expandedEvents = useCalendarStore((state) => state.expandedEvents);
@@ -58,10 +59,16 @@ const PreviewStep = () => {
 					</p>
 				</div>
 				<div className="flex gap-2">
-					<Button type="button" variant="outline" onClick={() => setStep('select')}>
+					<Button
+						type="button"
+						variant="outline"
+						onClick={() => setStep('select')}>
 						Back to date selection
 					</Button>
-					<Button type="button" variant="outline" onClick={() => setStep('cart')}>
+					<Button
+						type="button"
+						variant="outline"
+						onClick={() => setStep('cart')}>
 						Back to cart
 					</Button>
 					<Button type="button" onClick={handleDownload}>
