@@ -73,6 +73,19 @@
 				"rules": {
 					"style": {
 						"noExcessiveLinesPerFile": "off"
+					},
+					"complexity": {
+						"noStaticOnlyClass": "off"
+					}
+				}
+			}
+		},
+		{
+			"includes": [".cursor/hooks/*.{ts,tsx}"],
+			"linter": {
+				"rules": {
+					"style": {
+						"useNamingConvention": "off"
 					}
 				}
 			}

@@ -135,7 +135,14 @@ describe('getLunarDateNotifications — orchestration', () => {
 
 describe('getFirstAndFifteenDay', () => {
 	test('returns chuyi and shiwu solar parts from lunar month', () => {
-		const [chuyi, shiwu] = getFirstAndFifteenDay(2020, 4)!;
+		const result = getFirstAndFifteenDay(2020, 4);
+		expect(result).not.toBeNull();
+
+		if (result === null) {
+			throw new Error('Expected result not to be null');
+		}
+
+		const [chuyi, shiwu] = result;
 		expect(chuyi).toEqual(expectedChuyiSolarParts(2020, 4));
 		expect(daysBetweenSolarParts(chuyi, shiwu)).toBe(14);
 	});
