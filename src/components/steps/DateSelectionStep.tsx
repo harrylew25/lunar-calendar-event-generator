@@ -1,3 +1,5 @@
+import { resolveLunarMonthDay } from '@lunar-dates';
+import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import {
 	dedupedMonthRules,
@@ -5,8 +7,6 @@ import {
 	LUNAR_DAY_OPTIONS,
 } from '@/lib/wizard/constants';
 import { useCalendarStore } from '@/store/calendar-store';
-import { resolveLunarMonthDay } from '@lunar-dates';
-import { useState } from 'react';
 import InputField from '../form/input-field';
 import SelectField from '../ui/select-field';
 
@@ -14,14 +14,14 @@ const currentYear = new Date().getFullYear();
 const RANGE = 5;
 const formatYearsOption = (years: number) => {
 	const stringYears = String(years);
-	return ({
-		label: stringYears + ` ${years === currentYear ? '(current year)' : ''}`,
+	return {
+		label: `${stringYears} ${years === currentYear ? '(current year)' : ''}`,
 		value: stringYears,
-	})
+	};
 };
 const YEARS_OPTIONS = Array.from(
 	{ length: RANGE * 2 + 1 },
-	(_, index) => currentYear - RANGE + index
+	(_, index) => currentYear - RANGE + index,
 ).map(formatYearsOption);
 
 const LOOP_YEARS_OPTIONS = LOOP_YEAR_PRESETS.map((years) => ({
@@ -59,9 +59,14 @@ const DateSelectionStep = () => {
 	};
 
 	const submitRule = (lunarMonth: number, lunarDay: number) => {
-		addItem({ lunarMonth, lunarDay, title: trimmedTitle, description: description.trim() });
+		addItem({
+			lunarMonth,
+			lunarDay,
+			title: trimmedTitle,
+			description: description.trim(),
+		});
 		resetForm();
-	}
+	};
 
 	const handleAddLunar = (): void => {
 		if (!canAddLunar) {
@@ -148,14 +153,20 @@ const DateSelectionStep = () => {
 							label="Lunar month"
 							value={lunarMonth}
 							onValueChange={setLunarMonth}
-							options={dedupedMonthRules.map((rule) => ({ label: rule.name, value: String(rule.value) }))}
+							options={dedupedMonthRules.map((rule) => ({
+								label: rule.name,
+								value: String(rule.value),
+							}))}
 						/>
 						<SelectField
 							id="lunar-day"
 							label="Lunar day"
 							value={lunarDay}
 							onValueChange={setLunarDay}
-							options={LUNAR_DAY_OPTIONS.map((day) => ({ label: String(day), value: String(day) }))}
+							options={LUNAR_DAY_OPTIONS.map((day) => ({
+								label: String(day),
+								value: String(day),
+							}))}
 						/>
 					</div>
 				) : (
