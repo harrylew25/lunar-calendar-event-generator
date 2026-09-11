@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'bun:test';
-import { getLunarDateNotifications } from '@lunar-dates';
+import { collectCustomNotifications, expandMonthlyEvents } from '@lunar-dates';
 import type {
 	CustomDateInput,
 	GregorianDateParts,
@@ -14,6 +14,9 @@ type SolarAnchor = Pick<
 >;
 
 type LunarMonthDay = Pick<LunarCustomDateInput, 'lunarMonth' | 'lunarDay'>;
+
+const YEAR_RANGE = { startYear: 2020, numberOfYears: 0 } as const;
+const THREE_YEARS = { startYear: 2020, numberOfYears: 2 } as const;
 
 const buildSolarCustomDate = (
 	anchor: SolarAnchor,
@@ -35,22 +38,19 @@ const buildLunarCustomDate = (
 	title,
 });
 
-describe('getLunarDateNotifications — custom dates', () => {
+describe('collectCustomNotifications', () => {
 	test('solar 1992-02-18 produces one custom notification for startYear', () => {
-		const notifications = getLunarDateNotifications({
-			startYear: 2020,
-			startMonth: 1,
-			numberOfYears: 0,
-			customDates: [
+		const custom = collectCustomNotifications(
+			[
 				buildSolarCustomDate(
 					{ solarYear: 1992, solarMonth: 2, solarDay: 18 },
 					'正月十五 reminder',
 					'From solar anchor 1992-02-18',
 				),
 			],
-		});
+			YEAR_RANGE,
+		);
 
-		const custom = notifications.filter((n) => n.type === 'custom');
 		expect(custom).toHaveLength(1);
 		expect(custom[0]).toMatchObject({
 			type: 'custom',
@@ -62,19 +62,16 @@ describe('getLunarDateNotifications — custom dates', () => {
 	});
 
 	test('lunar 正月十五 repeats once per lunar year in range', () => {
-		const notifications = getLunarDateNotifications({
-			startYear: 2020,
-			startMonth: 1,
-			numberOfYears: 2,
-			customDates: [
+		const custom = collectCustomNotifications(
+			[
 				buildLunarCustomDate(
 					{ lunarMonth: 1, lunarDay: 15 },
 					'正月十五 reminder',
 				),
 			],
-		});
+			THREE_YEARS,
+		);
 
-		const custom = notifications.filter((n) => n.type === 'custom');
 		expect(custom).toHaveLength(3);
 		expect(custom.map((n) => n.date)).toEqual([
 			[2020, 2, 8],
@@ -100,23 +97,16 @@ describe('getLunarDateNotifications — custom dates', () => {
 			lunar: { lunarMonth: 9, lunarDay: 9 },
 		},
 	])('$label — solar and lunar produce identical dates', ({ solar, lunar }) => {
-		const base = { startYear: 2020, startMonth: 1, numberOfYears: 2 };
-		const fromSolar = getLunarDateNotifications({
-			...base,
-			customDates: [buildSolarCustomDate(solar, 'A')],
-		});
-		const fromLunar = getLunarDateNotifications({
-			...base,
-			customDates: [buildLunarCustomDate(lunar, 'A')],
-		});
+		const fromSolar = collectCustomNotifications(
+			[buildSolarCustomDate(solar, 'A')],
+			THREE_YEARS,
+		);
+		const fromLunar = collectCustomNotifications(
+			[buildLunarCustomDate(lunar, 'A')],
+			THREE_YEARS,
+		);
 
-		const solarDates = fromSolar
-			.filter((n) => n.type === 'custom')
-			.map((n) => n.date);
-		const lunarDates = fromLunar
-			.filter((n) => n.type === 'custom')
-			.map((n) => n.date);
-		expect(solarDates).toEqual(lunarDates);
+		expect(fromSolar.map((n) => n.date)).toEqual(fromLunar.map((n) => n.date));
 	});
 
 	test.each([
@@ -139,30 +129,26 @@ describe('getLunarDateNotifications — custom dates', () => {
 			] satisfies GregorianDateParts[],
 		},
 	])('$label repeats once per lunar year', ({ lunar, expectedDates }) => {
-		const notifications = getLunarDateNotifications({
-			startYear: 2020,
-			startMonth: 1,
-			numberOfYears: 2,
-			customDates: [
-				buildLunarCustomDate(lunar, `${lunar.lunarMonth} reminder`),
-			],
-		});
+		const custom = collectCustomNotifications(
+			[buildLunarCustomDate(lunar, `${lunar.lunarMonth} reminder`)],
+			THREE_YEARS,
+		);
 
-		const custom = notifications.filter((n) => n.type === 'custom');
 		expect(custom).toHaveLength(expectedDates.length);
 		expect(custom.map((n) => n.date)).toEqual(expectedDates);
 	});
 
 	test('custom event coexists with auto chuyi on same Gregorian day', () => {
 		const chuyiDate = expectedChuyiSolarParts(2020, 4);
-		const notifications = getLunarDateNotifications({
-			startYear: 2020,
-			startMonth: 1,
-			numberOfYears: 0,
-			customDates: [
-				buildLunarCustomDate({ lunarMonth: 4, lunarDay: 1 }, 'Extra reminder'),
-			],
+		const custom = collectCustomNotifications(
+			[buildLunarCustomDate({ lunarMonth: 4, lunarDay: 1 }, 'Extra reminder')],
+			YEAR_RANGE,
+		);
+		const monthly = expandMonthlyEvents(YEAR_RANGE, {
+			chuyi: true,
+			shiwu: false,
 		});
+		const notifications = [...custom, ...monthly];
 
 		const onSameDay = notifications.filter(
 			(n) =>
@@ -188,12 +174,10 @@ describe('getLunarDateNotifications — custom dates', () => {
 		lunarMonth,
 		expectedDate,
 	}) => {
-		const custom = getLunarDateNotifications({
-			startYear: 2026,
-			startMonth: 1,
-			numberOfYears: 0,
-			customDates: [buildLunarCustomDate({ lunarMonth, lunarDay: 30 }, '三十')],
-		}).filter((n) => n.type === 'custom');
+		const custom = collectCustomNotifications(
+			[buildLunarCustomDate({ lunarMonth, lunarDay: 30 }, '三十')],
+			{ startYear: 2026, numberOfYears: 0 },
+		);
 
 		expect(custom).toHaveLength(1);
 		expect(custom[0]?.date).toEqual(expectedDate);
@@ -205,12 +189,10 @@ describe('getLunarDateNotifications — custom dates', () => {
 	);
 
 	test('uses leap May only in startYear 2028, then regular May including 2039 and 2047', () => {
-		const custom = getLunarDateNotifications({
+		const custom = collectCustomNotifications([leapMay15], {
 			startYear: 2028,
-			startMonth: 1,
 			numberOfYears: 19,
-			customDates: [leapMay15],
-		}).filter((n) => n.type === 'custom');
+		});
 
 		expect(custom[0]?.date).toEqual([2028, 7, 7]);
 		expect(custom[1]?.date).toEqual([2029, 6, 26]);
@@ -221,12 +203,10 @@ describe('getLunarDateNotifications — custom dates', () => {
 	});
 
 	test('ignores leap May when startYear 2026 has no leap May', () => {
-		const custom = getLunarDateNotifications({
+		const custom = collectCustomNotifications([leapMay15], {
 			startYear: 2026,
-			startMonth: 1,
 			numberOfYears: 2,
-			customDates: [leapMay15],
-		}).filter((n) => n.type === 'custom');
+		});
 
 		expect(custom.map((n) => n.date)).toEqual([
 			[2026, 6, 29],
@@ -241,14 +221,10 @@ describe('getLunarDateNotifications — custom dates', () => {
 		const regularMarch30 = [2031, 4, 21] satisfies GregorianDateParts;
 
 		for (const lunarDay of [29, 30]) {
-			const custom = getLunarDateNotifications({
-				startYear: 2031,
-				startMonth: 1,
-				numberOfYears: 0,
-				customDates: [
-					buildLunarCustomDate({ lunarMonth: -3, lunarDay }, '闰三月'),
-				],
-			}).filter((n) => n.type === 'custom');
+			const custom = collectCustomNotifications(
+				[buildLunarCustomDate({ lunarMonth: -3, lunarDay }, '闰三月')],
+				{ startYear: 2031, numberOfYears: 0 },
+			);
 
 			expect(custom[0]?.date).toEqual(expectedLeap29);
 			expect(custom[0]?.date).not.toEqual(regularMarch30);

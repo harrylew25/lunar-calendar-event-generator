@@ -1,7 +1,8 @@
-import type { LunarMonth, LunarYear } from 'lunar-javascript';
 import type { monthRules } from './constants';
 
 type LunarDateType = 'chuyi' | 'shiwu' | 'custom';
+
+type MonthlyEventId = Exclude<LunarDateType, 'custom'>;
 
 type GregorianDateParts = readonly [year: number, month: number, day: number];
 
@@ -30,11 +31,6 @@ type LunarDateNotification = {
 type LunarStart = {
 	startYear: number;
 	startMonth: number;
-};
-
-type SolarStartInput = {
-	startSolarYear?: number;
-	startSolarMonth?: number;
 };
 
 type CustomDateInputBase = {
@@ -68,17 +64,7 @@ type CustomYearRange = {
 	numberOfYears: number;
 };
 
-type LunarDateNotificationsOptions = SolarStartInput &
-	Partial<LunarStart> & {
-		numberOfYears?: number;
-		customDates?: CustomDateInput[];
-	};
-
 type MonthRule = (typeof monthRules)[number];
-
-type LunarMonthInstance = NonNullable<ReturnType<typeof LunarMonth.fromYm>>;
-
-type MonthsInYear = ReturnType<LunarYear['getMonthsInYear']>;
 
 export type {
 	CustomDateInput,
@@ -89,13 +75,10 @@ export type {
 	IcsTimeTransparent,
 	LunarCustomDateInput,
 	LunarDateNotification,
-	LunarDateNotificationsOptions,
 	LunarDateType,
 	LunarMonthDay,
-	LunarMonthInstance,
 	LunarStart,
+	MonthlyEventId,
 	MonthRule,
-	MonthsInYear,
 	SolarCustomDateInput,
-	SolarStartInput,
 };

@@ -1,14 +1,9 @@
 import { CALENDAR_DEFAULTS, LUNAR_MILESTONE_DAYS } from './constants';
 import {
-	getFirstAndFifteenDay,
-	resolveLunarStartFromSolarMonth,
-	solarToDateParts,
-} from './conversion';
-import {
 	collectCustomNotifications,
+	expandMonthlyEvents,
 	resolveLunarMonthDay,
 } from './custom-dates';
-import { getLunarDateNotifications } from './milestones';
 
 export type {
 	CustomDateInput,
@@ -16,22 +11,18 @@ export type {
 	IcsEventOverrides,
 	LunarCustomDateInput,
 	LunarDateNotification,
-	LunarDateNotificationsOptions,
 	LunarDateType,
 	LunarMonthDay,
 	LunarStart,
+	MonthlyEventId,
 	MonthRule,
 	SolarCustomDateInput,
-	SolarStartInput,
 } from './lunar-dates.type';
 
 export {
 	CALENDAR_DEFAULTS,
 	collectCustomNotifications,
-	getFirstAndFifteenDay,
-	getLunarDateNotifications,
+	expandMonthlyEvents,
 	LUNAR_MILESTONE_DAYS,
 	resolveLunarMonthDay,
-	resolveLunarStartFromSolarMonth,
-	solarToDateParts,
 };
