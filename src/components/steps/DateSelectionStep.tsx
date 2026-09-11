@@ -1,14 +1,15 @@
 import { resolveLunarMonthDay } from '@lunar-dates';
 import { useState } from 'react';
+import InputField from '@/components/form/input-field';
 import { Button } from '@/components/ui/button';
+import SelectField from '@/components/ui/select-field';
 import {
 	dedupedMonthRules,
 	LOOP_YEAR_PRESETS,
 	LUNAR_DAY_OPTIONS,
 } from '@/lib/wizard/constants';
 import { useCalendarStore } from '@/store/calendar-store';
-import InputField from '../form/input-field';
-import SelectField from '../ui/select-field';
+import BulkEventOptions from './BulkEventOptions';
 
 const currentYear = new Date().getFullYear();
 const RANGE = 5;
@@ -120,6 +121,8 @@ const DateSelectionStep = () => {
 					options={LOOP_YEARS_OPTIONS}
 				/>
 			</div>
+
+			<BulkEventOptions />
 
 			<div className="flex gap-2">
 				<Button
