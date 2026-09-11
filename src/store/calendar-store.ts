@@ -1,7 +1,12 @@
-import { CALENDAR_DEFAULTS, collectCustomNotifications } from '@lunar-dates';
+import {
+	CALENDAR_DEFAULTS,
+	collectCustomNotifications,
+	expandMonthlyEvents,
+} from '@lunar-dates';
 import type {
 	LunarCustomDateInput,
 	LunarDateNotification,
+	MonthlyEventId,
 } from '@lunar-dates/lunar-dates.type';
 import { create } from 'zustand';
 
@@ -17,12 +22,18 @@ type CartItem = {
 
 type CartItemInput = Omit<CartItem, 'id'>;
 
+const INITIAL_MONTHLY_EVENTS: Record<MonthlyEventId, boolean> = {
+	chuyi: false,
+	shiwu: false,
+};
+
 type CalendarStore = {
 	step: WizardStep;
 	loopYears: number;
 	startYear: number;
 	cart: CartItem[];
 	expandedEvents: LunarDateNotification[] | null;
+	monthlyEvents: Record<MonthlyEventId, boolean>;
 
 	setStep: (step: WizardStep) => void;
 	setLoopYears: (loopYears: number) => void;
@@ -32,6 +43,7 @@ type CalendarStore = {
 	removeItem: (id: string) => void;
 	confirmAndExpand: () => void;
 	clearAll: () => void;
+	setMonthlyEvent: (id: MonthlyEventId, includes: boolean) => void;
 };
 
 const isDuplicate = (cart: CartItem[], item: CartItemInput): boolean => {
@@ -57,11 +69,13 @@ export const useCalendarStore = create<CalendarStore>((set, get) => ({
 	loopYears: CALENDAR_DEFAULTS.numberOfYears,
 	cart: [],
 	expandedEvents: null,
+	monthlyEvents: { ...INITIAL_MONTHLY_EVENTS },
 
 	setStep: (step) => set({ step }),
 	setStartYear: (startYear) => set({ startYear }),
 	setLoopYears: (loopYears) => set({ loopYears }),
-
+	setMonthlyEvent: (id, includes) =>
+		set({ monthlyEvents: { ...get().monthlyEvents, [id]: includes } }),
 	addItem: (item) => {
 		const { cart } = get();
 		if (isDuplicate(cart, item)) {
@@ -95,20 +109,27 @@ export const useCalendarStore = create<CalendarStore>((set, get) => ({
 	},
 
 	confirmAndExpand: () => {
-		const { cart, loopYears, startYear } = get();
-		if (cart.length === 0) {
+		const { cart, loopYears: numberOfYears, startYear, monthlyEvents } = get();
+		const hasBulk = monthlyEvents.chuyi || monthlyEvents.shiwu;
+		if (cart.length === 0 && !hasBulk) {
 			return;
 		}
-		const expandedEvents = collectCustomNotifications(
-			cart.map(toCustomDateInput),
-			{ startYear: startYear, numberOfYears: loopYears },
-		);
+
+		const yearRange = { startYear, numberOfYears };
+		const expandedEvents = [
+			...collectCustomNotifications(cart.map(toCustomDateInput), yearRange),
+			...expandMonthlyEvents(yearRange, monthlyEvents),
+		];
 
 		set({ expandedEvents, step: 'preview' });
 	},
 
 	clearAll: () => {
-		set({ cart: [], expandedEvents: null });
+		set({
+			cart: [],
+			expandedEvents: null,
+			monthlyEvents: { ...INITIAL_MONTHLY_EVENTS },
+		});
 	},
 }));
 
