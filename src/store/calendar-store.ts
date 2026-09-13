@@ -1,31 +1,21 @@
-import {
-	CALENDAR_DEFAULTS,
-	collectCustomNotifications,
-	expandMonthlyEvents,
-} from '@lunar-dates';
+import { CALENDAR_DEFAULTS, notificationsFromCart } from '@lunar-dates';
+import type { FestivalId } from '@lunar-dates/constants';
 import type {
-	LunarCustomDateInput,
+	CatalogCartRule,
+	CustomCartRule,
 	LunarDateNotification,
+	MonthlyCartRule,
 	MonthlyEventId,
 } from '@lunar-dates/lunar-dates.type';
 import { create } from 'zustand';
 
 type WizardStep = 'select' | 'cart' | 'preview';
 
-type CartItem = {
-	id: string;
-	lunarMonth: number;
-	lunarDay: number;
-	title: string;
-	description: string;
-};
-
-type CartItemInput = Omit<CartItem, 'id'>;
-
-const INITIAL_MONTHLY_EVENTS: Record<MonthlyEventId, boolean> = {
-	chuyi: false,
-	shiwu: false,
-};
+type CustomCartItem = CustomCartRule & { id: string };
+type MonthlyCartItem = MonthlyCartRule & { id: string };
+type CatalogCartItem = CatalogCartRule & { id: string };
+type CartItem = CustomCartItem | MonthlyCartItem | CatalogCartItem;
+type CartItemInput = Omit<CustomCartItem, 'id' | 'kind'>;
 
 type CalendarStore = {
 	step: WizardStep;
@@ -33,7 +23,6 @@ type CalendarStore = {
 	startYear: number;
 	cart: CartItem[];
 	expandedEvents: LunarDateNotification[] | null;
-	monthlyEvents: Record<MonthlyEventId, boolean>;
 
 	setStep: (step: WizardStep) => void;
 	setLoopYears: (loopYears: number) => void;
@@ -43,25 +32,39 @@ type CalendarStore = {
 	removeItem: (id: string) => void;
 	confirmAndExpand: () => void;
 	clearAll: () => void;
-	setMonthlyEvent: (id: MonthlyEventId, includes: boolean) => void;
+	setMonthlyEvent: (id: MonthlyEventId, included: boolean) => void;
+	setCatalogItem: (id: FestivalId, included: boolean) => void;
 };
+
+const isCustomItem = (item: CartItem): item is CustomCartItem =>
+	item.kind === 'custom';
 
 const isDuplicate = (cart: CartItem[], item: CartItemInput): boolean => {
-	return cart.some(
-		(existing) =>
-			existing.lunarMonth === item.lunarMonth &&
-			existing.lunarDay === item.lunarDay &&
-			existing.title === item.title,
-	);
+	return cart
+		.filter(isCustomItem)
+		.some(
+			(existing) =>
+				existing.lunarMonth === item.lunarMonth &&
+				existing.lunarDay === item.lunarDay &&
+				existing.title === item.title,
+		);
 };
 
-const toCustomDateInput = (item: CartItem): LunarCustomDateInput => ({
-	kind: 'lunar',
-	lunarMonth: item.lunarMonth,
-	lunarDay: item.lunarDay,
-	title: item.title,
-	description: item.description,
-});
+const toCartRule = (item: CartItem) => {
+	if (item.kind === 'monthly') {
+		return { kind: 'monthly' as const, monthlyId: item.monthlyId };
+	}
+	if (item.kind === 'catalog') {
+		return { kind: 'catalog' as const, catalogId: item.catalogId };
+	}
+	return {
+		kind: 'custom' as const,
+		lunarMonth: item.lunarMonth,
+		lunarDay: item.lunarDay,
+		title: item.title,
+		description: item.description,
+	};
+};
 
 export const useCalendarStore = create<CalendarStore>((set, get) => ({
 	step: 'select',
@@ -69,31 +72,70 @@ export const useCalendarStore = create<CalendarStore>((set, get) => ({
 	loopYears: CALENDAR_DEFAULTS.numberOfYears,
 	cart: [],
 	expandedEvents: null,
-	monthlyEvents: { ...INITIAL_MONTHLY_EVENTS },
 
 	setStep: (step) => set({ step }),
 	setStartYear: (startYear) => set({ startYear }),
 	setLoopYears: (loopYears) => set({ loopYears }),
-	setMonthlyEvent: (id, includes) =>
-		set({ monthlyEvents: { ...get().monthlyEvents, [id]: includes } }),
+
+	setMonthlyEvent: (id, included) => {
+		const { cart } = get();
+		const withoutId = cart.filter(
+			(item) => !(item.kind === 'monthly' && item.monthlyId === id),
+		);
+		if (!included) {
+			set({ cart: withoutId });
+			return;
+		}
+		if (withoutId.length !== cart.length) {
+			return;
+		}
+		set({
+			cart: [
+				...cart,
+				{ kind: 'monthly', monthlyId: id, id: crypto.randomUUID() },
+			],
+		});
+	},
+
+	setCatalogItem: (id, included) => {
+		const { cart } = get();
+		const withoutId = cart.filter(
+			(item) => !(item.kind === 'catalog' && item.catalogId === id),
+		);
+		if (!included) {
+			set({ cart: withoutId });
+			return;
+		}
+		if (withoutId.length !== cart.length) {
+			return;
+		}
+		set({
+			cart: [
+				...cart,
+				{ kind: 'catalog', catalogId: id, id: crypto.randomUUID() },
+			],
+		});
+	},
+
 	addItem: (item) => {
 		const { cart } = get();
 		if (isDuplicate(cart, item)) {
 			return;
 		}
 		set({
-			cart: [...cart, { ...item, id: crypto.randomUUID() }],
+			cart: [...cart, { ...item, kind: 'custom', id: crypto.randomUUID() }],
 		});
 	},
 
 	updateItem: (id, patch) => {
 		const { cart } = get();
 		const index = cart.findIndex((item) => item.id === id);
-		if (index === -1) {
+		const current = cart[index];
+		if (index === -1 || !current || current.kind !== 'custom') {
 			return;
 		}
 
-		const updated = { ...cart[index], ...patch } as CartItem;
+		const updated: CustomCartItem = { ...current, ...patch };
 		const withoutSelf = cart.filter((item) => item.id !== id);
 		if (isDuplicate(withoutSelf, updated)) {
 			return;
@@ -109,28 +151,33 @@ export const useCalendarStore = create<CalendarStore>((set, get) => ({
 	},
 
 	confirmAndExpand: () => {
-		const { cart, loopYears: numberOfYears, startYear, monthlyEvents } = get();
-		const hasBulk = monthlyEvents.chuyi || monthlyEvents.shiwu;
-		if (cart.length === 0 && !hasBulk) {
+		const { cart, loopYears: numberOfYears, startYear } = get();
+		if (cart.length === 0) {
 			return;
 		}
 
-		const yearRange = { startYear, numberOfYears };
-		const expandedEvents = [
-			...collectCustomNotifications(cart.map(toCustomDateInput), yearRange),
-			...expandMonthlyEvents(yearRange, monthlyEvents),
-		];
-
-		set({ expandedEvents, step: 'preview' });
+		set({
+			expandedEvents: notificationsFromCart(cart.map(toCartRule), {
+				startYear,
+				numberOfYears,
+			}),
+			step: 'preview',
+		});
 	},
 
 	clearAll: () => {
 		set({
 			cart: [],
 			expandedEvents: null,
-			monthlyEvents: { ...INITIAL_MONTHLY_EVENTS },
 		});
 	},
 }));
 
-export type { CartItem, CartItemInput, WizardStep };
+export type {
+	CartItem,
+	CartItemInput,
+	CatalogCartItem,
+	CustomCartItem,
+	MonthlyCartItem,
+	WizardStep,
+};
