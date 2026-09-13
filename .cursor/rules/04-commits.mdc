@@ -5,32 +5,42 @@ alwaysApply: false
 
 # Commit Message Standards
 
-Follow [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/).
+Follow [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/) as `@commitlint/config-conventional` defines them. Lefthook `prepare-commit-msg` prepends `[ENG-n]` from the branch name when present.
 
-**Format:** `<type>([optional scope]): <description>`
+**Format:** `[ENG-n] <type>([optional scope]): <description>`
+
+The `[ENG-n]` prefix is optional for commitlint (`feat(ics): …` still passes). On ticket branches it is injected automatically. Do not use a `feature` type alias.
 
 ## Allowed Commit Types
 
-- `feature` — new capability
+- `feat` — new capability
 - `fix` — bug fix
-- `docs` — documentation only (e.g. README, `.cursor/rules/`, `PLAN.md`)
+- `docs` — documentation only (e.g. README, `.cursor/rules/`)
 - `style` — formatting changes that do not affect logic
-- `refactor` — neither fix nor feature
+- `refactor` — neither fix nor feat
 - `perf` — performance improvement
 - `test` — add or correct tests
-- `chore` — tooling, dependencies, build scripts
+- `build` — build system or external dependencies
+- `ci` — CI configuration and scripts
+- `chore` — other tooling that is not `build` or `ci`
+- `revert` — revert a previous commit
 
 ## Scopes
 
-Prefer domain scopes: `lunar-dates`, `ics`, `App`, `hooks`, `ui`.
+Prefer domain scopes: `lunar-dates`, `ics`, `store`, `wizard`, `cart`, `preview`, `App`, `hooks`, `ui`.
+
+## Ticket prefix
+
+Extract the first `ENG-\d+` from the branch name (case-insensitive) and prepend `[ENG-n] `. Skip prefix injection on `develop`, `staging`, `release`, and `release/*`.
 
 ## Breaking Changes
 
-Use `BREAKING CHANGE:` in the footer, or `!` after the type/scope (e.g. `feature!:`).
+Use `BREAKING CHANGE:` in the footer, or `!` after the type/scope (e.g. `feat!:`).
 
 ## Examples
 
-- `feature(ics): add all-day lunar milestone calendar export`
+- `[ENG-27] feat(ics): add all-day lunar milestone calendar export`
+- `[ENG-27] ci: update precommit hook`
 - `fix(lunar-dates): use UTC date parts for ICS DATE values`
 - `test(lunar-dates): cover leap-month 初一 notifications`
 - `docs: clarify cursor rules and file sizing caps`

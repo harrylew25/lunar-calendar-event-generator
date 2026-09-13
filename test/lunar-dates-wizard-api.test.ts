@@ -1,5 +1,9 @@
 import { describe, expect, test } from 'bun:test';
-import { collectCustomNotifications, resolveLunarMonthDay } from '@lunar-dates';
+import {
+	collectCustomNotifications,
+	expandMonthlyEvents,
+	resolveLunarMonthDay,
+} from '@lunar-dates';
 import type { LunarDateNotification } from '@lunar-dates/lunar-dates.type';
 import { expectedLunarMonthDayFromSolar } from '@test/helpers/lunar-oracle';
 
@@ -78,5 +82,26 @@ describe('collectCustomNotifications — cart-only', () => {
 			title: 'My Event',
 			summary: 'My Event',
 		});
+	});
+});
+
+describe('confirm concat — cart plus monthly', () => {
+	test('keeps custom rows distinct from chuyi/shiwu', () => {
+		const yearRange = { startYear: 2020, numberOfYears: 0 };
+		const cart = collectCustomNotifications(
+			[{ kind: 'lunar', lunarMonth: 1, lunarDay: 15, title: '正月十五' }],
+			yearRange,
+		);
+		const monthly = expandMonthlyEvents(yearRange, {
+			chuyi: true,
+			shiwu: true,
+		});
+		const expanded = [...cart, ...monthly];
+
+		expect(cart.every((n) => n.type === 'custom')).toBe(true);
+		expect(monthly.every((n) => n.type === 'chuyi' || n.type === 'shiwu')).toBe(
+			true,
+		);
+		expect(expanded).toHaveLength(cart.length + monthly.length);
 	});
 });

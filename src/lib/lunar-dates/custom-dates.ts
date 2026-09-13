@@ -1,5 +1,5 @@
-import { Lunar, LunarMonth, Solar } from 'lunar-javascript';
-import { solarToDateParts } from './conversion';
+import { Lunar, LunarMonth, LunarYear, Solar } from 'lunar-javascript';
+import { LUNAR_MILESTONE_DAYS, monthRules } from './constants';
 import type {
 	CustomDateInput,
 	CustomYearRange,
@@ -7,13 +7,68 @@ import type {
 	IcsEventOverrides,
 	LunarDateNotification,
 	LunarMonthDay,
+	MonthlyEventId,
+	MonthRule,
 } from './lunar-dates.type';
 
-// TODO: merge with exisitng date object types
 export type LunarDateObj = {
 	year: number;
 	month: number;
 	day: number;
+};
+
+const LUNAR_DAY_LABELS: Record<
+	MonthlyEventId,
+	{ day: number; lunarLabel: string; eventLabel: string }
+> = {
+	chuyi: {
+		day: LUNAR_MILESTONE_DAYS.chuyi,
+		lunarLabel: '初一',
+		eventLabel: 'Day 1 (New Moon)',
+	},
+	shiwu: {
+		day: LUNAR_MILESTONE_DAYS.shiwu,
+		lunarLabel: '十五',
+		eventLabel: 'Day 15 (Full Moon)',
+	},
+};
+
+const monthRuleByValue = new Map<number, MonthRule>(
+	monthRules.map((rule) => [rule.value, rule]),
+);
+
+const SHIWU_DAY_OFFSET =
+	LUNAR_MILESTONE_DAYS.shiwu - LUNAR_MILESTONE_DAYS.chuyi;
+
+const solarToDateParts = (solar: Solar): GregorianDateParts => [
+	solar.getYear(),
+	solar.getMonth(),
+	solar.getDay(),
+];
+
+const getChuyiShiwuFromLunarMonth = (
+	month: LunarMonth,
+): [GregorianDateParts, GregorianDateParts] => {
+	const chuyi = Solar.fromJulianDay(month.getFirstJulianDay());
+	const shiwu = chuyi.next(SHIWU_DAY_OFFSET);
+
+	return [solarToDateParts(chuyi), solarToDateParts(shiwu)];
+};
+
+const createLunarDateNotification = (
+	date: GregorianDateParts,
+	type: MonthlyEventId,
+	rule: MonthRule,
+): LunarDateNotification => {
+	const { day, lunarLabel, eventLabel } = LUNAR_DAY_LABELS[type];
+
+	return {
+		date,
+		type,
+		title: `${rule.en} Day ${day}`,
+		summary: `农历${rule.name}${lunarLabel} (${rule.en} Day ${day})`,
+		description: `Lunar Calendar: ${rule.en}, ${eventLabel}`,
+	};
 };
 
 const resolveLunarMonthDay = (input: CustomDateInput): LunarMonthDay => {
@@ -103,10 +158,47 @@ const expandCustomDate = (
 			month: monthForYear,
 			day: lunarDay,
 		});
+
 		if (!date) {
 			continue;
 		}
 		notifications.push(createCustomNotification(date, input));
+	}
+
+	return notifications;
+};
+
+const expandMonthlyEvents = (
+	{ startYear, numberOfYears }: CustomYearRange,
+	events: Record<MonthlyEventId, boolean>,
+): LunarDateNotification[] => {
+	if (!events.chuyi && !events.shiwu) {
+		return [];
+	}
+
+	const notifications: LunarDateNotification[] = [];
+
+	for (let i = 0; i <= numberOfYears; i++) {
+		const monthsInYear = LunarYear.fromYear(startYear + i).getMonthsInYear();
+
+		for (const month of monthsInYear) {
+			const rule = monthRuleByValue.get(month.getMonth());
+			if (!rule) {
+				continue;
+			}
+
+			const [chuyiDate, shiwuDate] = getChuyiShiwuFromLunarMonth(month);
+			if (events.chuyi) {
+				notifications.push(
+					createLunarDateNotification(chuyiDate, 'chuyi', rule),
+				);
+			}
+			if (events.shiwu) {
+				notifications.push(
+					createLunarDateNotification(shiwuDate, 'shiwu', rule),
+				);
+			}
+		}
 	}
 
 	return notifications;
@@ -119,4 +211,9 @@ const collectCustomNotifications = (
 	return customDates.flatMap((input) => expandCustomDate(input, yearRange));
 };
 
-export { collectCustomNotifications, expandCustomDate, resolveLunarMonthDay };
+export {
+	collectCustomNotifications,
+	expandCustomDate,
+	expandMonthlyEvents,
+	resolveLunarMonthDay,
+};

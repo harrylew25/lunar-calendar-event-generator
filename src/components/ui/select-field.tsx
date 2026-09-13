@@ -1,12 +1,12 @@
-import { cn } from '@/lib/utils';
-import { Label } from './label';
+import Label from '@/components/ui/label';
 import {
 	Select,
 	SelectContent,
 	SelectItem,
 	SelectTrigger,
 	SelectValue,
-} from './select';
+} from '@/components/ui/select';
+import { cn } from '@/lib/utils';
 
 export type SelectFieldOption = {
 	label: string;
