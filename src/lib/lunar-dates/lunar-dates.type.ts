@@ -1,4 +1,4 @@
-import type { monthRules } from './constants';
+import type { FestivalId, monthRules } from './constants';
 
 type LunarDateType = 'chuyi' | 'shiwu' | 'custom';
 
@@ -66,7 +66,30 @@ type CustomYearRange = {
 
 type MonthRule = (typeof monthRules)[number];
 
+type CustomCartRule = {
+	kind: 'custom';
+	lunarMonth: number;
+	lunarDay: number;
+	title: string;
+	description?: string;
+};
+
+type MonthlyCartRule = {
+	kind: 'monthly';
+	monthlyId: MonthlyEventId;
+};
+
+type CatalogCartRule = {
+	kind: 'catalog';
+	catalogId: FestivalId;
+};
+
+type CartRule = CustomCartRule | MonthlyCartRule | CatalogCartRule;
+
 export type {
+	CartRule,
+	CatalogCartRule,
+	CustomCartRule,
 	CustomDateInput,
 	CustomYearRange,
 	GregorianDateParts,
@@ -78,6 +101,7 @@ export type {
 	LunarDateType,
 	LunarMonthDay,
 	LunarStart,
+	MonthlyCartRule,
 	MonthlyEventId,
 	MonthRule,
 	SolarCustomDateInput,

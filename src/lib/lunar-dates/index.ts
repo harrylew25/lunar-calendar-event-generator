@@ -1,3 +1,4 @@
+import { notificationsFromCart } from './cart-expand';
 import { CALENDAR_DEFAULTS, LUNAR_MILESTONE_DAYS } from './constants';
 import {
 	collectCustomNotifications,
@@ -5,7 +6,11 @@ import {
 	resolveLunarMonthDay,
 } from './custom-dates';
 
+export type { FestivalId } from './constants';
 export type {
+	CartRule,
+	CatalogCartRule,
+	CustomCartRule,
 	CustomDateInput,
 	GregorianDateParts,
 	IcsEventOverrides,
@@ -14,6 +19,7 @@ export type {
 	LunarDateType,
 	LunarMonthDay,
 	LunarStart,
+	MonthlyCartRule,
 	MonthlyEventId,
 	MonthRule,
 	SolarCustomDateInput,
@@ -24,5 +30,6 @@ export {
 	collectCustomNotifications,
 	expandMonthlyEvents,
 	LUNAR_MILESTONE_DAYS,
+	notificationsFromCart,
 	resolveLunarMonthDay,
 };
