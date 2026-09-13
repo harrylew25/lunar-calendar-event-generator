@@ -1,4 +1,5 @@
 import CartItemRow from '@/components/cart/CartItemRow';
+import CartPickRow from '@/components/cart/CartPickRow';
 import { Button } from '@/components/ui/button';
 import { useCalendarStore } from '@/store/calendar-store';
 
@@ -30,7 +31,13 @@ const CartStep = () => {
 						Your cart is empty. Go back to add dates.
 					</p>
 				) : (
-					cart.map((item) => <CartItemRow key={item.id} item={item} />)
+					cart.map((item) =>
+						item.kind === 'custom' ? (
+							<CartItemRow key={item.id} item={item} />
+						) : (
+							<CartPickRow key={item.id} item={item} />
+						),
+					)
 				)}
 			</div>
 

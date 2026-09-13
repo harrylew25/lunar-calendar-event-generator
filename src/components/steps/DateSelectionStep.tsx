@@ -9,7 +9,7 @@ import {
 	LUNAR_DAY_OPTIONS,
 } from '@/lib/wizard/constants';
 import { useCalendarStore } from '@/store/calendar-store';
-import BulkEventOptions from './BulkEventOptions';
+import EventPickOptions from './EventPickOptions';
 
 const currentYear = new Date().getFullYear();
 const RANGE = 5;
@@ -122,7 +122,7 @@ const DateSelectionStep = () => {
 				/>
 			</div>
 
-			<BulkEventOptions />
+			<EventPickOptions />
 
 			<div className="flex gap-2">
 				<Button

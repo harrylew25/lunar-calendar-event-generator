@@ -7,12 +7,12 @@ import SelectField from '@/components/ui/select-field';
 import { Textarea } from '@/components/ui/textarea';
 import { dedupedMonthRules, LUNAR_DAY_OPTIONS } from '@/lib/wizard/constants';
 import { getLunarObjectFromDate } from '@/lib/wizard/preview-format';
-import type { CartItem } from '@/store/calendar-store';
+import type { CustomCartItem } from '@/store/calendar-store';
 import { useCalendarStore } from '@/store/calendar-store';
 import EditDialog from './EditDialog';
 
 type CartItemRowProps = {
-	item: CartItem;
+	item: CustomCartItem;
 };
 
 const CartItemRow = ({ item }: CartItemRowProps) => {
@@ -24,13 +24,15 @@ const CartItemRow = ({ item }: CartItemRowProps) => {
 	const [lunarMonth, setLunarMonth] = useState(String(item.lunarMonth));
 	const [lunarDay, setLunarDay] = useState(String(item.lunarDay));
 	const [title, setTitle] = useState(item.title.trim());
-	const [description, setDescription] = useState(item.description.trim());
+	const [description, setDescription] = useState(
+		(item.description ?? '').trim(),
+	);
 
 	const resetDraftFromItem = () => {
 		setLunarMonth(String(item.lunarMonth));
 		setLunarDay(String(item.lunarDay));
 		setTitle(item.title.trim());
-		setDescription(item.description.trim());
+		setDescription((item.description ?? '').trim());
 	};
 
 	// NOTE: there is a bug here, the date something not aligned with the execution loop
