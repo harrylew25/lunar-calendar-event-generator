@@ -24,3 +24,11 @@ globs: src/**/*.{ts,tsx}
 - Keep local state, UI types, and helpers in the primary `.tsx` until it outgrows the 200-line target.
 - Place generic helpers in `src/lib/` or shared UI in `src/components/ui/`.
 - Group feature logic, domain functions, and hooks near the components that consume them.
+
+## Lunar-dates seams
+
+- **Wizard expand:** `confirmAndExpand` maps store cart items to `CartRule[]` and calls `notificationsFromCart` in `cart-expand.ts`. Partition there: `kind: 'custom'` and `kind: 'catalog'` → `collectCustomNotifications`; `kind: 'monthly'` (`chuyi` / `shiwu`) → `expandMonthlyEvents`. Result order is custom + catalog, then monthly. `CustomYearRange.startYear` is a lunar year.
+- **Cart model:** Monthly and catalog picks are cart rows (`setMonthlyEvent`, `setCatalogItem`), not a parallel flag. Lists live in `constants.ts` (`MONTHLY_EVENTS`, `FESTIVALS`).
+- **Leap recurrence:** `expandCustomDate` — year 0 may use a negative leap month; later years use `Math.abs`. Keep that rule in `custom-dates.ts`, not in the store or `cart-expand.ts`.
+- **Monthly events:** `expandMonthlyEvents` in `custom-dates.ts` is the every-month 初一/十五 path. Catalog festivals reuse custom expansion. Do not reintroduce `milestones.ts` or `getLunarDateNotifications`.
+- **Conversion:** solar/lunar helpers stay in `custom-dates.ts`. Do not add a Jan 1 → previous-lunar-year remap for the wizard loop.

@@ -10,23 +10,29 @@ You are an expert full-stack engineer in this repository. Write type-safe, perfo
 ## Project Overview
 
 **Name:** Lunar Calendar Event Generator
-**Goal:** Convert lunisolar calendar milestones (e.g. 初一 / 十五) into Gregorian dates and export them as downloadable `.ics` files.
+**Goal:** Expand custom lunisolar recurrence rules, monthly 初一/十五 events, and catalog festivals into Gregorian events, then export a downloadable `.ics` file.
 
 ### Key Paths
 
-- **Domain Logic:** `src/lib/lunar-dates/` (`conversion.ts`, `milestones.ts`, `custom-dates.ts`)
+- **Domain Logic:** `src/lib/lunar-dates/` (`cart-expand.ts`, `custom-dates.ts`, `constants.ts`, `lunar-dates.type.ts`)
 - **ICS Export:** `src/lib/ics/`
-- **UI:** `src/App.tsx`, `src/components/ui/`
+- **State:** `src/store/calendar-store.ts` (Zustand) — one `cart` of `custom`, `monthly`, and `catalog` rows
+- **UI:** `src/App.tsx`, `src/components/steps/`, `src/components/cart/` (`CartItemRow`, `CartPickRow`), `src/components/preview/`, `src/components/ui/`; wizard helpers in `src/lib/wizard/`
 - **Tests:** `test/`
+
+### Wizard start year (lunar)
+
+The date-selection **start year** is a **lunar year**. `confirmAndExpand` maps the cart to `CartRule[]` and calls `notificationsFromCart` in `cart-expand.ts` with no Jan 1 remap. That helper partitions rows: custom + `kind: 'catalog'` → `collectCustomNotifications`; `kind: 'monthly'` (初一/十五) → `expandMonthlyEvents` (both in `custom-dates.ts`). There is no `conversion.ts`, `milestones.ts`, `getLunarDateNotifications`, or separate `monthlyEvents` store flag. Custom/festival expansion (`expandCustomDate`): leap month only in that start year if it exists; later years use the regular month; day 30 clamps to the last day of the month. Next / Confirm / expand all require a non-empty cart — monthly-only or catalog-only carts are enough.
 
 ## Development Environment & Tooling
 
 - **Runtime & Package Manager:** Bun (`bun install`, `bun run`, `bun test`)
-- **Frameworks:** TypeScript, React, Tailwind CSS v4, Shadcn UI
+- **Frameworks:** TypeScript, React, Tailwind CSS v4, Shadcn UI, Zustand
 - **Domain Engines:** `lunar-javascript`, `ts-ics`
-- **Lint / Format / Imports:** Biome via hooks — see `biome.json`; do not add Prettier or ESLint
+- **Lint / Format / Imports:** Biome via Cursor hooks and Lefthook — see `biome.json`; do not add Prettier or ESLint
 - **Type Checking:** `bun run typecheck` (`tsc --noEmit`)
-- **Testing:** `bun run test` (requires `TZ=Asia/Kuala_Lumpur`)
+- **Testing:** `bun run test` (requires `TZ=Asia/Kuala_Lumpur`). `bunfig.toml` preloads `test/happydom.ts`. Component tests use `@testing-library/react` and `@testing-library/dom`.
+- **Git hooks:** Lefthook (`lefthook.yml`). `trustedDependencies` includes `lefthook` and `bun`; `prepare` runs `lefthook install`. Do not add Husky or lint-staged.
 
 ## Cursor Hooks
 
@@ -39,6 +45,18 @@ Hooks under `.cursor/hooks/` handle post-edit hygiene. Prefer fixing hook feedba
 | `stop` (`loop_limit: 3`) | Final gate: `tsc` + `bun run test` via `followup_message` | Biome / formatting |
 
 `tsc` on both `postToolUse` and `stop` is intentional: early feedback vs don't-finish-red. Only Biome formats; only `stop` runs the test suite.
+
+## Git hooks (Lefthook)
+
+Lefthook is the Git commit/push gate. It does not replace Cursor hooks.
+
+| Hook | Responsibility |
+| :--- | :--- |
+| `prepare-commit-msg` / `commit-msg` | `[ENG-n]` prefix + commitlint — see `04-commits` |
+| `pre-commit` | Biome `check --write` on staged `ts`/`tsx`/`js`/`json`/`html`/`css` (`stage_fixed`) |
+| `pre-push` | `bun run typecheck` then `bun run test` |
+
+After clone, `bun install` should install hooks (trusted Lefthook + `prepare`). If Git never runs Lefthook: `bunx lefthook install`. Dry-run: `bunx lefthook run pre-commit` (stage matching files first). Do not use `--no-verify` unless the user asks.
 
 ## Common Scripts
 
