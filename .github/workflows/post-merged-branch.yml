@@ -1,0 +1,161 @@
+# Dry-run listing of remote heads that ENG-30 would delete (phase 1).
+#
+# Would delete: branch is the head of a merged PR in this repo, tip commit is
+# idle ≥ idle_days (default 3), and it is not excluded. Idle clock is the last
+# commit on the branch, not mergedAt — a push after merge resets the clock.
+#
+# Never delete (logged as SKIP):
+# - develop, staging, release, release/*
+# - branches with an open PR
+# - branches with no PR, or only a closed-unmerged PR
+# - fork heads
+#
+# Empty "Would delete 0" is normal for a solo repo, and also when GitHub
+# Settings → General → Pull Requests → Automatically delete head branches is on.
+# If that setting is on, this workflow is a backstop for leftovers; if off, it
+# owns the 3-day delay. Phase 1 never deletes.
+#
+# Later PRs (not this file yet):
+# - Phase 2: weekly cron (Monday 16:00 UTC)
+# - Phase 3: delete listed refs
+#
+# After this workflow is on develop: Actions → Post merged branch → Run
+# workflow on develop. Try idle_days: 0 once so a just-merged head can appear
+# (default 3 usually SKIP too recent).
+#
+# To stop scheduled runs after phase 2: Actions → this workflow → Disable
+# workflow. Public repos also auto-disable scheduled workflows after 60 days
+# with no activity.
+
+name: Post merged branch
+
+on:
+  workflow_dispatch:
+    inputs:
+      idle_days:
+        description: Days since the tip commit before a merged-PR head is idle. Use 0 to list leftover heads immediately.
+        required: false
+        default: "3"
+
+permissions:
+  contents: read
+  pull-requests: read
+
+concurrency:
+  group: ${{ github.workflow }}
+  cancel-in-progress: true
+
+jobs:
+  list-idle-merged:
+    runs-on: ubuntu-24.04
+    steps:
+      - name: List idle merged-PR heads (dry-run)
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          IDLE_DAYS: ${{ inputs.idle_days || '3' }}
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          IDLE_DAYS="${IDLE_DAYS:-3}"
+          if ! [[ "$IDLE_DAYS" =~ ^[0-9]+$ ]]; then
+            echo "::error::idle_days must be a non-negative integer, got: ${IDLE_DAYS}"
+            exit 1
+          fi
+
+          CUTOFF="$(date -u -d "${IDLE_DAYS} days ago" '+%Y-%m-%dT%H:%M:%SZ')"
+          CUTOFF_EPOCH="$(date -u -d "$CUTOFF" '+%s')"
+
+          echo "Repository: ${GH_REPO}"
+          echo "Cutoff (UTC): ${CUTOFF}"
+          echo "idle_days: ${IDLE_DAYS}"
+          echo "DRY-RUN: no branches will be deleted"
+          echo ""
+
+          is_protected() {
+            local branch="$1"
+            [[ "$branch" == "develop" || "$branch" == "staging" || "$branch" == "release" || "$branch" == release/* ]]
+          }
+
+          uri_encode() {
+            jq -nr --arg s "$1" '$s | @uri'
+          }
+
+          open_json="$(gh pr list --repo "$GH_REPO" --state open --limit 1000 --json headRefName,isCrossRepository)"
+          merged_json="$(gh pr list --repo "$GH_REPO" --state merged --limit 1000 --json number,headRefName,isCrossRepository,mergedAt)"
+          branches="$(gh api --paginate "repos/${GH_REPO}/branches?per_page=100" --jq '.[].name')"
+
+          declare -A OPEN_HEADS=()
+          declare -A MERGED_PR=()
+
+          while IFS= read -r name; do
+            [[ -z "$name" ]] && continue
+            OPEN_HEADS["$name"]=1
+          done < <(jq -r '.[] | select(.isCrossRepository | not) | .headRefName' <<<"$open_json")
+
+          while IFS=$'\t' read -r name number; do
+            [[ -z "$name" ]] && continue
+            MERGED_PR["$name"]="$number"
+          done < <(
+            jq -r '
+              [.[] | select(.isCrossRepository | not)]
+              | sort_by(.mergedAt)
+              | reverse
+              | unique_by(.headRefName)
+              | .[]
+              | "\(.headRefName)\t#\(.number)"
+            ' <<<"$merged_json"
+          )
+
+          candidates=()
+
+          while IFS= read -r branch; do
+            [[ -z "$branch" ]] && continue
+
+            if is_protected "$branch"; then
+              echo "SKIP protected: ${branch}"
+              continue
+            fi
+
+            if [[ -n "${OPEN_HEADS[$branch]+x}" ]]; then
+              echo "SKIP open PR: ${branch}"
+              continue
+            fi
+
+            if [[ -z "${MERGED_PR[$branch]+x}" ]]; then
+              echo "SKIP not a merged-PR head: ${branch}"
+              continue
+            fi
+
+            encoded="$(uri_encode "$branch")"
+            if ! branch_json="$(gh api "repos/${GH_REPO}/branches/${encoded}" 2>/dev/null)"; then
+              echo "SKIP already-deleted: ${branch}"
+              continue
+            fi
+
+            last_commit="$(jq -r '.commit.commit.committer.date' <<<"$branch_json")"
+            last_epoch="$(date -u -d "$last_commit" '+%s')"
+            pr_ref="${MERGED_PR[$branch]}"
+
+            if (( last_epoch > CUTOFF_EPOCH )); then
+              echo "SKIP too recent: ${branch}  last_commit=${last_commit}  merged_pr=${pr_ref}"
+              continue
+            fi
+
+            echo "CANDIDATE: ${branch}  last_commit=${last_commit}  merged_pr=${pr_ref}"
+            candidates+=("$branch")
+          done <<<"$branches"
+
+          echo ""
+          if ((${#candidates[@]} == 0)); then
+            echo "Would delete 0 branch(es)."
+            echo "Empty list is normal for a solo repo, or if GitHub Automatically delete head branches is on."
+          else
+            echo "Would delete ${#candidates[@]} branch(es):"
+            for branch in "${candidates[@]}"; do
+              echo "  - ${branch}"
+            done
+          fi
+          echo ""
+          echo "No deletions performed (dry-run). Weekly cron is a later PR; deletion is a later PR."
