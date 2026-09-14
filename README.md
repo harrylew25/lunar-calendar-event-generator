@@ -2,7 +2,7 @@
 title: README
 description: Lunar Calendar Event Generator — setup, scripts, and project overview.
 creation-time: 2026-07-24
-updated-time: 2026-09-13
+updated-time: 2026-09-15
 tags:
   - lunar-calendar
   - ics
@@ -77,6 +77,8 @@ Open the URL printed by `bun run dev`, then walk through **Date selection → Ca
 
 ```text
 lefthook.yml                   # Git hooks: Biome, commitlint, ticket prefix, pre-push
+.github/workflows/ci.yml       # PR/push typecheck, tests, lint, build (ENG-24)
+.github/workflows/post-merged-branch.yml  # dry-run idle merged-PR heads (ENG-30)
 scripts/prepend-eng-ticket.ts  # prepare-commit-msg: prepend [ENG-n] from branch
 commitlint.config.ts           # Conventional Commits + optional [ENG-n] prefix
 src/
@@ -147,6 +149,11 @@ const events = notificationsFromCart(
 Dry-run without committing: `bunx lefthook run pre-commit` (stage matching files first) or `bunx lefthook run pre-push`. Validate a subject with `echo 'feat(ics): example' | bunx commitlint`. These are separate from Cursor agent hooks under `.cursor/hooks/`.
 
 Hooks are local only. `git commit --no-verify` and `git push --no-verify` skip them. Merge blocking on GitHub is [ENG-24](https://linear.app/hl-engineering/issue/ENG-24/ci-typecheck-and-build-required-on-every-pr) (CI), not Lefthook.
+
+## GitHub Actions
+
+- [`ci.yml`](.github/workflows/ci.yml) — typecheck, tests, lint, and build on PRs and pushes to `develop` ([ENG-24](https://linear.app/hl-engineering/issue/ENG-24/ci-typecheck-and-build-required-on-every-pr))
+- [`post-merged-branch.yml`](.github/workflows/post-merged-branch.yml) — manual dry-run of merged-PR heads idle ≥ 3 days (last commit, not merge time). Weekly cron and deletion are later PRs ([ENG-30](https://linear.app/hl-engineering/issue/ENG-30/github-action-delete-merged-pr-branches-after-3-days-idle)). After this workflow is on `develop`: Actions → Post merged branch → Run workflow (try `idle_days: 0` once). Empty candidate lists are normal for a solo repo, or if **Automatically delete head branches** is on.
 
 ## Notes
 
