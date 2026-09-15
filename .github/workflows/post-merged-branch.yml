@@ -1,46 +1,30 @@
-# Dry-run listing of remote heads that ENG-30 would delete (phase 2).
+# ENG-30: after listing, delete merged-PR heads idle ≥ 3 days (tip commit, not
+# mergedAt). Skip develop, staging, release, release/*, open PRs, unmerged
+# heads, and forks. Empty lists are normal if GitHub auto-deletes on merge.
 #
-# Would delete: branch is the head of a merged PR in this repo, tip commit is
-# idle ≥ idle_days (default 3), and it is not excluded. Idle clock is the last
-# commit on the branch, not mergedAt — a push after merge resets the clock.
-#
-# Never delete (logged as SKIP):
-# - develop, staging, release, release/*
-# - branches with an open PR
-# - branches with no PR, or only a closed-unmerged PR
-# - fork heads
-#
-# Empty "Would delete 0" is normal for a solo repo, and also when GitHub
-# Settings → General → Pull Requests → Automatically delete head branches is on.
-# If that setting is on, this workflow is a backstop for leftovers; if off, it
-# owns the 3-day delay. Phase 2 still never deletes (deletion is phase 3).
-#
-# Triggers: weekly cron (Monday 16:00 UTC, default branch only) and
-# workflow_dispatch. Schedule uses idle_days=3. Dispatch can pass 0 to list
-# leftover heads immediately. Do not wait for Monday to inspect the log —
-# Run workflow is the same job.
-#
-# Later PR (not this file yet):
-# - Phase 3: delete listed refs
-#
-# To stop scheduled runs: Actions → this workflow → Disable workflow.
-# Public repos also auto-disable scheduled workflows after 60 days with no
-# activity.
+# Weekly cron: Sunday 16:00 UTC = Monday 00:00 Asia/Kuala_Lumpur (always
+# deletes). Manual Run workflow is a dry-run unless delete=true.
+# Disable this workflow to stop the cron.
 
 name: Post merged branch
 
 on:
   schedule:
-    - cron: "0 16 * * 1"
+    - cron: "0 16 * * 0"
   workflow_dispatch:
     inputs:
       idle_days:
         description: Days since the tip commit before a merged-PR head is idle. Use 0 to list leftover heads immediately.
         required: false
         default: "3"
+      delete:
+        description: Delete listed branches. Leave off for a dry-run. Weekly schedule always deletes.
+        type: boolean
+        required: false
+        default: false
 
 permissions:
-  contents: read
+  contents: write
   pull-requests: read
 
 concurrency:
@@ -50,8 +34,10 @@ concurrency:
 jobs:
   list-idle-merged:
     runs-on: ubuntu-24.04
+    env:
+      SHOULD_DELETE: ${{ github.event_name == 'schedule' || inputs.delete }}
     steps:
-      - name: List idle merged-PR heads (dry-run)
+      - name: List idle merged-PR heads
         env:
           GH_TOKEN: ${{ github.token }}
           GH_REPO: ${{ github.repository }}
@@ -61,11 +47,14 @@ jobs:
         run: |
           set -euo pipefail
 
+          CANDIDATES_FILE="${RUNNER_TEMP}/idle-merged-candidates.txt"
           IDLE_DAYS="${IDLE_DAYS:-3}"
           if ! [[ "$IDLE_DAYS" =~ ^[0-9]+$ ]]; then
             echo "::error::idle_days must be a non-negative integer, got: ${IDLE_DAYS}"
             exit 1
           fi
+
+          : > "$CANDIDATES_FILE"
 
           CUTOFF="$(date -u -d "${IDLE_DAYS} days ago" '+%Y-%m-%dT%H:%M:%SZ')"
           CUTOFF_EPOCH="$(date -u -d "$CUTOFF" '+%s')"
@@ -74,7 +63,11 @@ jobs:
           echo "event: ${EVENT_NAME}"
           echo "Cutoff (UTC): ${CUTOFF}"
           echo "idle_days: ${IDLE_DAYS}"
-          echo "DRY-RUN: no branches will be deleted"
+          if [[ "$SHOULD_DELETE" == "true" ]]; then
+            echo "Mode: DELETE after this log"
+          else
+            echo "DRY-RUN: no branches will be deleted"
+          fi
           echo ""
 
           is_protected() {
@@ -149,6 +142,7 @@ jobs:
 
             echo "CANDIDATE: ${branch}  last_commit=${last_commit}  merged_pr=${pr_ref}"
             candidates+=("$branch")
+            printf '%s\n' "$branch" >> "$CANDIDATES_FILE"
           done <<<"$branches"
 
           echo ""
@@ -161,5 +155,51 @@ jobs:
               echo "  - ${branch}"
             done
           fi
-          echo ""
-          echo "No deletions performed (dry-run). Deletion is a later PR."
+
+      - name: Dry-run notice
+        if: env.SHOULD_DELETE != 'true'
+        shell: bash
+        run: |
+          echo "No deletions performed (dry-run)."
+          echo "Set delete=true on a manual run, or wait for the weekly schedule (Monday 00:00 Asia/Kuala_Lumpur)."
+
+      - name: Delete idle merged-PR heads
+        if: env.SHOULD_DELETE == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          CANDIDATES_FILE="${RUNNER_TEMP}/idle-merged-candidates.txt"
+
+          uri_encode() {
+            jq -nr --arg s "$1" '$s | @uri'
+          }
+
+          if [[ ! -s "$CANDIDATES_FILE" ]]; then
+            echo "Nothing to delete."
+            exit 0
+          fi
+
+          failed=0
+          while IFS= read -r branch; do
+            [[ -z "$branch" ]] && continue
+            encoded="$(uri_encode "$branch")"
+            err_file="$(mktemp)"
+            if gh api --method DELETE "repos/${GH_REPO}/git/refs/heads/${encoded}" >/dev/null 2>"$err_file"; then
+              echo "DELETED: ${branch}"
+            elif grep -qiE 'HTTP 404|HTTP 422|Not Found|Reference does not exist' "$err_file"; then
+              echo "SKIP already-deleted: ${branch}"
+            else
+              echo "::error::failed to delete ${branch}"
+              cat "$err_file"
+              failed=1
+            fi
+            rm -f "$err_file"
+          done < "$CANDIDATES_FILE"
+
+          if (( failed != 0 )); then
+            exit 1
+          fi
