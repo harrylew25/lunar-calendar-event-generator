@@ -1,3 +1,4 @@
+import { icsDraftFromItem, icsDraftToOverrides } from '@ics';
 import { Lunar } from 'lunar-javascript';
 import { useState } from 'react';
 import InputField from '@/components/form/input-field';
@@ -10,6 +11,7 @@ import { getLunarObjectFromDate } from '@/lib/wizard/preview-format';
 import type { CustomCartItem } from '@/store/calendar-store';
 import { useCalendarStore } from '@/store/calendar-store';
 import EditDialog from './EditDialog';
+import IcsOverrideFields from './IcsOverrideFields';
 
 type CartItemRowProps = {
 	item: CustomCartItem;
@@ -27,12 +29,14 @@ const CartItemRow = ({ item }: CartItemRowProps) => {
 	const [description, setDescription] = useState(
 		(item.description ?? '').trim(),
 	);
+	const [icsDraft, setIcsDraft] = useState(() => icsDraftFromItem(item));
 
 	const resetDraftFromItem = () => {
 		setLunarMonth(String(item.lunarMonth));
 		setLunarDay(String(item.lunarDay));
 		setTitle(item.title.trim());
 		setDescription((item.description ?? '').trim());
+		setIcsDraft(icsDraftFromItem(item));
 	};
 
 	// NOTE: there is a bug here, the date something not aligned with the execution loop
@@ -59,6 +63,7 @@ const CartItemRow = ({ item }: CartItemRowProps) => {
 			lunarDay: Number(lunarDay),
 			title: title.trim(),
 			description: description.trim(),
+			...icsDraftToOverrides(icsDraft),
 		});
 		setOpen(false);
 	};
@@ -121,6 +126,11 @@ const CartItemRow = ({ item }: CartItemRowProps) => {
 						onChange={(e) => setDescription(e.target.value)}
 					/>
 				</div>
+				<IcsOverrideFields
+					idPrefix={`custom-${item.id}`}
+					value={icsDraft}
+					onChange={setIcsDraft}
+				/>
 			</EditDialog>
 			<div className="flex justify-between items-center border-2 border-gray-200 rounded-lg p-4">
 				<div>

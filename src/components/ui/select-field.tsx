@@ -20,6 +20,7 @@ interface SelectFieldProps {
 	onValueChange: (value: string) => void;
 	options: SelectFieldOption[];
 	className?: string;
+	triggerClassName?: string;
 }
 
 const SelectField = ({
@@ -29,12 +30,13 @@ const SelectField = ({
 	onValueChange,
 	options,
 	className,
+	triggerClassName = 'max-w-xs',
 }: SelectFieldProps) => {
 	return (
 		<div className={cn('space-y-2', className)}>
 			<Label htmlFor={id}>{label}</Label>
 			<Select value={value} onValueChange={onValueChange}>
-				<SelectTrigger id={id} className="w-full max-w-xs">
+				<SelectTrigger id={id} className={cn('w-full', triggerClassName)}>
 					<SelectValue />
 				</SelectTrigger>
 				<SelectContent>
