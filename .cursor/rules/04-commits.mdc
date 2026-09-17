@@ -11,6 +11,8 @@ Follow [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/) as
 
 The `[ENG-n]` prefix is optional for commitlint (`feat(ics): …` still passes). On ticket branches it is injected automatically. Do not use a `feature` type alias.
 
+Use a **title only**. Do not add a body or footer. For breaking changes, put `!` after the type/scope (e.g. `feat!:`).
+
 ## Allowed Commit Types
 
 - `feat` — new capability
@@ -32,10 +34,6 @@ Prefer domain scopes: `lunar-dates`, `ics`, `store`, `wizard`, `cart`, `preview`
 ## Ticket prefix
 
 Extract the first `ENG-\d+` from the branch name (case-insensitive) and prepend `[ENG-n] `. Skip prefix injection on `develop`, `staging`, `release`, and `release/*`.
-
-## Breaking Changes
-
-Use `BREAKING CHANGE:` in the footer, or `!` after the type/scope (e.g. `feat!:`).
 
 ## Examples
 
