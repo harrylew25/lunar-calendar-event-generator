@@ -1,4 +1,5 @@
-import { Button } from '../ui/button';
+import type { SubmitEvent } from 'react';
+import { Button } from '@/components/ui/button';
 import {
 	Dialog,
 	DialogContent,
@@ -6,7 +7,7 @@ import {
 	DialogFooter,
 	DialogHeader,
 	DialogTitle,
-} from '../ui/dialog';
+} from '@/components/ui/dialog';
 
 interface EditDialogProps {
 	title: string;
@@ -27,24 +28,33 @@ const EditDialog = ({
 	onCancel,
 	onSave,
 }: EditDialogProps) => {
+	const handleSubmit = (event: SubmitEvent<HTMLFormElement>): void => {
+		event.preventDefault();
+		onSave();
+	};
+
 	return (
 		<Dialog open={open} onOpenChange={onOpenChange}>
-			<DialogContent>
-				<DialogHeader>
-					<DialogTitle>{title}</DialogTitle>
-					{description && <DialogDescription>{description}</DialogDescription>}
-					<article className="mt-4">{children}</article>
-				</DialogHeader>
-				<DialogFooter>
-					<div className="mt-4 flex justify-end gap-2">
-						<Button type="button" variant="outline" onClick={onCancel}>
-							Cancel
-						</Button>
-						<Button type="button" variant="default" onClick={onSave}>
-							Save
-						</Button>
-					</div>
-				</DialogFooter>
+			<DialogContent className="max-h-[90vh] overflow-y-auto">
+				<form autoComplete="off" onSubmit={handleSubmit}>
+					<DialogHeader>
+						<DialogTitle>{title}</DialogTitle>
+						{description && (
+							<DialogDescription>{description}</DialogDescription>
+						)}
+					</DialogHeader>
+					<div className="mt-4">{children}</div>
+					<DialogFooter>
+						<div className="mt-4 flex justify-end gap-2">
+							<Button type="button" variant="outline" onClick={onCancel}>
+								Cancel
+							</Button>
+							<Button type="submit" variant="default">
+								Save
+							</Button>
+						</div>
+					</DialogFooter>
+				</form>
 			</DialogContent>
 		</Dialog>
 	);

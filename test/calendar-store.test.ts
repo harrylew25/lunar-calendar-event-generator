@@ -133,4 +133,127 @@ describe('useCalendarStore', () => {
 			false,
 		);
 	});
+
+	test('updateItem patches ICS fields on a custom item', () => {
+		useCalendarStore.getState().addItem({
+			lunarMonth: 1,
+			lunarDay: 15,
+			title: '正月十五',
+			description: '',
+		});
+		const id = useCalendarStore.getState().cart[0]?.id;
+		expect(id).toBeDefined();
+		if (!id) {
+			return;
+		}
+
+		useCalendarStore.getState().updateItem(id, {
+			location: 'Temple',
+			alarmDaysBefore: 14,
+			visibility: 'PRIVATE',
+		});
+
+		expect(useCalendarStore.getState().cart[0]).toMatchObject({
+			kind: 'custom',
+			title: '正月十五',
+			location: 'Temple',
+			alarmDaysBefore: 14,
+			visibility: 'PRIVATE',
+		});
+	});
+
+	test('updateItem patches ICS fields on monthly and catalog items', () => {
+		useCalendarStore.getState().setMonthlyEvent('chuyi', true);
+		useCalendarStore.getState().setCatalogItem('duanwu', true);
+		const [monthly, catalog] = useCalendarStore.getState().cart;
+		expect(monthly?.id).toBeDefined();
+		expect(catalog?.id).toBeDefined();
+		if (!monthly || !catalog) {
+			return;
+		}
+
+		useCalendarStore.getState().updateItem(monthly.id, {
+			location: 'Home altar',
+			timeTransparent: 'OPAQUE',
+		});
+		useCalendarStore.getState().updateItem(catalog.id, {
+			location: 'Riverside',
+			visibility: 'PRIVATE',
+		});
+
+		const cart = useCalendarStore.getState().cart;
+		expect(cart[0]).toMatchObject({
+			kind: 'monthly',
+			monthlyId: 'chuyi',
+			location: 'Home altar',
+			timeTransparent: 'OPAQUE',
+		});
+		expect(cart[1]).toMatchObject({
+			kind: 'catalog',
+			catalogId: 'duanwu',
+			location: 'Riverside',
+			visibility: 'PRIVATE',
+		});
+	});
+
+	test('updateItem ignores identity patches on monthly and catalog items', () => {
+		useCalendarStore.getState().setMonthlyEvent('chuyi', true);
+		const id = useCalendarStore.getState().cart[0]?.id;
+		expect(id).toBeDefined();
+		if (!id) {
+			return;
+		}
+
+		useCalendarStore.getState().updateItem(id, {
+			title: 'Should not copy',
+			lunarMonth: 5,
+			lunarDay: 5,
+			description: 'nope',
+			location: 'Altar',
+		});
+
+		const item = useCalendarStore.getState().cart[0];
+		expect(item).toMatchObject({
+			kind: 'monthly',
+			monthlyId: 'chuyi',
+			location: 'Altar',
+		});
+		expect(item).not.toHaveProperty('title');
+		expect(item).not.toHaveProperty('lunarMonth');
+		expect(item).not.toHaveProperty('description');
+	});
+
+	test('confirmAndExpand applies stored ICS overrides to every occurrence', () => {
+		useCalendarStore.getState().addItem({
+			lunarMonth: 1,
+			lunarDay: 15,
+			title: '正月十五',
+			description: '',
+		});
+		const id = useCalendarStore.getState().cart[0]?.id;
+		expect(id).toBeDefined();
+		if (!id) {
+			return;
+		}
+
+		useCalendarStore.getState().updateItem(id, {
+			location: 'Temple',
+			alarmDaysBefore: 14,
+			timeTransparent: 'OPAQUE',
+			visibility: 'PRIVATE',
+		});
+		useCalendarStore.getState().confirmAndExpand();
+
+		const events = useCalendarStore.getState().expandedEvents;
+		expect(events?.length).toBeGreaterThan(0);
+		expect(
+			events?.every(
+				(event) =>
+					event.icsOverrides?.location === 'Temple' &&
+					event.icsOverrides.alarmDaysBefore === 14 &&
+					event.icsOverrides.timeTransparent === 'OPAQUE' &&
+					event.icsOverrides.visibility === 'PRIVATE',
+			),
+		).toBe(true);
+	});
 });
