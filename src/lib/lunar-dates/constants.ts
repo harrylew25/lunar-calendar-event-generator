@@ -1,34 +1,3 @@
-const monthRules = [
-	{ name: '正月', value: 1, en: 'January' },
-	{ name: '二月', value: 2, en: 'February' },
-	{ name: '三月', value: 3, en: 'March' },
-	{ name: '四月', value: 4, en: 'April' },
-	{ name: '五月', value: 5, en: 'May' },
-	{ name: '六月', value: 6, en: 'June' },
-	{ name: '七月', value: 7, en: 'July' },
-	{ name: '八月', value: 8, en: 'August' },
-	{ name: '九月', value: 9, en: 'September' },
-	{ name: '十月', value: 10, en: 'October' },
-	{ name: '十一月', value: 11, en: 'November' },
-	{ name: '十二月', value: 12, en: 'December' },
-	{ name: '冬月', value: 11, en: 'November' },
-	{ name: '腊月', value: 12, en: 'December' },
-	{ name: '闰正月', value: -1, en: 'Leap January' },
-	{ name: '闰二月', value: -2, en: 'Leap February' },
-	{ name: '闰三月', value: -3, en: 'Leap March' },
-	{ name: '闰四月', value: -4, en: 'Leap April' },
-	{ name: '闰五月', value: -5, en: 'Leap May' },
-	{ name: '闰六月', value: -6, en: 'Leap June' },
-	{ name: '闰七月', value: -7, en: 'Leap July' },
-	{ name: '闰八月', value: -8, en: 'Leap August' },
-	{ name: '闰九月', value: -9, en: 'Leap September' },
-	{ name: '闰十月', value: -10, en: 'Leap October' },
-	{ name: '闰十一月', value: -11, en: 'Leap November' },
-	{ name: '闰十二月', value: -12, en: 'Leap December' },
-	{ name: '闰冬月', value: -11, en: 'Leap November' },
-	{ name: '闰腊月', value: -12, en: 'Leap December' },
-] as const;
-
 const CALENDAR_DEFAULTS = {
 	startYear: 2026,
 	startMonth: 1,
@@ -40,6 +9,76 @@ const SOLAR_MONTH = {
 	min: 1,
 	max: 12,
 } as const;
+
+const LUNAR_MONTH_NAMES = [
+	{ name: '正月', en: 'January' },
+	{ name: '二月', en: 'February' },
+	{ name: '三月', en: 'March' },
+	{ name: '四月', en: 'April' },
+	{ name: '五月', en: 'May' },
+	{ name: '六月', en: 'June' },
+	{ name: '七月', en: 'July' },
+	{ name: '八月', en: 'August' },
+	{ name: '九月', en: 'September' },
+	{ name: '十月', en: 'October' },
+	{ name: '十一月(冬月)', en: 'November' },
+	{ name: '十二月(腊月)', en: 'December' },
+] as const;
+
+type LunarMonthName = (typeof LUNAR_MONTH_NAMES)[number]['name'];
+type LunarMonthEn = (typeof LUNAR_MONTH_NAMES)[number]['en'];
+type LeapLunarMonthName = `闰${LunarMonthName}`;
+type MonthRuleName = LunarMonthName | LeapLunarMonthName;
+type MonthRuleEn = LunarMonthEn | `Leap ${LunarMonthEn}`;
+
+type MonthRule = {
+	name: MonthRuleName;
+	en: MonthRuleEn;
+	value: number;
+};
+
+const monthRules: MonthRule[] = LUNAR_MONTH_NAMES.flatMap((month, index) => {
+	const value = index + 1;
+	return [
+		{ ...month, value },
+		{ name: `闰${month.name}`, value: -value, en: `Leap ${month.en}` },
+	];
+});
+
+const LUNAR_DAY_NAMES = [
+	{ name: '初一', value: 1, en: '1st' },
+	{ name: '初二', value: 2, en: '2nd' },
+	{ name: '初三', value: 3, en: '3rd' },
+	{ name: '初四', value: 4, en: '4th' },
+	{ name: '初五', value: 5, en: '5th' },
+	{ name: '初六', value: 6, en: '6th' },
+	{ name: '初七', value: 7, en: '7th' },
+	{ name: '初八', value: 8, en: '8th' },
+	{ name: '初九', value: 9, en: '9th' },
+	{ name: '初十', value: 10, en: '10th' },
+	{ name: '十一', value: 11, en: '11th' },
+	{ name: '十二', value: 12, en: '12th' },
+	{ name: '十三', value: 13, en: '13th' },
+	{ name: '十四', value: 14, en: '14th' },
+	{ name: '十五', value: 15, en: '15th' },
+	{ name: '十六', value: 16, en: '16th' },
+	{ name: '十七', value: 17, en: '17th' },
+	{ name: '十八', value: 18, en: '18th' },
+	{ name: '十九', value: 19, en: '19th' },
+	{ name: '二十', value: 20, en: '20th' },
+	{ name: '廿一', value: 21, en: '21st' },
+	{ name: '廿二', value: 22, en: '22nd' },
+	{ name: '廿三', value: 23, en: '23rd' },
+	{ name: '廿四', value: 24, en: '24th' },
+	{ name: '廿五', value: 25, en: '25th' },
+	{ name: '廿六', value: 26, en: '26th' },
+	{ name: '廿七', value: 27, en: '27th' },
+	{ name: '廿八', value: 28, en: '28th' },
+	{ name: '廿九', value: 29, en: '29th' },
+	{ name: '三十', value: 30, en: '30th' },
+] as const;
+
+type LunarDayValue = (typeof LUNAR_DAY_NAMES)[number]['value'];
 
 const LUNAR_MILESTONE_DAYS = {
 	chuyi: 1,
@@ -63,156 +102,84 @@ const MONTHLY_EVENTS = [
 	},
 ] as const;
 
-const FESTIVALS = [
-	{
-		id: 'chuxi',
-		kind: 'festival',
-		lunarMonth: 12,
-		lunarDay: 30,
-		title: '除夕',
-		cartLabel: '除夕 — 十二月三十',
-	},
-	{
-		id: 'cny-1',
-		kind: 'festival',
-		lunarMonth: 1,
-		lunarDay: 1,
-		title: '大年初一',
-		cartLabel: '大年初一 — 正月初一',
-	},
-	{
-		id: 'cny-2',
-		kind: 'festival',
-		lunarMonth: 1,
-		lunarDay: 2,
-		title: '大年初二',
-		cartLabel: '大年初二 — 正月初二',
-	},
-	{
-		id: 'tiangong',
-		kind: 'festival',
-		lunarMonth: 1,
-		lunarDay: 9,
-		title: '天公诞',
-		cartLabel: '天公诞 — 正月初九',
-	},
-	{
-		id: 'yuanxiao',
-		kind: 'festival',
-		lunarMonth: 1,
-		lunarDay: 15,
-		title: '元宵节',
-		cartLabel: '元宵节 — 正月十五',
-	},
-	{
-		id: 'laojun',
-		kind: 'festival',
-		lunarMonth: 2,
-		lunarDay: 15,
-		title: '太上老君圣诞',
-		cartLabel: '太上老君圣诞 — 二月十五',
-	},
-	{
-		id: 'guanyin-birth',
-		kind: 'festival',
-		lunarMonth: 2,
-		lunarDay: 19,
-		title: '观音诞(诞辰)',
-		cartLabel: '观音诞(诞辰) — 二月十九',
-	},
-	{
-		id: 'vesak',
-		kind: 'festival',
-		lunarMonth: 4,
-		lunarDay: 15,
-		title: '卫塞节',
-		cartLabel: '卫塞节 — 四月十五',
-	},
-	{
-		id: 'duanwu',
-		kind: 'festival',
-		lunarMonth: 5,
-		lunarDay: 5,
-		title: '端午节',
-		cartLabel: '端午节 — 五月初五',
-	},
-	{
-		id: 'guanyin-enlightenment',
-		kind: 'festival',
-		lunarMonth: 6,
-		lunarDay: 19,
-		title: '观音诞(成道)',
-		cartLabel: '观音诞(成道) — 六月十九',
-	},
-	{
-		id: 'qixi',
-		kind: 'festival',
-		lunarMonth: 7,
-		lunarDay: 7,
-		title: '七夕节',
-		cartLabel: '七夕节 — 七月初七',
-	},
-	{
-		id: 'zhongyuan',
-		kind: 'festival',
-		lunarMonth: 7,
-		lunarDay: 14,
-		title: '中元节/盂兰盛会',
-		cartLabel: '中元节/盂兰盛会 — 七月十四',
-	},
-	{
-		id: 'zhongqiu',
-		kind: 'festival',
-		lunarMonth: 8,
-		lunarDay: 15,
-		title: '中秋节',
-		cartLabel: '中秋节 — 八月十五',
-	},
-	{
-		id: 'jiuhuang',
-		kind: 'festival',
-		lunarMonth: 9,
-		lunarDay: 1,
-		title: '九皇爷诞',
-		cartLabel: '九皇爷诞 — 九月初一',
-	},
-	{
-		id: 'chongyang',
-		kind: 'festival',
-		lunarMonth: 9,
-		lunarDay: 9,
-		title: '重阳节',
-		cartLabel: '重阳节 — 九月初九',
-	},
-	{
-		id: 'guanyin-nirvana',
-		kind: 'festival',
-		lunarMonth: 9,
-		lunarDay: 19,
-		title: '观音诞(涅槃)',
-		cartLabel: '观音诞(涅槃) — 九月十九',
-	},
-] as const;
-
 type MonthlyEventCatalogId = (typeof MONTHLY_EVENTS)[number]['id'];
-type FestivalId = (typeof FESTIVALS)[number]['id'];
 
 const monthlyEventById = new Map(
 	MONTHLY_EVENTS.map((event) => [event.id, event] as const),
 );
+const getMonthlyEvent = (id: MonthlyEventCatalogId) => monthlyEventById.get(id);
+
+type LunarMonthValue = MonthRule['value'];
+
+const monthNameByValue = new Map<number, MonthRule['name']>(
+	monthRules.map((rule) => [rule.value, rule.name]),
+);
+const dayNameByValue = new Map(
+	LUNAR_DAY_NAMES.map((day) => [day.value, day.name]),
+);
+
+const createFestivalEvent = <TId extends string>(
+	id: TId,
+	lunarMonth: LunarMonthValue,
+	lunarDay: LunarDayValue,
+	title: string,
+): {
+	id: TId;
+	kind: 'festival';
+	lunarMonth: LunarMonthValue;
+	lunarDay: LunarDayValue;
+	title: string;
+	cartLabel: string;
+} => {
+	const month = monthNameByValue.get(lunarMonth);
+	const day = dayNameByValue.get(lunarDay);
+	if (month === undefined || day === undefined) {
+		throw new Error(`Unknown lunar date ${lunarMonth}-${lunarDay}`);
+	}
+
+	return {
+		id,
+		kind: 'festival',
+		lunarMonth,
+		lunarDay,
+		title,
+		cartLabel: `${title} — ${month}${day}`,
+	};
+};
+
+const FESTIVALS = [
+	createFestivalEvent('chuxi', 12, 30, '除夕'),
+	createFestivalEvent('cny-1', 1, 1, '大年初一'),
+	createFestivalEvent('cny-2', 1, 2, '大年初二'),
+	createFestivalEvent('tiangong', 1, 9, '天公诞'),
+	createFestivalEvent('yuanxiao', 1, 15, '元宵节'),
+	createFestivalEvent('laojun', 2, 15, '太上老君圣诞'),
+	createFestivalEvent('guanyin-birth', 2, 19, '观音诞(诞辰)'),
+	createFestivalEvent('vesak', 4, 15, '卫塞节'),
+	createFestivalEvent('duanwu', 5, 5, '端午节'),
+	createFestivalEvent('guanyin-enlightenment', 6, 19, '观音诞(成道)'),
+	createFestivalEvent('qixi', 7, 7, '七夕节'),
+	createFestivalEvent('zhongyuan', 7, 14, '中元节/盂兰盛会'),
+	createFestivalEvent('zhongqiu', 8, 15, '中秋节'),
+	createFestivalEvent('jiuhuang', 9, 1, '九皇爷诞'),
+	createFestivalEvent('chongyang', 9, 9, '重阳节'),
+	createFestivalEvent('guanyin-nirvana', 9, 19, '观音诞(涅槃)'),
+] as const;
+
+type FestivalId = (typeof FESTIVALS)[number]['id'];
+
 const catalogItemById = new Map(
 	FESTIVALS.map((festival) => [festival.id, festival] as const),
 );
-
-const getMonthlyEvent = (id: MonthlyEventCatalogId) => monthlyEventById.get(id);
 const getCatalogItem = (id: FestivalId) => catalogItemById.get(id);
 
-export type { FestivalId, MonthlyEventCatalogId };
+export type { FestivalId, MonthlyEventCatalogId, MonthRule };
 export {
 	CALENDAR_DEFAULTS,
 	FESTIVALS,
 	getCatalogItem,
 	getMonthlyEvent,
+	LUNAR_DAY_NAMES,
 	LUNAR_MILESTONE_DAYS,
 	MONTHLY_EVENTS,
 	monthRules,
