@@ -72,17 +72,17 @@ type CustomCartRule = {
 	lunarDay: number;
 	title: string;
 	description?: string;
-};
+} & IcsEventOverrides;
 
 type MonthlyCartRule = {
 	kind: 'monthly';
 	monthlyId: MonthlyEventId;
-};
+} & IcsEventOverrides;
 
 type CatalogCartRule = {
 	kind: 'catalog';
 	catalogId: FestivalId;
-};
+} & IcsEventOverrides;
 
 type CartRule = CustomCartRule | MonthlyCartRule | CatalogCartRule;
 

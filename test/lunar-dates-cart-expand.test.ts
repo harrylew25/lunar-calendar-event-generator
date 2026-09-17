@@ -103,4 +103,85 @@ describe('notificationsFromCart', () => {
 		).toBe(true);
 		expect(onSameDay.some((n) => n.title === '元宵节')).toBe(true);
 	});
+
+	test('custom ICS overrides attach to every expanded occurrence', () => {
+		const cart: CartRule[] = [
+			{
+				kind: 'custom',
+				lunarMonth: 1,
+				lunarDay: 15,
+				title: '正月十五 reminder',
+				location: 'Temple',
+				alarmDaysBefore: 14,
+				alarmHour: 9,
+				alarmMinute: 0,
+				timeTransparent: 'OPAQUE',
+				visibility: 'PRIVATE',
+			},
+		];
+		const result = notificationsFromCart(cart, THREE_YEARS);
+
+		expect(result).toHaveLength(3);
+		expect(
+			result.every(
+				(notification) =>
+					notification.icsOverrides?.location === 'Temple' &&
+					notification.icsOverrides.alarmDaysBefore === 14 &&
+					notification.icsOverrides.timeTransparent === 'OPAQUE' &&
+					notification.icsOverrides.visibility === 'PRIVATE',
+			),
+		).toBe(true);
+	});
+
+	test('catalog ICS overrides attach without copying cart title onto the festival', () => {
+		const cart: CartRule[] = [
+			{
+				kind: 'catalog',
+				catalogId: duanwu.id,
+				location: 'Riverside',
+				alarmDaysBefore: 2,
+			},
+		];
+		const result = notificationsFromCart(cart, THREE_YEARS);
+
+		expect(result).toHaveLength(3);
+		expect(
+			result.every((notification) => notification.title === '端午节'),
+		).toBe(true);
+		expect(
+			result.every(
+				(notification) =>
+					notification.icsOverrides?.location === 'Riverside' &&
+					notification.icsOverrides.alarmDaysBefore === 2,
+			),
+		).toBe(true);
+	});
+
+	test('monthly ICS overrides attach to every chuyi occurrence', () => {
+		const result = notificationsFromCart(
+			[
+				{
+					kind: 'monthly',
+					monthlyId: 'chuyi',
+					location: 'Home altar',
+					timeTransparent: 'OPAQUE',
+					visibility: 'PRIVATE',
+				},
+			],
+			YEAR_RANGE,
+		);
+
+		expect(result.length).toBeGreaterThan(0);
+		expect(result.every((notification) => notification.type === 'chuyi')).toBe(
+			true,
+		);
+		expect(
+			result.every(
+				(notification) =>
+					notification.icsOverrides?.location === 'Home altar' &&
+					notification.icsOverrides.timeTransparent === 'OPAQUE' &&
+					notification.icsOverrides.visibility === 'PRIVATE',
+			),
+		).toBe(true);
+	});
 });

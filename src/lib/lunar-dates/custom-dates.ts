@@ -59,6 +59,7 @@ const createLunarDateNotification = (
 	date: GregorianDateParts,
 	type: MonthlyEventId,
 	rule: MonthRule,
+	overrides?: IcsEventOverrides,
 ): LunarDateNotification => {
 	const { day, lunarLabel, eventLabel } = LUNAR_DAY_LABELS[type];
 
@@ -68,6 +69,7 @@ const createLunarDateNotification = (
 		title: `${rule.en} Day ${day}`,
 		summary: `农历${rule.name}${lunarLabel} (${rule.en} Day ${day})`,
 		description: `Lunar Calendar: ${rule.en}, ${eventLabel}`,
+		icsOverrides: overrides ? pickIcsOverrides(overrides) : undefined,
 	};
 };
 
@@ -103,7 +105,7 @@ const lunarToGregorianParts = ({
 };
 
 const pickIcsOverrides = (
-	input: CustomDateInput,
+	input: IcsEventOverrides,
 ): IcsEventOverrides | undefined => {
 	const overrides: IcsEventOverrides = {
 		location: input.location,
@@ -171,6 +173,7 @@ const expandCustomDate = (
 const expandMonthlyEvents = (
 	{ startYear, numberOfYears }: CustomYearRange,
 	events: Record<MonthlyEventId, boolean>,
+	overrides: Partial<Record<MonthlyEventId, IcsEventOverrides>> = {},
 ): LunarDateNotification[] => {
 	if (!events.chuyi && !events.shiwu) {
 		return [];
@@ -190,12 +193,22 @@ const expandMonthlyEvents = (
 			const [chuyiDate, shiwuDate] = getChuyiShiwuFromLunarMonth(month);
 			if (events.chuyi) {
 				notifications.push(
-					createLunarDateNotification(chuyiDate, 'chuyi', rule),
+					createLunarDateNotification(
+						chuyiDate,
+						'chuyi',
+						rule,
+						overrides.chuyi,
+					),
 				);
 			}
 			if (events.shiwu) {
 				notifications.push(
-					createLunarDateNotification(shiwuDate, 'shiwu', rule),
+					createLunarDateNotification(
+						shiwuDate,
+						'shiwu',
+						rule,
+						overrides.shiwu,
+					),
 				);
 			}
 		}
