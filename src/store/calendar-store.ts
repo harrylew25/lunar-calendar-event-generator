@@ -3,6 +3,7 @@ import type { FestivalId } from '@lunar-dates/constants';
 import type {
 	CatalogCartRule,
 	CustomCartRule,
+	IcsEventOverrides,
 	LunarDateNotification,
 	MonthlyCartRule,
 	MonthlyEventId,
@@ -50,21 +51,30 @@ const isDuplicate = (cart: CartItem[], item: CartItemInput): boolean => {
 		);
 };
 
-const toCartRule = (item: CartItem) => {
-	if (item.kind === 'monthly') {
-		return { kind: 'monthly' as const, monthlyId: item.monthlyId };
+const pickIcsPatch = (patch: Partial<CartItemInput>): IcsEventOverrides => {
+	const overrides: IcsEventOverrides = {};
+	if (Object.hasOwn(patch, 'location')) {
+		overrides.location = patch.location;
 	}
-	if (item.kind === 'catalog') {
-		return { kind: 'catalog' as const, catalogId: item.catalogId };
+	if (Object.hasOwn(patch, 'alarmDaysBefore')) {
+		overrides.alarmDaysBefore = patch.alarmDaysBefore;
 	}
-	return {
-		kind: 'custom' as const,
-		lunarMonth: item.lunarMonth,
-		lunarDay: item.lunarDay,
-		title: item.title,
-		description: item.description,
-	};
+	if (Object.hasOwn(patch, 'alarmHour')) {
+		overrides.alarmHour = patch.alarmHour;
+	}
+	if (Object.hasOwn(patch, 'alarmMinute')) {
+		overrides.alarmMinute = patch.alarmMinute;
+	}
+	if (Object.hasOwn(patch, 'timeTransparent')) {
+		overrides.timeTransparent = patch.timeTransparent;
+	}
+	if (Object.hasOwn(patch, 'visibility')) {
+		overrides.visibility = patch.visibility;
+	}
+	return overrides;
 };
+
+const toCartRule = ({ id: _id, ...rule }: CartItem) => rule;
 
 export const useCalendarStore = create<CalendarStore>((set, get) => ({
 	step: 'select',
@@ -131,7 +141,14 @@ export const useCalendarStore = create<CalendarStore>((set, get) => ({
 		const { cart } = get();
 		const index = cart.findIndex((item) => item.id === id);
 		const current = cart[index];
-		if (index === -1 || !current || current.kind !== 'custom') {
+		if (index === -1 || !current) {
+			return;
+		}
+
+		if (current.kind !== 'custom') {
+			const next = [...cart];
+			next[index] = { ...current, ...pickIcsPatch(patch) };
+			set({ cart: next });
 			return;
 		}
 
