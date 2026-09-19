@@ -1,13 +1,12 @@
 import { icsDraftFromItem, icsDraftToOverrides } from '@ics';
-import { Lunar } from 'lunar-javascript';
 import { useState } from 'react';
 import InputField from '@/components/form/input-field';
 import { Button } from '@/components/ui/button';
 import Label from '@/components/ui/label';
 import SelectField from '@/components/ui/select-field';
 import { Textarea } from '@/components/ui/textarea';
+import { LUNAR_DAY_NAMES, monthRules } from '@/lib/lunar-dates/constants';
 import { dedupedMonthRules, LUNAR_DAY_OPTIONS } from '@/lib/wizard/constants';
-import { getLunarObjectFromDate } from '@/lib/wizard/preview-format';
 import type { CustomCartItem } from '@/store/calendar-store';
 import { useCalendarStore } from '@/store/calendar-store';
 import EditDialog from './EditDialog';
@@ -22,7 +21,6 @@ const CartItemRow = ({ item }: CartItemRowProps) => {
 	const removeItem = useCalendarStore((state) => state.removeItem);
 	const updateItem = useCalendarStore((state) => state.updateItem);
 
-	// TODO: move the dialog to a separate component
 	const [lunarMonth, setLunarMonth] = useState(String(item.lunarMonth));
 	const [lunarDay, setLunarDay] = useState(String(item.lunarDay));
 	const [title, setTitle] = useState(item.title.trim());
@@ -39,23 +37,15 @@ const CartItemRow = ({ item }: CartItemRowProps) => {
 		setIcsDraft(icsDraftFromItem(item));
 	};
 
-	// NOTE: there is a bug here, the date something not aligned with the execution loop
-	const previewDate = (() => {
-		try {
-			const solar = Lunar.fromYmd(
-				new Date().getFullYear(),
-				item.lunarMonth,
-				item.lunarDay,
-			).getSolar();
-			return getLunarObjectFromDate([
-				solar.getYear(),
-				solar.getMonth(),
-				solar.getDay(),
-			]).label;
-		} catch {
-			return `Warning: Invalid date ${item.lunarMonth} - ${item.lunarDay}`;
-		}
-	})();
+	const previewDate = (item: CustomCartItem) => {
+		const month = monthRules.find(
+			(rule) => rule.value === item.lunarMonth,
+		)?.name;
+		const day = LUNAR_DAY_NAMES.find(
+			(day) => day.value === item.lunarDay,
+		)?.name;
+		return `${month} - ${day}`;
+	};
 
 	const handleSave = () => {
 		updateItem(item.id, {
@@ -135,9 +125,7 @@ const CartItemRow = ({ item }: CartItemRowProps) => {
 			<div className="flex justify-between items-center border-2 border-gray-200 rounded-lg p-4">
 				<div>
 					<p className="text-lg font-bold">{item.title}</p>
-					<div>
-						{previewDate} | {item.lunarMonth} - {item.lunarDay}
-					</div>
+					<div>{previewDate(item)}</div>
 					<div>{item.description}</div>
 				</div>
 				<div className="flex gap-2">
