@@ -16,7 +16,7 @@ const SelectFieldWithAlert = ({
 	alert,
 	showAlert = true,
 }: SelectFieldWithAlertProps): ReactElement => (
-	<div className={selectRowClass(Boolean(alert))}>
+	<div className={selectRowClass(showAlert && Boolean(alert))}>
 		{children}
 		{showAlert && alert ? (
 			<div className="flex h-9 w-full items-center justify-center">{alert}</div>
