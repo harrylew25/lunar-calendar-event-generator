@@ -1,15 +1,19 @@
 import { icsDraftFromItem, icsDraftToOverrides } from '@ics';
-import { Lunar } from 'lunar-javascript';
 import { useState } from 'react';
 import InputField from '@/components/form/input-field';
 import { Button } from '@/components/ui/button';
 import Label from '@/components/ui/label';
 import SelectField from '@/components/ui/select-field';
 import { Textarea } from '@/components/ui/textarea';
-import { dedupedMonthRules, LUNAR_DAY_OPTIONS } from '@/lib/wizard/constants';
-import { getLunarObjectFromDate } from '@/lib/wizard/preview-format';
+import { LUNAR_DAY_NAMES, monthRules } from '@/lib/lunar-dates/constants';
+import {
+	dedupedMonthRules,
+	LUNAR_DAY_OPTIONS,
+	MESSAGES,
+} from '@/lib/wizard/constants';
 import type { CustomCartItem } from '@/store/calendar-store';
 import { useCalendarStore } from '@/store/calendar-store';
+import AlertToolTip from './AlertToolTip';
 import EditDialog from './EditDialog';
 import IcsOverrideFields from './IcsOverrideFields';
 
@@ -17,12 +21,14 @@ type CartItemRowProps = {
 	item: CustomCartItem;
 };
 
+const is30thLunarDay = (lunarDay: number) => lunarDay === 30;
+const isLeapMonth = (lunarMonth: number) => lunarMonth < 0;
+
 const CartItemRow = ({ item }: CartItemRowProps) => {
 	const [open, setOpen] = useState(false);
 	const removeItem = useCalendarStore((state) => state.removeItem);
 	const updateItem = useCalendarStore((state) => state.updateItem);
 
-	// TODO: move the dialog to a separate component
 	const [lunarMonth, setLunarMonth] = useState(String(item.lunarMonth));
 	const [lunarDay, setLunarDay] = useState(String(item.lunarDay));
 	const [title, setTitle] = useState(item.title.trim());
@@ -39,23 +45,15 @@ const CartItemRow = ({ item }: CartItemRowProps) => {
 		setIcsDraft(icsDraftFromItem(item));
 	};
 
-	// NOTE: there is a bug here, the date something not aligned with the execution loop
-	const previewDate = (() => {
-		try {
-			const solar = Lunar.fromYmd(
-				new Date().getFullYear(),
-				item.lunarMonth,
-				item.lunarDay,
-			).getSolar();
-			return getLunarObjectFromDate([
-				solar.getYear(),
-				solar.getMonth(),
-				solar.getDay(),
-			]).label;
-		} catch {
-			return `Warning: Invalid date ${item.lunarMonth} - ${item.lunarDay}`;
-		}
-	})();
+	const previewDate = (item: CustomCartItem) => {
+		const month = monthRules.find(
+			(rule) => rule.value === item.lunarMonth,
+		)?.name;
+		const day = LUNAR_DAY_NAMES.find(
+			(day) => day.value === item.lunarDay,
+		)?.name;
+		return { month, day };
+	};
 
 	const handleSave = () => {
 		updateItem(item.id, {
@@ -135,10 +133,27 @@ const CartItemRow = ({ item }: CartItemRowProps) => {
 			<div className="flex justify-between items-center border-2 border-gray-200 rounded-lg p-4">
 				<div>
 					<p className="text-lg font-bold">{item.title}</p>
-					<div>
-						{previewDate} | {item.lunarMonth} - {item.lunarDay}
+					<div className="flex items-center gap-2">
+						{previewDate(item).month}
+						{isLeapMonth(item.lunarMonth) && (
+							<AlertToolTip
+								label="Leap month"
+								description={MESSAGES.leapMonth}
+								iconType="octagon"
+								color="yellow"
+							/>
+						)}
+						{' - '}
+						{previewDate(item).day}
+						{is30thLunarDay(item.lunarDay) && (
+							<AlertToolTip
+								label="End of month"
+								description={MESSAGES.endOfMonth}
+								color="yellow"
+							/>
+						)}
 					</div>
-					<div>{item.description}</div>
+					<div>{item.description} </div>
 				</div>
 				<div className="flex gap-2">
 					<Button type="button" variant="outline" onClick={() => setOpen(true)}>

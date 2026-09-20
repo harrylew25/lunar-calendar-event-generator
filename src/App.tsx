@@ -3,6 +3,7 @@ import DateSelectionStep from '@/components/steps/DateSelectionStep';
 import PreviewStep from '@/components/steps/PreviewStep';
 import { useCalendarStore } from '@/store/calendar-store';
 import './index.css';
+import { TooltipProvider } from './components/ui/tooltip';
 
 // testing for precommit hook
 const App = () => {
@@ -19,10 +20,11 @@ const App = () => {
 					calendar.
 				</p>
 			</div>
-
-			{step === 'select' && <DateSelectionStep />}
-			{step === 'cart' && <CartStep />}
-			{step === 'preview' && <PreviewStep />}
+			<TooltipProvider>
+				{step === 'select' && <DateSelectionStep />}
+				{step === 'cart' && <CartStep />}
+				{step === 'preview' && <PreviewStep />}
+			</TooltipProvider>
 		</main>
 	);
 };
