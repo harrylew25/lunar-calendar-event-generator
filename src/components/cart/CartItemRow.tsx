@@ -6,7 +6,11 @@ import Label from '@/components/ui/label';
 import SelectField from '@/components/ui/select-field';
 import { Textarea } from '@/components/ui/textarea';
 import { LUNAR_DAY_NAMES, monthRules } from '@/lib/lunar-dates/constants';
-import { dedupedMonthRules, LUNAR_DAY_OPTIONS } from '@/lib/wizard/constants';
+import {
+	dedupedMonthRules,
+	LUNAR_DAY_OPTIONS,
+	MESSAGES,
+} from '@/lib/wizard/constants';
 import type { CustomCartItem } from '@/store/calendar-store';
 import { useCalendarStore } from '@/store/calendar-store';
 import AlertToolTip from './AlertToolTip';
@@ -16,13 +20,6 @@ import IcsOverrideFields from './IcsOverrideFields';
 type CartItemRowProps = {
 	item: CustomCartItem;
 };
-
-//  TODO: move to constants file
-const END_OF_MONTH_MESSAGE =
-	"Not every lunar month has 30 days. We will use 29th if the month doesn't have 30 days.";
-
-const LEAP_MONTH_MESSAGE =
-	'We will mark leap month for the first year, and then second year onward, revert to normal lunar month';
 
 const is30thLunarDay = (lunarDay: number) => lunarDay === 30;
 const isLeapMonth = (lunarMonth: number) => lunarMonth < 0;
@@ -140,7 +137,7 @@ const CartItemRow = ({ item }: CartItemRowProps) => {
 						{previewDate(item).month}
 						{isLeapMonth(item.lunarMonth) && (
 							<AlertToolTip
-								description={LEAP_MONTH_MESSAGE}
+								description={MESSAGES.leapMonth}
 								iconType="octagon"
 								color="yellow"
 							/>
@@ -148,7 +145,7 @@ const CartItemRow = ({ item }: CartItemRowProps) => {
 						{' - '}
 						{previewDate(item).day}
 						{is30thLunarDay(item.lunarDay) && (
-							<AlertToolTip description={END_OF_MONTH_MESSAGE} color="yellow" />
+							<AlertToolTip description={MESSAGES.endOfMonth} color="yellow" />
 						)}
 					</div>
 					<div>{item.description} </div>
