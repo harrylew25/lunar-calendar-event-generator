@@ -13,6 +13,7 @@ import {
 } from '@/lib/wizard/constants';
 import type { CustomCartItem } from '@/store/calendar-store';
 import { useCalendarStore } from '@/store/calendar-store';
+import SelectFieldWithAlert from '../form/select-field-with-alert';
 import AlertToolTip from './AlertToolTip';
 import EditDialog from './EditDialog';
 import IcsOverrideFields from './IcsOverrideFields';
@@ -92,26 +93,50 @@ const CartItemRow = ({ item }: CartItemRowProps) => {
 					className="mb-4"
 				/>
 				<div className="grid gap-4 md:grid-cols-2">
-					<SelectField
-						id="lunar-month"
-						label="Lunar month"
-						value={lunarMonth}
-						onValueChange={setLunarMonth}
-						options={dedupedMonthRules.map((rule) => ({
-							label: rule.name,
-							value: String(rule.value),
-						}))}
-					/>
-					<SelectField
-						id="lunar-day"
-						label="Lunar day"
-						value={lunarDay}
-						onValueChange={setLunarDay}
-						options={LUNAR_DAY_OPTIONS.map((day) => ({
-							label: String(day),
-							value: String(day),
-						}))}
-					/>
+					<SelectFieldWithAlert
+						showAlert={isLeapMonth(Number(lunarMonth))}
+						alert={
+							<AlertToolTip
+								label="Leap month"
+								description={MESSAGES.leapMonth}
+								color="yellow"
+							/>
+						}>
+						<SelectField
+							id="lunar-month"
+							label="Lunar month"
+							value={lunarMonth}
+							onValueChange={setLunarMonth}
+							className="min-w-0"
+							triggerClassName="w-full max-w-none"
+							options={dedupedMonthRules.map((rule) => ({
+								label: rule.name,
+								value: String(rule.value),
+							}))}
+						/>
+					</SelectFieldWithAlert>
+					<SelectFieldWithAlert
+						showAlert={is30thLunarDay(Number(lunarDay))}
+						alert={
+							<AlertToolTip
+								label="End of month"
+								description={MESSAGES.endOfMonth}
+								color="yellow"
+							/>
+						}>
+						<SelectField
+							id="lunar-day"
+							label="Lunar day"
+							value={lunarDay}
+							onValueChange={setLunarDay}
+							className="min-w-0"
+							triggerClassName="w-full max-w-none"
+							options={LUNAR_DAY_OPTIONS.map((day) => ({
+								label: String(day),
+								value: String(day),
+							}))}
+						/>
+					</SelectFieldWithAlert>
 				</div>
 				<div className="mt-4 mb-4">
 					<Label htmlFor="description" className="mb-2">

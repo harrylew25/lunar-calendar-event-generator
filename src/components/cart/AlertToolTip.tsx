@@ -13,6 +13,7 @@ interface AlertToolTipProps {
 	color?: 'yellow' | 'red';
 }
 
+// TODO: show the alert message when in the mobile view
 const AlertToolTip = ({
 	label,
 	description,

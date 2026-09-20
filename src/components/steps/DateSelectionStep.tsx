@@ -1,25 +1,19 @@
-import { resolveLunarMonthDay } from '@lunar-dates';
-import { useState } from 'react';
-import InputField from '@/components/form/input-field';
+import type { ReactElement } from 'react';
 import { Button } from '@/components/ui/button';
 import SelectField from '@/components/ui/select-field';
-import {
-	dedupedMonthRules,
-	LOOP_YEAR_PRESETS,
-	LUNAR_DAY_OPTIONS,
-} from '@/lib/wizard/constants';
+import { LOOP_YEAR_PRESETS } from '@/lib/wizard/constants';
 import { useCalendarStore } from '@/store/calendar-store';
+import CustomRuleForm from './CustomRuleForm';
 import EventPickOptions from './EventPickOptions';
 
 const currentYear = new Date().getFullYear();
 const RANGE = 5;
-const formatYearsOption = (years: number) => {
-	const stringYears = String(years);
-	return {
-		label: `${stringYears} ${years === currentYear ? '(current year)' : ''}`,
-		value: stringYears,
-	};
-};
+const formatYearsOption = (
+	years: number,
+): { label: string; value: string } => ({
+	label: `${years} ${years === currentYear ? '(current year)' : ''}`,
+	value: String(years),
+});
 const YEARS_OPTIONS = Array.from(
 	{ length: RANGE * 2 + 1 },
 	(_, index) => currentYear - RANGE + index,
@@ -30,70 +24,13 @@ const LOOP_YEARS_OPTIONS = LOOP_YEAR_PRESETS.map((years) => ({
 	value: String(years),
 }));
 
-const DateSelectionStep = () => {
+const DateSelectionStep = (): ReactElement => {
 	const cart = useCalendarStore((state) => state.cart);
 	const loopYears = useCalendarStore((state) => state.loopYears);
 	const startYear = useCalendarStore((state) => state.startYear);
-	const addItem = useCalendarStore((state) => state.addItem);
 	const setStep = useCalendarStore((state) => state.setStep);
 	const setLoopYears = useCalendarStore((state) => state.setLoopYears);
 	const setStartYear = useCalendarStore((state) => state.setStartYear);
-
-	const [lunarMonth, setLunarMonth] = useState('1');
-	const [lunarDay, setLunarDay] = useState('1');
-	const [title, setTitle] = useState(`testing ${crypto.randomUUID()}`);
-	const [description, setDescription] = useState('');
-	const [solarDate, setSolarDate] = useState('');
-	const [inputMode, setInputMode] = useState<'lunar' | 'solar'>('lunar');
-
-	const trimmedTitle = title.trim();
-	const canAddLunar = trimmedTitle.length > 0;
-	const canAddSolar =
-		trimmedTitle.length > 0 && solarDate.length > 0 && inputMode === 'solar';
-
-	const resetForm = (): void => {
-		setTitle(`testing ${crypto.randomUUID()}`);
-		setDescription('');
-		setLunarMonth('1');
-		setLunarDay('1');
-		setSolarDate('');
-	};
-
-	const submitRule = (lunarMonth: number, lunarDay: number) => {
-		addItem({
-			lunarMonth,
-			lunarDay,
-			title: trimmedTitle,
-			description: description.trim(),
-		});
-		resetForm();
-	};
-
-	const handleAddLunar = (): void => {
-		if (!canAddLunar) {
-			return;
-		}
-		submitRule(Number(lunarMonth), Number(lunarDay));
-	};
-
-	const handleAddSolar = (): void => {
-		if (!canAddSolar) {
-			return;
-		}
-		const [year, month, day] = solarDate.split('-').map(Number);
-		if (!year || !month || !day) {
-			return;
-		}
-		const { lunarMonth: resolvedMonth, lunarDay: resolvedDay } =
-			resolveLunarMonthDay({
-				kind: 'solar',
-				solarYear: year,
-				solarMonth: month,
-				solarDay: day,
-				title: trimmedTitle,
-			});
-		submitRule(resolvedMonth, resolvedDay);
-	};
 
 	return (
 		<div className="mx-auto flex w-full max-w-3xl flex-col gap-8">
@@ -124,81 +61,7 @@ const DateSelectionStep = () => {
 
 			<EventPickOptions />
 
-			<div className="flex gap-2">
-				<Button
-					type="button"
-					variant={inputMode === 'lunar' ? 'default' : 'outline'}
-					onClick={() => setInputMode('lunar')}>
-					Lunar input
-				</Button>
-				<Button
-					type="button"
-					variant={inputMode === 'solar' ? 'default' : 'outline'}
-					onClick={() => setInputMode('solar')}>
-					Solar input
-				</Button>
-			</div>
-
-			<div className="space-y-4 rounded-xl border p-6">
-				<InputField
-					id="event-title"
-					type="text"
-					label="Event title"
-					value={title}
-					onChange={setTitle}
-					placeholder="e.g. 正月十五 reminder"
-				/>
-
-				{inputMode === 'lunar' ? (
-					<div className="grid gap-4 md:grid-cols-2">
-						<SelectField
-							id="lunar-month"
-							label="Lunar month"
-							value={lunarMonth}
-							onValueChange={setLunarMonth}
-							options={dedupedMonthRules.map((rule) => ({
-								label: rule.name,
-								value: String(rule.value),
-							}))}
-						/>
-						<SelectField
-							id="lunar-day"
-							label="Lunar day"
-							value={lunarDay}
-							onValueChange={setLunarDay}
-							options={LUNAR_DAY_OPTIONS.map((day) => ({
-								label: String(day),
-								value: String(day),
-							}))}
-						/>
-					</div>
-				) : (
-					// TODO: change this to actual date picker and today option
-					<InputField
-						id="solar-date"
-						label="Solar date"
-						value={solarDate}
-						onChange={setSolarDate}
-						placeholder="YYYY-MM-DD"
-					/>
-				)}
-
-				<InputField
-					id="event-description"
-					type="textarea"
-					label="Description"
-					value={description}
-					onChange={setDescription}
-					placeholder="e.g. 元宵节提醒"
-				/>
-
-				<Button
-					type="button"
-					onClick={inputMode === 'lunar' ? handleAddLunar : handleAddSolar}
-					disabled={inputMode === 'lunar' ? !canAddLunar : !canAddSolar}>
-					Add to cart
-				</Button>
-			</div>
+			<CustomRuleForm />
 
 			<p className="text-muted-foreground text-sm">
 				{cart.length} item{cart.length === 1 ? '' : 's'} in cart
