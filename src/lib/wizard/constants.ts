@@ -23,11 +23,12 @@ const GREGORIAN_MONTH_NAMES = [
 	'December',
 ] as const;
 
+// TODO: move to i18n
 const MESSAGES = {
 	endOfMonth:
 		"Not every lunar month has 30 days. We will use 29th if the month doesn't have 30 days.",
 	leapMonth:
-		'We will mark leap month for the first year, and then second year onward, revert to normal lunar month',
+		'If the start year includes this leap month, the first year uses it. Later years use the regular month. If the start year does not include it, every year uses the regular month.',
 } as const;
 
 export {

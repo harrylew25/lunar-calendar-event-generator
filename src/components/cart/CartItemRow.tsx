@@ -137,6 +137,7 @@ const CartItemRow = ({ item }: CartItemRowProps) => {
 						{previewDate(item).month}
 						{isLeapMonth(item.lunarMonth) && (
 							<AlertToolTip
+								label="Leap month"
 								description={MESSAGES.leapMonth}
 								iconType="octagon"
 								color="yellow"
@@ -145,7 +146,11 @@ const CartItemRow = ({ item }: CartItemRowProps) => {
 						{' - '}
 						{previewDate(item).day}
 						{is30thLunarDay(item.lunarDay) && (
-							<AlertToolTip description={MESSAGES.endOfMonth} color="yellow" />
+							<AlertToolTip
+								label="End of month"
+								description={MESSAGES.endOfMonth}
+								color="yellow"
+							/>
 						)}
 					</div>
 					<div>{item.description} </div>
