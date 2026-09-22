@@ -13,6 +13,9 @@ const filterUniqueAndSort = (list: number[]) =>
 const PreviewStep = () => {
 	const expandedEvents = useCalendarStore((state) => state.expandedEvents);
 	const setStep = useCalendarStore((state) => state.setStep);
+	const startYear = useCalendarStore((state) => state.startYear);
+	const loopYears = useCalendarStore((state) => state.loopYears);
+	const endYear = startYear + loopYears;
 
 	const availableYears = useMemo(() => {
 		if (!expandedEvents?.length) {
@@ -55,7 +58,9 @@ const PreviewStep = () => {
 				<div>
 					<h2 className="text-2xl font-semibold">Preview</h2>
 					<p className="text-muted-foreground mt-1">
-						{expandedEvents.length} events across {availableYears.length} years
+						<strong>{expandedEvents.length}</strong> events across{' '}
+						<strong>{availableYears.length}</strong> years from{' '}
+						<strong>{startYear}</strong> to <strong>{endYear}</strong>
 					</p>
 				</div>
 				<div className="flex gap-2">
