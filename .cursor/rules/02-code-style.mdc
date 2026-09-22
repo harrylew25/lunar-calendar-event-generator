@@ -12,6 +12,8 @@ Formatting, lint, import order, block statements, and naming conventions are enf
 
 - **Explicit annotations:** Return types and parameter types on functions.
 - **Strict typing:** Never use `any`; use `unknown` when the type is not known.
+- When creating complex UI component, leverage react composition pattern using compound components.
+- When making new non-UI logic, plan out with TDD patterns, and then execute them.
 
 ## Tailwind CSS v4
 
@@ -20,7 +22,7 @@ Formatting, lint, import order, block statements, and naming conventions are enf
 
 ```typescript
 const spanClasses: Record<number, string> = {
-	1: 'col-span-1',
-	2: 'col-span-2',
+ 1: 'col-span-1',
+ 2: 'col-span-2',
 };
 ```

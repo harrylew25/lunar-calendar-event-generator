@@ -34,20 +34,6 @@ const chuyiNotification = (
 	};
 };
 
-describe.skip('notificationToIcsEvent — Gregorian DTSTART', () => {
-	test('maps notification.date to all-day DTSTART from oracle Gregorian date', () => {
-		const oracleDate = expectedChuyiSolarParts(2020, 4);
-		const notification = chuyiNotification(oracleDate);
-		const event = notificationToIcsEvent(notification);
-		const icsEventString = generateIcsEvent(event);
-
-		expect(icsEventString).toContain(
-			`DTSTART;VALUE=DATE:${padYmd(oracleDate)}`,
-		);
-		expect(icsEventString).not.toContain('T000000');
-	});
-});
-
 describe('notificationToIcsEvent — exclusive end date', () => {
 	test('sets DTEND to the day after DTSTART for all-day events', () => {
 		const oracleDate = expectedChuyiSolarParts(2020, 4);
