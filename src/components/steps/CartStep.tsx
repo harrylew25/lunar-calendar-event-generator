@@ -7,6 +7,7 @@ const CartStep = () => {
 	const cart = useCalendarStore((state) => state.cart);
 	const startYear = useCalendarStore((state) => state.startYear);
 	const loopYears = useCalendarStore((state) => state.loopYears);
+	const endYear = startYear + loopYears;
 	const setStep = useCalendarStore((state) => state.setStep);
 	const confirmAndExpand = useCalendarStore((state) => state.confirmAndExpand);
 	const clearAll = useCalendarStore((state) => state.clearAll);
@@ -22,7 +23,10 @@ const CartStep = () => {
 			</div>
 			<div className="space-y-2">
 				<h2>Loop years: {loopYears} years</h2>
-				<h2>Start year: {startYear}</h2>
+				<h2>
+					Expanding lunar years from <strong>{startYear}</strong> through{' '}
+					<strong>{endYear}</strong>
+				</h2>
 			</div>
 
 			<div className="flex flex-col gap-4">
