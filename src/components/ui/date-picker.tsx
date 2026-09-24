@@ -1,4 +1,4 @@
-import { format, isValid } from 'date-fns';
+import { format, isValid, parse } from 'date-fns';
 import { CalendarIcon } from 'lucide-react';
 import { type ChangeEvent, type KeyboardEvent, useState } from 'react';
 import { Calendar } from '@/components/ui/calendar';
@@ -23,26 +23,25 @@ interface DatePickerInputProps {
 	error?: string | null;
 }
 
-const DatePickerInput = ({ value, onChange, error }: DatePickerInputProps) => {
+const DatePickerInput = ({
+	value = '',
+	onChange,
+	error,
+}: DatePickerInputProps) => {
 	const [open, setOpen] = useState(false);
-	const [date, setDate] = useState<Date | undefined>(
-		value ? new Date(value) : new Date(),
-	);
-	const [month, setMonth] = useState<Date | undefined>(date);
-	const [localValue, setLocalValue] = useState(formatDate(date));
+	const [month, setMonth] = useState<Date | undefined>(new Date());
+
+	const parsed = parse(value, 'yyyy-MM-dd', new Date());
+	const selected = isValid(parsed) ? parsed : undefined;
 
 	const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
-		const date = new Date(e.target.value);
-		setLocalValue(e.target.value);
-		onChange?.(e.target.value);
-		if (isValid(date)) {
-			setDate(date);
-			setMonth(date);
-		}
-	};
+		const currentValue = e.target.value;
+		onChange?.(currentValue);
 
-	const handleBlur = () => {
-		onChange?.(localValue);
+		const currentDateParsed = parse(currentValue, 'yyyy-MM-dd', new Date());
+		if (isValid(currentDateParsed)) {
+			setMonth(currentDateParsed);
+		}
 	};
 
 	const handleKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
@@ -53,8 +52,7 @@ const DatePickerInput = ({ value, onChange, error }: DatePickerInputProps) => {
 	};
 
 	const handleSelect = (date: Date) => {
-		setDate(date);
-		setLocalValue(formatDate(date));
+		setMonth(date);
 		onChange?.(formatDate(date));
 		setOpen(false);
 	};
@@ -65,11 +63,10 @@ const DatePickerInput = ({ value, onChange, error }: DatePickerInputProps) => {
 			<InputGroup>
 				<InputGroupInput
 					id="date-required"
-					value={localValue}
+					value={value}
 					placeholder="YYYY-MM-DD"
 					onChange={handleChange}
 					onKeyDown={handleKeyDown}
-					onBlur={handleBlur}
 					aria-invalid={error ? 'true' : undefined}
 				/>
 				<InputGroupAddon align="inline-end">
@@ -93,7 +90,7 @@ const DatePickerInput = ({ value, onChange, error }: DatePickerInputProps) => {
 							<Calendar
 								mode="single"
 								required
-								selected={date}
+								selected={selected}
 								month={month}
 								onMonthChange={setMonth}
 								onSelect={handleSelect}
