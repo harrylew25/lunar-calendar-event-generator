@@ -1,17 +1,19 @@
 import { resolveLunarMonthDay } from '@lunar-dates';
+import { getDate, getMonth, getYear, isMatch, isValid, parse } from 'date-fns';
 import { type ReactElement, useState } from 'react';
 import AlertToolTip from '@/components/cart/AlertToolTip';
 import InputField from '@/components/form/input-field';
+import SelectFieldWithAlert from '@/components/form/select-field-with-alert';
 import { Button } from '@/components/ui/button';
+import DatePickerInput from '@/components/ui/date-picker';
 import SelectField from '@/components/ui/select-field';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import {
 	dedupedMonthRules,
 	LUNAR_DAY_OPTIONS,
 	MESSAGES,
 } from '@/lib/wizard/constants';
 import { useCalendarStore } from '@/store/calendar-store';
-import SelectFieldWithAlert from '../form/select-field-with-alert';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '../ui/tabs';
 
 const is30thLunarDay = (lunarDay: number): boolean => lunarDay === 30;
 const isLeapMonth = (lunarMonth: number): boolean => lunarMonth < 0;
@@ -21,7 +23,8 @@ const CustomRuleForm = (): ReactElement => {
 
 	const [lunarMonth, setLunarMonth] = useState('1');
 	const [lunarDay, setLunarDay] = useState('1');
-	const [title, setTitle] = useState(`testing ${crypto.randomUUID()}`);
+	const [title, setTitle] = useState('');
+	const [titleTouched, setTitleTouched] = useState(false);
 	const [description, setDescription] = useState('');
 	const [solarDate, setSolarDate] = useState('');
 	const [inputMode, setInputMode] = useState<'lunar' | 'solar'>('lunar');
@@ -32,7 +35,7 @@ const CustomRuleForm = (): ReactElement => {
 		trimmedTitle.length > 0 && solarDate.length > 0 && inputMode === 'solar';
 
 	const resetForm = (): void => {
-		setTitle(`testing ${crypto.randomUUID()}`);
+		setTitle('');
 		setDescription('');
 		setLunarMonth('1');
 		setLunarDay('1');
@@ -57,23 +60,27 @@ const CustomRuleForm = (): ReactElement => {
 	};
 
 	const handleAddSolar = (): void => {
-		if (!canAddSolar) {
-			return;
-		}
-		const [year, month, day] = solarDate.split('-').map(Number);
-		if (!year || !month || !day) {
+		const parsed = parse(solarDate, 'yyyy-MM-dd', new Date());
+		if (!isValid(parsed) || !canAddSolar) {
 			return;
 		}
 		const { lunarMonth: resolvedMonth, lunarDay: resolvedDay } =
 			resolveLunarMonthDay({
 				kind: 'solar',
-				solarYear: year,
-				solarMonth: month,
-				solarDay: day,
+				solarYear: getYear(parsed),
+				solarMonth: getMonth(parsed) + 1,
+				solarDay: getDate(parsed),
 				title: trimmedTitle,
 			});
 		submitRule(resolvedMonth, resolvedDay);
 	};
+
+	const titleError = titleTouched && trimmedTitle.length === 0;
+
+	const solarDateError =
+		solarDate.length > 0 && !isMatch(solarDate, 'yyyy-MM-dd')
+			? 'Invalid date format. Please use YYYY-MM-DD.'
+			: null;
 
 	return (
 		<Tabs
@@ -91,6 +98,8 @@ const CustomRuleForm = (): ReactElement => {
 					value={title}
 					onChange={setTitle}
 					placeholder="e.g. 正月十五 reminder"
+					onBlur={() => setTitleTouched(true)}
+					error={titleError ? 'Title is required' : undefined}
 				/>
 
 				<TabsContent value="lunar">
@@ -143,12 +152,10 @@ const CustomRuleForm = (): ReactElement => {
 					</div>
 				</TabsContent>
 				<TabsContent value="solar">
-					<InputField
-						id="solar-date"
-						label="Solar date"
+					<DatePickerInput
 						value={solarDate}
-						onChange={setSolarDate}
-						placeholder="YYYY-MM-DD"
+						onChange={(item) => setSolarDate(item)}
+						error={solarDateError}
 					/>
 				</TabsContent>
 
@@ -163,7 +170,11 @@ const CustomRuleForm = (): ReactElement => {
 				<Button
 					type="button"
 					onClick={inputMode === 'lunar' ? handleAddLunar : handleAddSolar}
-					disabled={inputMode === 'lunar' ? !canAddLunar : !canAddSolar}>
+					disabled={
+						(inputMode === 'lunar' ? !canAddLunar : !canAddSolar) ||
+						!!solarDateError ||
+						!!titleError
+					}>
 					Add to cart
 				</Button>
 			</div>
