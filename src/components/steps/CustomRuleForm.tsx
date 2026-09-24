@@ -11,6 +11,7 @@ import {
 } from '@/lib/wizard/constants';
 import { useCalendarStore } from '@/store/calendar-store';
 import SelectFieldWithAlert from '../form/select-field-with-alert';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '../ui/tabs';
 
 const is30thLunarDay = (lunarDay: number): boolean => lunarDay === 30;
 const isLeapMonth = (lunarMonth: number): boolean => lunarMonth < 0;
@@ -75,22 +76,13 @@ const CustomRuleForm = (): ReactElement => {
 	};
 
 	return (
-		<>
-			<div className="flex gap-2">
-				<Button
-					type="button"
-					variant={inputMode === 'lunar' ? 'default' : 'outline'}
-					onClick={() => setInputMode('lunar')}>
-					Lunar input
-				</Button>
-				<Button
-					type="button"
-					variant={inputMode === 'solar' ? 'default' : 'outline'}
-					onClick={() => setInputMode('solar')}>
-					Solar input
-				</Button>
-			</div>
-
+		<Tabs
+			defaultValue="lunar"
+			onValueChange={(value) => setInputMode(value as 'lunar' | 'solar')}>
+			<TabsList>
+				<TabsTrigger value="lunar">Lunar</TabsTrigger>
+				<TabsTrigger value="solar">Solar</TabsTrigger>
+			</TabsList>
 			<div className="space-y-4 rounded-xl border p-6">
 				<InputField
 					id="event-title"
@@ -101,7 +93,7 @@ const CustomRuleForm = (): ReactElement => {
 					placeholder="e.g. 正月十五 reminder"
 				/>
 
-				{inputMode === 'lunar' ? (
+				<TabsContent value="lunar">
 					<div className="grid gap-4 md:grid-cols-2">
 						<SelectFieldWithAlert
 							showAlert={isLeapMonth(Number(lunarMonth))}
@@ -149,8 +141,8 @@ const CustomRuleForm = (): ReactElement => {
 							/>
 						</SelectFieldWithAlert>
 					</div>
-				) : (
-					// TODO: change this to actual date picker and today option
+				</TabsContent>
+				<TabsContent value="solar">
 					<InputField
 						id="solar-date"
 						label="Solar date"
@@ -158,7 +150,7 @@ const CustomRuleForm = (): ReactElement => {
 						onChange={setSolarDate}
 						placeholder="YYYY-MM-DD"
 					/>
-				)}
+				</TabsContent>
 
 				<InputField
 					id="event-description"
@@ -168,7 +160,6 @@ const CustomRuleForm = (): ReactElement => {
 					onChange={setDescription}
 					placeholder="e.g. 元宵节提醒"
 				/>
-
 				<Button
 					type="button"
 					onClick={inputMode === 'lunar' ? handleAddLunar : handleAddSolar}
@@ -176,7 +167,7 @@ const CustomRuleForm = (): ReactElement => {
 					Add to cart
 				</Button>
 			</div>
-		</>
+		</Tabs>
 	);
 };
 
