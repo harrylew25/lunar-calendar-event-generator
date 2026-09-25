@@ -1,5 +1,6 @@
 import type { ChangeEvent, JSX } from 'react';
-import { Input } from '@/components/ui/input';
+import { FieldError } from '@/components/ui/field';
+import Input from '@/components/ui/input';
 import Label from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { useDebouncedControlledInput } from '@/hooks/useDebounceControlledInput';
@@ -27,6 +28,8 @@ type InputFieldProps = {
 	className?: string;
 	delayInMs?: number;
 	placeholder?: string;
+	error?: string | null;
+	onBlur?: () => void;
 };
 
 const DEFAULT_DELAY_IN_MS = 300;
@@ -39,13 +42,17 @@ const InputField = ({
 	onChange,
 	className,
 	placeholder,
+	onBlur,
 	delayInMs = DEFAULT_DELAY_IN_MS,
+	error,
 }: InputFieldProps): JSX.Element => {
 	const { localValue, setLocalValue } = useDebouncedControlledInput(
 		value,
 		onChange,
 		delayInMs,
 	);
+
+	const errorId = error ? `${id}-error` : undefined;
 
 	const handleChange = (
 		event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
@@ -62,15 +69,24 @@ const InputField = ({
 					value={localValue}
 					onChange={handleChange}
 					placeholder={placeholder}
+					aria-invalid={error ? true : undefined}
+					aria-describedby={errorId}
+					onBlur={onBlur}
 				/>
 			) : (
-				<Input
-					id={id}
-					type={type}
-					value={localValue}
-					onChange={handleChange}
-					placeholder={placeholder}
-				/>
+				<>
+					<Input
+						id={id}
+						type={type}
+						value={localValue}
+						onChange={handleChange}
+						placeholder={placeholder}
+						aria-invalid={error ? true : undefined}
+						aria-describedby={errorId}
+						onBlur={onBlur}
+					/>
+					{error && <FieldError id={errorId}>{error}</FieldError>}
+				</>
 			)}
 		</div>
 	);

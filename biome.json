@@ -89,6 +89,16 @@
 					}
 				}
 			}
+		},
+		{
+			"includes": ["src/components/ui/calendar.tsx"],
+			"linter": {
+				"rules": {
+					"style": {
+						"useNamingConvention": "off"
+					}
+				}
+			}
 		}
 	]
 }

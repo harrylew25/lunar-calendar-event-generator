@@ -59,10 +59,10 @@ const DateSelectionStep = (): ReactElement => {
 				/>
 			</div>
 
+			{/* TODO: use accordion for these */}
 			<EventPickOptions />
-
+			{/* TODO: rename this date form */}
 			<CustomRuleForm />
-
 			<p className="text-muted-foreground text-sm">
 				{cart.length} item{cart.length === 1 ? '' : 's'} in cart
 			</p>
