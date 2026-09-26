@@ -51,26 +51,30 @@ const isDuplicate = (cart: CartItem[], item: CartItemInput): boolean => {
 		);
 };
 
+const assignIfPresent = <K extends keyof IcsEventOverrides>(
+	patch: Partial<CartItemInput>,
+	key: K,
+	overrides: IcsEventOverrides,
+): void => {
+	if (Object.hasOwn(patch, key)) {
+		overrides[key] = patch[key];
+	}
+};
+
+const ICS_KEYS = [
+	'location',
+	'alarmDaysBefore',
+	'alarmHour',
+	'alarmMinute',
+	'timeTransparent',
+	'visibility',
+] as const satisfies readonly (keyof IcsEventOverrides)[];
+
 const pickIcsPatch = (patch: Partial<CartItemInput>): IcsEventOverrides => {
 	const overrides: IcsEventOverrides = {};
-	if (Object.hasOwn(patch, 'location')) {
-		overrides.location = patch.location;
-	}
-	if (Object.hasOwn(patch, 'alarmDaysBefore')) {
-		overrides.alarmDaysBefore = patch.alarmDaysBefore;
-	}
-	if (Object.hasOwn(patch, 'alarmHour')) {
-		overrides.alarmHour = patch.alarmHour;
-	}
-	if (Object.hasOwn(patch, 'alarmMinute')) {
-		overrides.alarmMinute = patch.alarmMinute;
-	}
-	if (Object.hasOwn(patch, 'timeTransparent')) {
-		overrides.timeTransparent = patch.timeTransparent;
-	}
-	if (Object.hasOwn(patch, 'visibility')) {
-		overrides.visibility = patch.visibility;
-	}
+	ICS_KEYS.forEach((key) => {
+		assignIfPresent(patch, key, overrides);
+	});
 	return overrides;
 };
 
