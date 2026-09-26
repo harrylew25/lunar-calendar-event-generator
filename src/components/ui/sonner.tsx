@@ -13,6 +13,15 @@ const TOASTER_STYLES = {
 	'--normal-text': 'var(--popover-foreground)',
 	'--normal-border': 'var(--border)',
 	'--border-radius': 'var(--radius)',
+	'--success-bg': 'var(--color-green-100)',
+	'--success-border': 'var(--color-green-300)',
+	'--success-text': 'var(--color-green-800)',
+	'--warning-bg': 'var(--color-amber-100)',
+	'--warning-border': 'var(--color-amber-300)',
+	'--warning-text': 'var(--color-amber-900)',
+	'--error-bg': 'var(--color-red-100)',
+	'--error-border': 'var(--color-red-300)',
+	'--error-text': 'var(--color-red-800)',
 } as React.CSSProperties;
 
 const Toaster = ({ ...props }: ToasterProps) => {
@@ -20,6 +29,7 @@ const Toaster = ({ ...props }: ToasterProps) => {
 
 	return (
 		<Sonner
+			richColors
 			theme={theme as ToasterProps['theme']}
 			className="toaster group"
 			icons={{
