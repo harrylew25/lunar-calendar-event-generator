@@ -79,6 +79,7 @@ const LUNAR_DAY_NAMES = [
 ] as const;
 
 type LunarDayValue = (typeof LUNAR_DAY_NAMES)[number]['value'];
+type LunarDayName = (typeof LUNAR_DAY_NAMES)[number]['name'];
 
 const LUNAR_MILESTONE_DAYS = {
 	chuyi: 1,
@@ -118,19 +119,23 @@ const dayNameByValue = new Map(
 	LUNAR_DAY_NAMES.map((day) => [day.value, day.name]),
 );
 
-const createFestivalEvent = <TId extends string>(
-	id: TId,
-	lunarMonth: LunarMonthValue,
-	lunarDay: LunarDayValue,
-	title: string,
-): {
+type FestivalEvent<TId extends string> = {
 	id: TId;
 	kind: 'festival';
 	lunarMonth: LunarMonthValue;
 	lunarDay: LunarDayValue;
 	title: string;
 	cartLabel: string;
-} => {
+	lunarMonthLabel: MonthRuleName;
+	lunarDayLabel: LunarDayName;
+};
+
+const createFestivalEvent = <TId extends string>(
+	id: TId,
+	lunarMonth: LunarMonthValue,
+	lunarDay: LunarDayValue,
+	title: string,
+): FestivalEvent<TId> => {
 	const month = monthNameByValue.get(lunarMonth);
 	const day = dayNameByValue.get(lunarDay);
 	if (month === undefined || day === undefined) {
@@ -143,6 +148,8 @@ const createFestivalEvent = <TId extends string>(
 		lunarMonth,
 		lunarDay,
 		title,
+		lunarMonthLabel: month,
+		lunarDayLabel: day,
 		cartLabel: `${title} — ${month}${day}`,
 	};
 };

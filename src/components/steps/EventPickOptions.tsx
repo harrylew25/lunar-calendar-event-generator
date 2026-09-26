@@ -1,4 +1,6 @@
 import { FESTIVALS, MONTHLY_EVENTS } from '@lunar-dates/constants';
+import type React from 'react';
+import { toast } from 'sonner';
 import Checkbox from '@/components/ui/checkbox';
 import {
 	Field,
@@ -9,6 +11,23 @@ import {
 	FieldSet,
 } from '@/components/ui/field';
 import { useCalendarStore } from '@/store/calendar-store';
+
+const notifyCartToggle = (
+	label: React.ReactNode,
+	included: boolean,
+	toastId: string,
+): void => {
+	const notification = {
+		id: toastId,
+		description: label,
+	};
+
+	if (included) {
+		toast.success('Added to cart', notification);
+		return;
+	}
+	toast.warning('Removed from cart', notification);
+};
 
 const EventPickOptions = () => {
 	const cart = useCalendarStore((state) => state.cart);
@@ -39,7 +58,9 @@ const EventPickOptions = () => {
 									id={inputId}
 									checked={isMonthlyChecked(event.id)}
 									onCheckedChange={(value: boolean | 'indeterminate') => {
-										setMonthlyEvent(event.id, value === true);
+										const included = value === true;
+										setMonthlyEvent(event.id, included);
+										notifyCartToggle(`每月${event.title}`, included, event.id);
 									}}
 								/>
 								<FieldLabel htmlFor={inputId} className="font-normal">
@@ -66,7 +87,20 @@ const EventPickOptions = () => {
 									id={inputId}
 									checked={isCatalogChecked(event.id)}
 									onCheckedChange={(value: boolean | 'indeterminate') => {
-										setCatalogItem(event.id, value === true);
+										const included = value === true;
+										setCatalogItem(event.id, included);
+										notifyCartToggle(
+											<>
+												<span>{event.title}</span>
+												<br />
+												<span>
+													{event.lunarMonthLabel}
+													{event.lunarDayLabel}
+												</span>
+											</>,
+											included,
+											`catalog-${event.id}`,
+										);
 									}}
 								/>
 								<FieldLabel htmlFor={inputId} className="font-normal">
