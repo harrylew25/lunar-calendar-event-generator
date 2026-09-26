@@ -1,6 +1,7 @@
 import { resolveLunarMonthDay } from '@lunar-dates';
 import { getDate, getMonth, getYear, isMatch, isValid, parse } from 'date-fns';
 import { type ReactElement, useState } from 'react';
+import { toast } from 'sonner';
 import AlertToolTip from '@/components/cart/AlertToolTip';
 import InputField from '@/components/form/input-field';
 import SelectFieldWithAlert from '@/components/form/select-field-with-alert';
@@ -40,15 +41,21 @@ const CustomRuleForm = (): ReactElement => {
 		setLunarMonth('1');
 		setLunarDay('1');
 		setSolarDate('');
+		setTitleTouched(false);
 	};
 
 	const submitRule = (nextLunarMonth: number, nextLunarDay: number): void => {
+		const currentCartLength = useCalendarStore.getState().cart.length;
 		addItem({
 			lunarMonth: nextLunarMonth,
 			lunarDay: nextLunarDay,
 			title: trimmedTitle,
 			description: description.trim(),
 		});
+		const postSubmitCartLength = useCalendarStore.getState().cart.length;
+		if (postSubmitCartLength > currentCartLength) {
+			toast.success('Event added to cart');
+		}
 		resetForm();
 	};
 
