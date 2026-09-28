@@ -1,0 +1,52 @@
+---
+description: Linear bug issue body. Use when creating or updating a bug.
+alwaysApply: false
+---
+
+# Linear bug ticket
+
+## How to use
+
+Create or update an issue with `save_issue`. Put this body in `description`. Keep priority, labels, and relations on the tool call.
+
+- `priority`: `1` Urgent, `2` High, `3` Medium, or `4` Low. Use `3` unless the user states otherwise.
+- `addLabels`: an existing label from `list_issue_labels`.
+- `blockedBy` and `relatedTo`: only issues the user names.
+- Evidence: upload screenshots, logs, or a recording with `prepare_attachment_upload`, then PUT, then `create_attachment_from_upload`.
+
+Write a title that names the broken behavior. Delete any section below that does not apply.
+
+## Body
+
+```markdown
+## Description
+
+[Two or three sentences: what fails, and who it affects.]
+
+## Steps to reproduce
+
+1. [Start state, including any required data.]
+2. [Action.]
+3. [Action that shows the failure.]
+
+## Expected result
+
+[What the user should see.]
+
+## Actual result
+
+[What happens instead. Include the error text when there is one.]
+
+## Environment
+
+- Browser:
+- OS:
+- App version or commit:
+- Route or command:
+
+## Acceptance criteria
+
+- [ ] The steps above no longer produce the actual result.
+- [ ] The expected result holds in the environments listed.
+- [ ] Related behavior still works.
+```

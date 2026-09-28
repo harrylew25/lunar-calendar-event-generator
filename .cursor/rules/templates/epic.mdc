@@ -1,0 +1,41 @@
+---
+description: Linear epic project body. Use when creating or updating a project that groups issues.
+alwaysApply: false
+---
+
+# Linear epic
+
+## How to use
+
+Create or update a project with `save_project`. An epic is not an issue. A milestone is a phase inside this project; create one with `save_milestone` only when the user asks for phases.
+
+- `name`: the epic title.
+- `summary`: one sentence, at most 255 characters. Use the Summary line below.
+- `description`: the body below, without the Summary line.
+- `addTeams` or `setTeams`: team name or id from `list_teams`.
+- `priority`: `1` Urgent, `2` High, `3` Medium, or `4` Low. Use `3` unless the user states otherwise.
+- `addInitiatives`: only an initiative the user names. This MCP cannot create one.
+
+Stories, bugs, features, and improvements under this epic are issues. Set their `project` to this project's name, id, or `P-ENG-123` after the project exists.
+
+## Body
+
+```markdown
+## Outcome
+
+[Who this epic serves, and what is true when it is done.]
+
+## In scope
+
+- [Capability or problem this project includes.]
+- [Capability or problem this project includes.]
+
+## Out of scope
+
+- [Work this project does not include.]
+
+## Success criteria
+
+- [ ] [Observable outcome.]
+- [ ] [Observable outcome.]
+```

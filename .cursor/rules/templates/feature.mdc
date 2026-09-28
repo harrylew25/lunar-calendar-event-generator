@@ -1,0 +1,50 @@
+---
+description: Linear feature issue body. Use when creating or updating a new capability.
+alwaysApply: false
+---
+
+# Linear feature ticket
+
+## How to use
+
+Create or update an issue with `save_issue`. Put this body in `description`. A feature is a new capability. Use the improvement template when the work changes something that already exists.
+
+- `priority`: `1` Urgent, `2` High, `3` Medium, or `4` Low. Use `3` unless the user states otherwise.
+- `addLabels`: an existing label from `list_issue_labels`.
+- `blockedBy` and `relatedTo`: only issues the user names.
+- `project`: the epic's project name, id, or `P-ENG-123` when the feature belongs to one.
+- `estimate`: set only when the user supplies a number.
+
+Write a title that names the capability. Delete any section below that does not apply.
+
+## Body
+
+```markdown
+## Summary
+
+[What problem this solves, and for whom.]
+
+## Requirements
+
+- [Testable behavior.]
+- [Testable behavior.]
+
+## Acceptance criteria
+
+- [ ] [Functional outcome.]
+- [ ] [Edge case or failure outcome.]
+- [ ] [Performance, accessibility, or security outcome, when the change needs one.]
+
+## Technical notes
+
+[Constraints, existing modules, or design links. Omit when there are none.]
+
+## Testing
+
+- [ ] Automated tests cover the new behavior.
+- [ ] Manual check: [the user flow to try.]
+
+## Out of scope
+
+- [Behavior this issue does not include.]
+```
