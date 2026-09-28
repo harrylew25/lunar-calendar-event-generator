@@ -1,4 +1,9 @@
 import { resolveLunarMonthDay } from '@lunar-dates';
+import {
+	dayNameByValue,
+	type LUNAR_DAY_NAMES,
+	monthNameByValue,
+} from '@lunar-dates/constants';
 import { getDate, getMonth, getYear, isMatch, isValid, parse } from 'date-fns';
 import { type ReactElement, useState } from 'react';
 import AlertToolTip from '@/components/cart/AlertToolTip';
@@ -8,6 +13,7 @@ import { Button } from '@/components/ui/button';
 import DatePickerInput from '@/components/ui/date-picker';
 import SelectField from '@/components/ui/select-field';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { reportCartChange } from '@/lib/wizard/cart-toast';
 import {
 	dedupedMonthRules,
 	LUNAR_DAY_OPTIONS,
@@ -40,15 +46,30 @@ const CustomRuleForm = (): ReactElement => {
 		setLunarMonth('1');
 		setLunarDay('1');
 		setSolarDate('');
+		setTitleTouched(false);
 	};
 
 	const submitRule = (nextLunarMonth: number, nextLunarDay: number): void => {
+		const currentCartLength = useCalendarStore.getState().cart.length;
 		addItem({
 			lunarMonth: nextLunarMonth,
 			lunarDay: nextLunarDay,
 			title: trimmedTitle,
 			description: description.trim(),
 		});
+		const postSubmitCartLength = useCalendarStore.getState().cart.length;
+		if (postSubmitCartLength > currentCartLength) {
+			const monthName = monthNameByValue.get(nextLunarMonth) ?? '';
+			const dayName =
+				dayNameByValue.get(
+					nextLunarDay as (typeof LUNAR_DAY_NAMES)[number]['value'],
+				) ?? '';
+			reportCartChange({
+				action: 'added',
+				title: trimmedTitle,
+				lunarDate: `${monthName}${dayName}`,
+			});
+		}
 		resetForm();
 	};
 

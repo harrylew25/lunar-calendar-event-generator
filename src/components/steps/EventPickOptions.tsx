@@ -8,6 +8,7 @@ import {
 	FieldLegend,
 	FieldSet,
 } from '@/components/ui/field';
+import { reportCartChange } from '@/lib/wizard/cart-toast';
 import { useCalendarStore } from '@/store/calendar-store';
 
 const EventPickOptions = () => {
@@ -39,7 +40,14 @@ const EventPickOptions = () => {
 									id={inputId}
 									checked={isMonthlyChecked(event.id)}
 									onCheckedChange={(value: boolean | 'indeterminate') => {
-										setMonthlyEvent(event.id, value === true);
+										const included = value === true;
+										setMonthlyEvent(event.id, included);
+										reportCartChange({
+											action: included ? 'added' : 'removed',
+											title: event.title,
+											lunarDate: `每月${event.title}`,
+											toastId: event.id,
+										});
 									}}
 								/>
 								<FieldLabel htmlFor={inputId} className="font-normal">
@@ -66,7 +74,14 @@ const EventPickOptions = () => {
 									id={inputId}
 									checked={isCatalogChecked(event.id)}
 									onCheckedChange={(value: boolean | 'indeterminate') => {
-										setCatalogItem(event.id, value === true);
+										const included = value === true;
+										setCatalogItem(event.id, included);
+										reportCartChange({
+											action: included ? 'added' : 'removed',
+											title: event.title,
+											lunarDate: `${event.lunarMonthLabel}${event.lunarDayLabel}`,
+											toastId: `catalog-${event.id}`,
+										});
 									}}
 								/>
 								<FieldLabel htmlFor={inputId} className="font-normal">

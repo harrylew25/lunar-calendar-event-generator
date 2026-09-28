@@ -5,7 +5,13 @@ import { Button } from '@/components/ui/button';
 import Label from '@/components/ui/label';
 import SelectField from '@/components/ui/select-field';
 import { Textarea } from '@/components/ui/textarea';
-import { LUNAR_DAY_NAMES, monthRules } from '@/lib/lunar-dates/constants';
+import {
+	dayNameByValue,
+	LUNAR_DAY_NAMES,
+	monthNameByValue,
+	monthRules,
+} from '@/lib/lunar-dates/constants';
+import { reportCartChange } from '@/lib/wizard/cart-toast';
 import {
 	dedupedMonthRules,
 	LUNAR_DAY_OPTIONS,
@@ -75,6 +81,21 @@ const CartItemRow = ({ item }: CartItemRowProps) => {
 	const handleCancel = () => {
 		resetDraftFromItem();
 		setOpen(false);
+	};
+
+	const onRemove = () => {
+		removeItem(item.id);
+		const monthName = monthNameByValue.get(item.lunarMonth) ?? '';
+		const dayName =
+			dayNameByValue.get(
+				item.lunarDay as (typeof LUNAR_DAY_NAMES)[number]['value'],
+			) ?? '';
+		reportCartChange({
+			action: 'removed',
+			title: item.title,
+			lunarDate: `${monthName}${dayName}`,
+			toastId: item.id,
+		});
 	};
 
 	return (
@@ -184,10 +205,7 @@ const CartItemRow = ({ item }: CartItemRowProps) => {
 					<Button type="button" variant="outline" onClick={() => setOpen(true)}>
 						Edit
 					</Button>
-					<Button
-						type="button"
-						variant="outline"
-						onClick={() => removeItem(item.id)}>
+					<Button type="button" variant="destructive" onClick={onRemove}>
 						Delete
 					</Button>
 				</div>

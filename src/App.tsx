@@ -1,11 +1,11 @@
 import CartStep from '@/components/steps/CartStep';
 import DateSelectionStep from '@/components/steps/DateSelectionStep';
 import PreviewStep from '@/components/steps/PreviewStep';
+import Toaster from '@/components/ui/sonner';
+import { TooltipProvider } from '@/components/ui/tooltip';
 import { useCalendarStore } from '@/store/calendar-store';
 import './index.css';
-import { TooltipProvider } from './components/ui/tooltip';
 
-// testing for precommit hook
 const App = () => {
 	const step = useCalendarStore((state) => state.step);
 
@@ -25,6 +25,7 @@ const App = () => {
 				{step === 'cart' && <CartStep />}
 				{step === 'preview' && <PreviewStep />}
 			</TooltipProvider>
+			<Toaster />
 		</main>
 	);
 };
