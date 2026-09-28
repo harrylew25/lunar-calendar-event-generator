@@ -1,0 +1,55 @@
+---
+description: Create and update Linear issues, projects, and milestones.
+alwaysApply: false
+---
+
+# Linear issues and projects
+
+Use this when creating or updating Linear work. Issue identifiers in this repo use the `ENG` prefix (`ENG-123`). Projects use `P-ENG-123`. Call `list_teams` when the team name is unknown, then pass that name or id as `team`.
+
+## Mapping
+
+- **Epic** → project via `save_project`. Create needs `name` and `addTeams` or `setTeams`.
+- **Milestone** → `save_milestone` inside a project. A milestone does not replace a project.
+- **Story, bug, improvement, task** → issue via `save_issue`. Set the type with an existing label.
+- **Sub-task** → sub-issue. Create the parent first, then set `parentId` to its id or `ENG-123`.
+
+Omit `id` on create. Passing `id` updates that record. This MCP cannot create initiatives. Attach an existing one with `addInitiatives` on `save_project`.
+
+## Fields
+
+- `team` is the team name or id. `project` is a name, id, slug, or `P-ENG-123`. There is no `team_id` or `project_id`.
+- Priority is a number: `0` None, `1` Urgent, `2` High, `3` Medium, `4` Low. Prefer `3` unless the user asks otherwise.
+- Call `list_issue_labels` and pass existing names. `addLabels` appends. `labels` replaces the full set. A `singleSelect` group allows one label from that group.
+- Link issues with `relatedTo`, `blocks`, `blockedBy`, or `duplicateOf`. `ENG-123` in the description also autolinks.
+- Resolve ambiguous names with `list_teams`, `list_projects`, or `get_issue`. `ENG-123` and `P-ENG-123` are valid arguments. Do not invent identifiers.
+
+## Description
+
+Each template is its own rule. Cursor includes a template only when its description matches the request. Read that one rule. Copy its body into `description` (for an epic, into the project `description` and `summary`). Use short active sentences and concrete nouns. Send literal newlines in the tool call.
+
+- Bug: `.cursor/rules/templates/bug.mdc`
+- Feature: `.cursor/rules/templates/feature.mdc`
+- Improvement: `.cursor/rules/templates/improvement.mdc`
+- Story: `.cursor/rules/templates/story.mdc`
+- Epic: `.cursor/rules/templates/epic.mdc`
+
+Add a sub-issue only when that child can ship on its own. Create the parent before the child.
+
+For a bug or UI change, attach a file with `prepare_attachment_upload`, PUT the bytes, then `create_attachment_from_upload`. A filesystem path in the description is not an attachment.
+
+## When to write
+
+Create or update when the user has asked for that change. Show a draft first when the team, project, or scope is ambiguous. Read the working tree only when the user points at the current change.
+
+## Example
+
+Create with `save_issue`:
+
+- `title`: "Clamp lunar day 30 to the last day of the month"
+- `team`: team name from `list_teams`
+- `project`: "P-ENG-12"
+- `priority`: 3
+- `addLabels`: ["Bug"]
+- `relatedTo`: ["ENG-40"]
+- `description`: body from `.cursor/rules/templates/bug.mdc`

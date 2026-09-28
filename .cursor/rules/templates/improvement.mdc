@@ -1,0 +1,50 @@
+---
+description: Linear improvement issue body. Use when changing behavior that already exists.
+alwaysApply: false
+---
+
+# Linear improvement ticket
+
+## How to use
+
+Create or update an issue with `save_issue`. Put this body in `description`. An improvement changes behavior that already exists. Use the feature template for a new capability.
+
+- `priority`: `1` Urgent, `2` High, `3` Medium, or `4` Low. Use `3` unless the user states otherwise.
+- `addLabels`: an existing label from `list_issue_labels`.
+- `blockedBy` and `relatedTo`: only issues the user names.
+- `project`: the epic's project name, id, or `P-ENG-123` when the improvement belongs to one.
+- `estimate`: set only when the user supplies a number.
+
+Write a title that names the current behavior and the change. Delete any section below that does not apply.
+
+## Body
+
+```markdown
+## Summary
+
+[What exists today, what should change, and why.]
+
+## Requirements
+
+- [Testable change.]
+- [Behavior that must stay the same.]
+
+## Acceptance criteria
+
+- [ ] [The changed outcome.]
+- [ ] [An existing behavior that still holds.]
+- [ ] [Edge case, when the change has one.]
+
+## Technical notes
+
+[Constraints or modules to touch. Omit when there are none.]
+
+## Testing
+
+- [ ] Automated tests cover the changed behavior.
+- [ ] Manual check: [the user flow to try.]
+
+## Out of scope
+
+- [Change this issue does not include.]
+```

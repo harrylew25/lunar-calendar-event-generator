@@ -1,0 +1,42 @@
+---
+description: Linear user-story issue body. Use when creating or updating one user outcome.
+alwaysApply: false
+---
+
+# Linear story ticket
+
+## How to use
+
+Create or update an issue with `save_issue`. Put this body in `description`. A story is one user outcome. An epic is a project; use the epic template for that.
+
+- `priority`: `1` Urgent, `2` High, `3` Medium, or `4` Low. Use `3` unless the user states otherwise.
+- `addLabels`: an existing label from `list_issue_labels`.
+- `blockedBy` and `relatedTo`: only issues the user names.
+- `project`: the epic's project name, id, or `P-ENG-123` when the story belongs to one.
+- `estimate`: set only when the user supplies a number.
+
+Write a title that names the user goal. Delete any section below that does not apply.
+
+## Body
+
+```markdown
+## User story
+
+As a [person who uses this],
+I want [goal],
+so that [outcome].
+
+## Description
+
+[Constraint, dependency, or history the story needs. Omit when the user story is enough.]
+
+## Acceptance criteria
+
+- [ ] Given [precondition], when [action], then [outcome].
+- [ ] [Another testable outcome.]
+- [ ] [Edge case, when the story has one.]
+
+## Out of scope
+
+- [Outcome this story does not include.]
+```
