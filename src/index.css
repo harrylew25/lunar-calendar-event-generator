@@ -6,7 +6,11 @@
 	}
 
 	body {
-		@apply grid place-items-center min-w-[320px] min-h-screen relative m-0 bg-background text-foreground;
+		@apply relative m-0 flex min-h-dvh min-w-[320px] flex-col bg-background text-foreground;
+	}
+
+	#root {
+		@apply flex w-full flex-1 flex-col;
 	}
 }
 
