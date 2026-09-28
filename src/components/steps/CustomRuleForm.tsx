@@ -1,7 +1,11 @@
 import { resolveLunarMonthDay } from '@lunar-dates';
+import {
+	dayNameByValue,
+	type LUNAR_DAY_NAMES,
+	monthNameByValue,
+} from '@lunar-dates/constants';
 import { getDate, getMonth, getYear, isMatch, isValid, parse } from 'date-fns';
 import { type ReactElement, useState } from 'react';
-import { toast } from 'sonner';
 import AlertToolTip from '@/components/cart/AlertToolTip';
 import InputField from '@/components/form/input-field';
 import SelectFieldWithAlert from '@/components/form/select-field-with-alert';
@@ -9,6 +13,7 @@ import { Button } from '@/components/ui/button';
 import DatePickerInput from '@/components/ui/date-picker';
 import SelectField from '@/components/ui/select-field';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { reportCartChange } from '@/lib/wizard/cart-toast';
 import {
 	dedupedMonthRules,
 	LUNAR_DAY_OPTIONS,
@@ -54,7 +59,16 @@ const CustomRuleForm = (): ReactElement => {
 		});
 		const postSubmitCartLength = useCalendarStore.getState().cart.length;
 		if (postSubmitCartLength > currentCartLength) {
-			toast.success('Event added to cart');
+			const monthName = monthNameByValue.get(nextLunarMonth) ?? '';
+			const dayName =
+				dayNameByValue.get(
+					nextLunarDay as (typeof LUNAR_DAY_NAMES)[number]['value'],
+				) ?? '';
+			reportCartChange({
+				action: 'added',
+				title: trimmedTitle,
+				lunarDate: `${monthName}${dayName}`,
+			});
 		}
 		resetForm();
 	};

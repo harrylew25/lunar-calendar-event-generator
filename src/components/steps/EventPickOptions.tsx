@@ -1,6 +1,4 @@
 import { FESTIVALS, MONTHLY_EVENTS } from '@lunar-dates/constants';
-import type React from 'react';
-import { toast } from 'sonner';
 import Checkbox from '@/components/ui/checkbox';
 import {
 	Field,
@@ -10,24 +8,8 @@ import {
 	FieldLegend,
 	FieldSet,
 } from '@/components/ui/field';
+import { reportCartChange } from '@/lib/wizard/cart-toast';
 import { useCalendarStore } from '@/store/calendar-store';
-
-const notifyCartToggle = (
-	label: React.ReactNode,
-	included: boolean,
-	toastId: string,
-): void => {
-	const notification = {
-		id: toastId,
-		description: label,
-	};
-
-	if (included) {
-		toast.success('Added to cart', notification);
-		return;
-	}
-	toast.warning('Removed from cart', notification);
-};
 
 const EventPickOptions = () => {
 	const cart = useCalendarStore((state) => state.cart);
@@ -60,7 +42,12 @@ const EventPickOptions = () => {
 									onCheckedChange={(value: boolean | 'indeterminate') => {
 										const included = value === true;
 										setMonthlyEvent(event.id, included);
-										notifyCartToggle(`每月${event.title}`, included, event.id);
+										reportCartChange({
+											action: included ? 'added' : 'removed',
+											title: event.title,
+											lunarDate: `每月${event.title}`,
+											toastId: event.id,
+										});
 									}}
 								/>
 								<FieldLabel htmlFor={inputId} className="font-normal">
@@ -89,18 +76,12 @@ const EventPickOptions = () => {
 									onCheckedChange={(value: boolean | 'indeterminate') => {
 										const included = value === true;
 										setCatalogItem(event.id, included);
-										notifyCartToggle(
-											<>
-												<span>{event.title}</span>
-												<br />
-												<span>
-													{event.lunarMonthLabel}
-													{event.lunarDayLabel}
-												</span>
-											</>,
-											included,
-											`catalog-${event.id}`,
-										);
+										reportCartChange({
+											action: included ? 'added' : 'removed',
+											title: event.title,
+											lunarDate: `${event.lunarMonthLabel}${event.lunarDayLabel}`,
+											toastId: `catalog-${event.id}`,
+										});
 									}}
 								/>
 								<FieldLabel htmlFor={inputId} className="font-normal">

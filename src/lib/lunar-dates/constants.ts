@@ -183,12 +183,14 @@ const getCatalogItem = (id: FestivalId) => catalogItemById.get(id);
 export type { FestivalId, MonthlyEventCatalogId, MonthRule };
 export {
 	CALENDAR_DEFAULTS,
+	dayNameByValue,
 	FESTIVALS,
 	getCatalogItem,
 	getMonthlyEvent,
 	LUNAR_DAY_NAMES,
 	LUNAR_MILESTONE_DAYS,
 	MONTHLY_EVENTS,
+	monthNameByValue,
 	monthRules,
 	SOLAR_MONTH,
 };

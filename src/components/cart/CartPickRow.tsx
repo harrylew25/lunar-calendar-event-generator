@@ -2,6 +2,7 @@ import { icsDraftFromItem, icsDraftToOverrides } from '@ics';
 import { getCatalogItem, getMonthlyEvent } from '@lunar-dates/constants';
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
+import { reportCartChange } from '@/lib/wizard/cart-toast';
 import type { CatalogCartItem, MonthlyCartItem } from '@/store/calendar-store';
 import { useCalendarStore } from '@/store/calendar-store';
 import EditDialog from './EditDialog';
@@ -44,6 +45,29 @@ const CartPickRow = ({ item }: CartPickRowProps) => {
 		setOpen(false);
 	};
 
+	const onRemove = (): void => {
+		removeItem(item.id);
+		if (item.kind === 'monthly') {
+			const event = getMonthlyEvent(item.monthlyId);
+			const title = event?.title ?? item.monthlyId;
+			reportCartChange({
+				action: 'removed',
+				title,
+				lunarDate: `每月${title}`,
+				toastId: item.id,
+			});
+			return;
+		}
+
+		const event = getCatalogItem(item.catalogId);
+		reportCartChange({
+			action: 'removed',
+			title: event?.title ?? item.catalogId,
+			lunarDate: `${event?.lunarMonthLabel ?? ''}${event?.lunarDayLabel ?? ''}`,
+			toastId: item.id,
+		});
+	};
+
 	return (
 		<>
 			<EditDialog
@@ -65,10 +89,7 @@ const CartPickRow = ({ item }: CartPickRowProps) => {
 					<Button type="button" variant="outline" onClick={() => setOpen(true)}>
 						Edit
 					</Button>
-					<Button
-						type="button"
-						variant="outline"
-						onClick={() => removeItem(item.id)}>
+					<Button type="button" variant="outline" onClick={onRemove}>
 						Delete
 					</Button>
 				</div>
