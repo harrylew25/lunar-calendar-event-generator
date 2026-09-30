@@ -25,13 +25,16 @@ const reportCartChange = ({
 
 	const description: ReactElement = (
 		<>
-			<span>{title}</span>
-			<br />
-			<span>{lunarDate}</span>
+			<span className="block truncate">{title}</span>
+			<span className="block">{lunarDate}</span>
 		</>
 	);
 
-	customToast(CART_TOAST_TITLE[action], { id: toastId, description });
+	customToast(CART_TOAST_TITLE[action], {
+		id: toastId,
+		description,
+		descriptionClassName: 'min-w-0',
+	});
 };
 
 export { reportCartChange };

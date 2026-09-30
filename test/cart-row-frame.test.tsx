@@ -113,8 +113,13 @@ describe('cart row frame', () => {
 		expect(
 			screen.queryByText('初一 — every lunar month (incl. leap)'),
 		).toBeNull();
-		expect(screen.getByText('Ancestor day')).toBeTruthy();
-		expect(screen.getByText('Family visit')).toBeTruthy();
+		expect(screen.getByText('Ancestor day').className).toContain('truncate');
+		expect(screen.getByText('Family visit').className).toContain(
+			'line-clamp-2',
+		);
+		expect(screen.getByText('Family visit').className).toContain(
+			'sm:line-clamp-3',
+		);
 		expect(useCalendarStore.getState().cart).toHaveLength(1);
 	});
 });

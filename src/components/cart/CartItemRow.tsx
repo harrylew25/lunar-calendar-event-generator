@@ -90,7 +90,7 @@ const CartItemRow = ({ item }: CartItemRowProps) => {
 			onRemove={onRemove}
 			onReset={resetDraftFromItem}
 			summary={
-				<>
+				<div className="min-w-0">
 					<p className="truncate text-lg font-bold">{item.title}</p>
 					<div className="flex items-center gap-2">
 						{previewDate(item).month}
@@ -112,8 +112,10 @@ const CartItemRow = ({ item }: CartItemRowProps) => {
 							/>
 						)}
 					</div>
-					<p className="line-clamp-3">{item.description}</p>
-				</>
+					{item.description ? (
+						<p className="line-clamp-2 sm:line-clamp-3">{item.description}</p>
+					) : null}
+				</div>
 			}
 			form={
 				<>
