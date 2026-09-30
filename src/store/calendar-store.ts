@@ -8,6 +8,7 @@ import type {
 	MonthlyCartRule,
 	MonthlyEventId,
 } from '@lunar-dates/lunar-dates.type';
+import { toast } from 'sonner';
 import { create } from 'zustand';
 import { ICS_KEYS } from '@/lib/ics/constants';
 import { assignIfPresent } from '@/lib/utils';
@@ -108,6 +109,10 @@ export const useCalendarStore = create<CalendarStore>((set, get) => {
 		addItem: (item) => {
 			const { cart } = get();
 			if (isDuplicate(cart, item)) {
+				toast.error('Duplicate event added', {
+					description:
+						'There is already an event with the same lunar date and title.',
+				});
 				return;
 			}
 			set({
@@ -137,6 +142,10 @@ export const useCalendarStore = create<CalendarStore>((set, get) => {
 			const updated: CustomCartItem = { ...current, ...patch };
 			const filteredCart = cart.filter((item) => item.id !== id);
 			if (isDuplicate(filteredCart, updated)) {
+				toast.error('Duplicate event in cart', {
+					description:
+						'There is already an event with the same lunar date and title in the cart.',
+				});
 				return;
 			}
 			updateCart(updated);
