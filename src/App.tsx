@@ -14,7 +14,7 @@ const App = (): ReactElement => {
 	return (
 		<div className="flex min-h-dvh w-full flex-col bg-background text-foreground">
 			<main className="w-full flex-1 px-4 py-10">
-				<div className="mx-auto mb-8 max-w-6xl">
+				<div className="mx-auto mb-8 max-w-6xl text-center">
 					<h1 className="text-3xl font-bold tracking-tight">
 						Lunar Calendar Event Generator
 					</h1>

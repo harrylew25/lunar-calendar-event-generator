@@ -45,7 +45,11 @@ const PreviewStep = () => {
 		return (
 			<div className="mx-auto flex w-full max-w-3xl flex-col gap-4">
 				<p className="text-muted-foreground">No expanded events to preview.</p>
-				<Button type="button" variant="outline" onClick={() => setStep('cart')}>
+				<Button
+					type="button"
+					variant="outline"
+					className="w-full sm:w-auto"
+					onClick={() => setStep('cart')}>
 					Back to cart
 				</Button>
 			</div>
@@ -63,27 +67,32 @@ const PreviewStep = () => {
 						<strong>{startYear}</strong> to <strong>{endYear}</strong>
 					</p>
 				</div>
-				<div className="flex gap-2">
+				<div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:justify-end">
 					<Button
 						type="button"
 						variant="outline"
+						className="w-full sm:w-auto"
 						onClick={() => setStep('select')}>
 						Back to date selection
 					</Button>
 					<Button
 						type="button"
 						variant="outline"
+						className="w-full sm:w-auto"
 						onClick={() => setStep('cart')}>
 						Back to cart
 					</Button>
-					<Button type="button" onClick={handleDownload}>
+					<Button
+						type="button"
+						className="w-full sm:w-auto"
+						onClick={handleDownload}>
 						Download ICS
 					</Button>
 				</div>
 			</div>
 
 			<Card>
-				<CardHeader className="flex flex-row items-center justify-between gap-4">
+				<CardHeader className="flex flex-row items-center justify-center">
 					<CardTitle className="flex items-center gap-2">
 						<Button
 							type="button"

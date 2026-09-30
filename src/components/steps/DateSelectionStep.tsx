@@ -67,9 +67,10 @@ const DateSelectionStep = (): ReactElement => {
 				{cart.length} item{cart.length === 1 ? '' : 's'} in cart
 			</p>
 
-			<div className="flex justify-end">
+			<div className="flex sm:justify-end">
 				<Button
 					type="button"
+					className="w-full sm:w-auto"
 					onClick={() => setStep('cart')}
 					disabled={cart.length === 0}>
 					Next: Review cart

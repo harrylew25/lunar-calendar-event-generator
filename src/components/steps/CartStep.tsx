@@ -45,15 +45,17 @@ const CartStep = () => {
 				)}
 			</div>
 
-			<div className="flex justify-between">
+			<div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
 				<Button
 					type="button"
 					variant="outline"
+					className="w-full sm:w-auto"
 					onClick={() => setStep('select')}>
 					Back
 				</Button>
 				<Button
 					type="button"
+					className="w-full sm:w-auto"
 					onClick={confirmAndExpand}
 					disabled={cart.length === 0}>
 					Confirm & preview
@@ -61,6 +63,7 @@ const CartStep = () => {
 				<Button
 					type="button"
 					variant="destructive"
+					className="w-full sm:w-auto"
 					onClick={clearAll}
 					disabled={cart.length === 0}>
 					Clear all

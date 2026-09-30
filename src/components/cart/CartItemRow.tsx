@@ -1,7 +1,6 @@
 import { icsDraftFromItem, icsDraftToOverrides } from '@ics';
 import { useState } from 'react';
 import InputField from '@/components/form/input-field';
-import { Button } from '@/components/ui/button';
 import Label from '@/components/ui/label';
 import SelectField from '@/components/ui/select-field';
 import { Textarea } from '@/components/ui/textarea';
@@ -9,7 +8,6 @@ import {
 	dayNameByValue,
 	LUNAR_DAY_NAMES,
 	monthNameByValue,
-	monthRules,
 } from '@/lib/lunar-dates/constants';
 import { reportCartChange } from '@/lib/wizard/cart-toast';
 import {
@@ -21,7 +19,7 @@ import type { CustomCartItem } from '@/store/calendar-store';
 import { useCalendarStore } from '@/store/calendar-store';
 import SelectFieldWithAlert from '../form/select-field-with-alert';
 import AlertToolTip from './AlertToolTip';
-import EditDialog from './EditDialog';
+import CartRowFrame from './CartRowFrame';
 import IcsOverrideFields from './IcsOverrideFields';
 
 type CartItemRowProps = {
@@ -30,9 +28,12 @@ type CartItemRowProps = {
 
 const is30thLunarDay = (lunarDay: number) => lunarDay === 30;
 const isLeapMonth = (lunarMonth: number) => lunarMonth < 0;
+const getLunarDayName = (lunarDay: number) =>
+	LUNAR_DAY_NAMES.find((day) => day.value === lunarDay)?.name;
+const getLunarMonthName = (lunarMonth: number) =>
+	monthNameByValue.get(lunarMonth);
 
 const CartItemRow = ({ item }: CartItemRowProps) => {
-	const [open, setOpen] = useState(false);
 	const removeItem = useCalendarStore((state) => state.removeItem);
 	const updateItem = useCalendarStore((state) => state.updateItem);
 
@@ -53,12 +54,8 @@ const CartItemRow = ({ item }: CartItemRowProps) => {
 	};
 
 	const previewDate = (item: CustomCartItem) => {
-		const month = monthRules.find(
-			(rule) => rule.value === item.lunarMonth,
-		)?.name;
-		const day = LUNAR_DAY_NAMES.find(
-			(day) => day.value === item.lunarDay,
-		)?.name;
+		const month = getLunarMonthName(item.lunarMonth);
+		const day = getLunarDayName(item.lunarDay);
 		return { month, day };
 	};
 
@@ -70,17 +67,6 @@ const CartItemRow = ({ item }: CartItemRowProps) => {
 			description: description.trim(),
 			...icsDraftToOverrides(icsDraft),
 		});
-		setOpen(false);
-	};
-
-	const onDialogChange = (isOpen: boolean) => {
-		resetDraftFromItem();
-		setOpen(isOpen);
-	};
-
-	const handleCancel = () => {
-		resetDraftFromItem();
-		setOpen(false);
 	};
 
 	const onRemove = () => {
@@ -99,86 +85,13 @@ const CartItemRow = ({ item }: CartItemRowProps) => {
 	};
 
 	return (
-		<>
-			<EditDialog
-				title="Edit Item"
-				open={open}
-				onOpenChange={onDialogChange}
-				onCancel={handleCancel}
-				onSave={handleSave}>
-				<InputField
-					id="title"
-					label="Title"
-					value={title}
-					onChange={setTitle}
-					className="mb-4"
-				/>
-				<div className="grid gap-4 md:grid-cols-2">
-					<SelectFieldWithAlert
-						showAlert={isLeapMonth(Number(lunarMonth))}
-						alert={
-							<AlertToolTip
-								label="Leap month"
-								description={MESSAGES.leapMonth}
-								color="yellow"
-							/>
-						}>
-						<SelectField
-							id="lunar-month"
-							label="Lunar month"
-							value={lunarMonth}
-							onValueChange={setLunarMonth}
-							className="min-w-0"
-							triggerClassName="w-full max-w-none"
-							options={dedupedMonthRules.map((rule) => ({
-								label: rule.name,
-								value: String(rule.value),
-							}))}
-						/>
-					</SelectFieldWithAlert>
-					<SelectFieldWithAlert
-						showAlert={is30thLunarDay(Number(lunarDay))}
-						alert={
-							<AlertToolTip
-								label="End of month"
-								description={MESSAGES.endOfMonth}
-								color="yellow"
-							/>
-						}>
-						<SelectField
-							id="lunar-day"
-							label="Lunar day"
-							value={lunarDay}
-							onValueChange={setLunarDay}
-							className="min-w-0"
-							triggerClassName="w-full max-w-none"
-							options={LUNAR_DAY_OPTIONS.map((day) => ({
-								label: String(day),
-								value: String(day),
-							}))}
-						/>
-					</SelectFieldWithAlert>
-				</div>
-				<div className="mt-4 mb-4">
-					<Label htmlFor="description" className="mb-2">
-						Description
-					</Label>
-					<Textarea
-						id="description"
-						rows={4}
-						value={description}
-						onChange={(e) => setDescription(e.target.value)}
-					/>
-				</div>
-				<IcsOverrideFields
-					idPrefix={`custom-${item.id}`}
-					value={icsDraft}
-					onChange={setIcsDraft}
-				/>
-			</EditDialog>
-			<div className="flex justify-between items-center border-2 border-gray-200 rounded-lg p-4">
-				<div>
-					<p className="text-lg font-bold">{item.title}</p>
+		<CartRowFrame
+			onSave={handleSave}
+			onRemove={onRemove}
+			onReset={resetDraftFromItem}
+			summary={
+				<div className="min-w-0">
+					<p className="truncate text-lg font-bold">{item.title}</p>
 					<div className="flex items-center gap-2">
 						{previewDate(item).month}
 						{isLeapMonth(item.lunarMonth) && (
@@ -199,18 +112,85 @@ const CartItemRow = ({ item }: CartItemRowProps) => {
 							/>
 						)}
 					</div>
-					<div>{item.description} </div>
+					{item.description ? (
+						<p className="line-clamp-2 sm:line-clamp-3">{item.description}</p>
+					) : null}
 				</div>
-				<div className="flex gap-2">
-					<Button type="button" variant="outline" onClick={() => setOpen(true)}>
-						Edit
-					</Button>
-					<Button type="button" variant="destructive" onClick={onRemove}>
-						Delete
-					</Button>
-				</div>
-			</div>
-		</>
+			}
+			form={
+				<>
+					<InputField
+						id="title"
+						label="Title"
+						value={title}
+						onChange={setTitle}
+						className="mb-4"
+					/>
+					<div className="grid gap-4 md:grid-cols-2">
+						<SelectFieldWithAlert
+							showAlert={isLeapMonth(Number(lunarMonth))}
+							alert={
+								<AlertToolTip
+									label="Leap month"
+									description={MESSAGES.leapMonth}
+									color="yellow"
+								/>
+							}>
+							<SelectField
+								id="lunar-month"
+								label="Lunar month"
+								value={lunarMonth}
+								onValueChange={setLunarMonth}
+								className="min-w-0"
+								triggerClassName="w-full max-w-none"
+								options={dedupedMonthRules.map((rule) => ({
+									label: rule.name,
+									value: String(rule.value),
+								}))}
+							/>
+						</SelectFieldWithAlert>
+						<SelectFieldWithAlert
+							showAlert={is30thLunarDay(Number(lunarDay))}
+							alert={
+								<AlertToolTip
+									label="End of month"
+									description={MESSAGES.endOfMonth}
+									color="yellow"
+								/>
+							}>
+							<SelectField
+								id="lunar-day"
+								label="Lunar day"
+								value={lunarDay}
+								onValueChange={setLunarDay}
+								className="min-w-0"
+								triggerClassName="w-full max-w-none"
+								options={LUNAR_DAY_OPTIONS.map((day) => ({
+									label: String(day),
+									value: String(day),
+								}))}
+							/>
+						</SelectFieldWithAlert>
+					</div>
+					<div className="mt-4 mb-4">
+						<Label htmlFor="description" className="mb-2">
+							Description
+						</Label>
+						<Textarea
+							id="description"
+							rows={4}
+							value={description}
+							onChange={(e) => setDescription(e.target.value)}
+						/>
+					</div>
+					<IcsOverrideFields
+						idPrefix={`custom-${item.id}`}
+						value={icsDraft}
+						onChange={setIcsDraft}
+					/>
+				</>
+			}
+		/>
 	);
 };
 
