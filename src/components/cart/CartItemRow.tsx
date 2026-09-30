@@ -30,6 +30,10 @@ type CartItemRowProps = {
 
 const is30thLunarDay = (lunarDay: number) => lunarDay === 30;
 const isLeapMonth = (lunarMonth: number) => lunarMonth < 0;
+const getLunarDayName = (lunarDay: number) =>
+	LUNAR_DAY_NAMES.find((day) => day.value === lunarDay)?.name;
+const getLunarMonthName = (lunarMonth: number) =>
+	monthNameByValue.get(lunarMonth);
 
 const CartItemRow = ({ item }: CartItemRowProps) => {
 	const [open, setOpen] = useState(false);
@@ -53,12 +57,8 @@ const CartItemRow = ({ item }: CartItemRowProps) => {
 	};
 
 	const previewDate = (item: CustomCartItem) => {
-		const month = monthRules.find(
-			(rule) => rule.value === item.lunarMonth,
-		)?.name;
-		const day = LUNAR_DAY_NAMES.find(
-			(day) => day.value === item.lunarDay,
-		)?.name;
+		const month = getLunarMonthName(item.lunarMonth);
+		const day = getLunarDayName(item.lunarDay);
 		return { month, day };
 	};
 
@@ -176,9 +176,9 @@ const CartItemRow = ({ item }: CartItemRowProps) => {
 					onChange={setIcsDraft}
 				/>
 			</EditDialog>
-			<div className="flex justify-between items-center border-2 border-gray-200 rounded-lg p-4">
-				<div>
-					<p className="text-lg font-bold">{item.title}</p>
+			<div className="flex flex-col gap-4 rounded-lg border-2 border-gray-200 p-4 sm:flex-row sm:items-center sm:justify-between sm:gap-6">
+				<div className="min-w-0 flex-1">
+					<p className="truncate text-lg font-bold">{item.title}</p>
 					<div className="flex items-center gap-2">
 						{previewDate(item).month}
 						{isLeapMonth(item.lunarMonth) && (
@@ -199,9 +199,9 @@ const CartItemRow = ({ item }: CartItemRowProps) => {
 							/>
 						)}
 					</div>
-					<div>{item.description} </div>
+					<p className="line-clamp-3">{item.description}</p>
 				</div>
-				<div className="flex gap-2">
+				<div className="flex shrink-0 justify-end gap-2">
 					<Button type="button" variant="outline" onClick={() => setOpen(true)}>
 						Edit
 					</Button>

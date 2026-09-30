@@ -83,13 +83,13 @@ const CartPickRow = ({ item }: CartPickRowProps) => {
 					onChange={setIcsDraft}
 				/>
 			</EditDialog>
-			<div className="flex justify-between items-center border-2 border-gray-200 rounded-lg p-4">
-				<p className="text-lg font-bold">{label}</p>
+			<div className="flex flex-col gap-3 border-2 border-gray-200 rounded-lg p-4 sm:flex-row sm:items-center sm:justify-between">
+				<p className="min-w-0 text-lg font-bold">{label}</p>
 				<div className="flex gap-2">
 					<Button type="button" variant="outline" onClick={() => setOpen(true)}>
 						Edit
 					</Button>
-					<Button type="button" variant="outline" onClick={onRemove}>
+					<Button type="button" variant="destructive" onClick={onRemove}>
 						Delete
 					</Button>
 				</div>
