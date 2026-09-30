@@ -92,7 +92,7 @@ const PreviewStep = () => {
 			</div>
 
 			<Card>
-				<CardHeader className="flex flex-row items-center justify-between gap-4">
+				<CardHeader className="flex flex-row items-center justify-center">
 					<CardTitle className="flex items-center gap-2">
 						<Button
 							type="button"
