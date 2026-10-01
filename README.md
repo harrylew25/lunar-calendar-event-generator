@@ -97,21 +97,21 @@ src/
       lunar-dates.type.ts      # shared domain types
     ics/                       # notifications → .ics string
     wizard/                    # UI helpers (month list, loop presets, preview labels)
-test/
+test/                         # mirrors src/; specs are *.test.ts or *.test.tsx
   happydom.ts                  # happy-dom preload (see bunfig.toml)
-  store/calendar-store.test.ts # Zustand store
-  lunar-dates.test.ts          # expandMonthlyEvents
-  lunar-dates-custom.test.ts   # collectCustomNotifications
-  lunar-dates-wizard-api.test.ts  # cart-only custom path + resolveLunarMonthDay
-  lunar-dates-cart-expand.test.ts  # notificationsFromCart (catalog + monthly)
-  lunar-dates-ics.test.ts      # ICS formatting
-  input-field.test.tsx         # InputField (Testing Library)
-  use-debounce.test.ts
-  use-debounce-controlled-input.test.ts
-  helpers/                     # test oracles
+  helpers/                     # oracles (@test/helpers/*); not a src mirror
+  store/                       # calendar-store.test.ts, calendar-store-update.test.ts
+  hooks/                       # use-debounce*.test.ts
+  components/
+    form/                      # input-field.test.tsx
+    steps/                     # cart-row-frame.test.tsx (CartStep)
+  lib/
+    lunar-dates/               # expand, custom, wizard API, cart expand
+    ics/                       # ICS formatting, overrides, reminder form
+    wizard/                    # cart-toast.test.tsx
 ```
 
-Import aliases: `@lunar-dates`, `@lunar-dates/*`, `@ics`, `@ics/*`, `@/*`.
+Import aliases: `@lunar-dates`, `@lunar-dates/*`, `@ics`, `@ics/*`, `@/*`, `@test/helpers/*`.
 
 ## Domain API (wizard-relevant)
 
