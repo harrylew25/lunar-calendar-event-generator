@@ -1,7 +1,7 @@
 ---
 description: Code sizing, KISS/DRY, file organization, colocation, and abstraction strategy.
 alwaysApply: false
-globs: src/**/*.{ts,tsx}
+globs: src/**/*.{ts,tsx},test/**/*.{ts,tsx}
 ---
 
 # Architectural & Sizing Principles
@@ -24,6 +24,10 @@ globs: src/**/*.{ts,tsx}
 - Keep local state, UI types, and helpers in the primary `.tsx` until it outgrows the 200-line target.
 - Place generic helpers in `src/lib/` or shared UI in `src/components/ui/`.
 - Group feature logic, domain functions, and hooks near the components that consume them.
+
+## Tests
+
+Unit tests live in a top-level `test/` tree that mirrors `src/`. A spec is `*.test.ts` or `*.test.tsx` in the folder that matches the module it covers (`test/store/`, `test/lib/lunar-dates/`, `test/lib/ics/`, `test/lib/wizard/`, `test/components/`, `test/hooks/`). `test/happydom.ts` (Bun preload) and `test/helpers/` (oracles) stay at the `test/` root. Do not colocate specs inside `src/`.
 
 ## Lunar-dates seams
 

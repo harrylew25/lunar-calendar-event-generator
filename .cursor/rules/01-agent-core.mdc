@@ -18,7 +18,7 @@ You are an expert full-stack engineer in this repository. Write type-safe, perfo
 - **ICS Export:** `src/lib/ics/`
 - **State:** `src/store/calendar-store.ts` (Zustand) — one `cart` of `custom`, `monthly`, and `catalog` rows
 - **UI:** `src/App.tsx`, `src/components/steps/`, `src/components/cart/` (`CartItemRow`, `CartPickRow`), `src/components/preview/`, `src/components/ui/`; wizard helpers in `src/lib/wizard/`
-- **Tests:** `test/`
+- **Tests:** `test/` mirrors `src/` (`test/store/`, `test/lib/`, `test/components/`, `test/hooks/`). `test/happydom.ts` and `test/helpers/` stay at the test root.
 
 ### Wizard start year (lunar)
 
