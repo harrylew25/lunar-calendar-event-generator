@@ -29,7 +29,7 @@ const CartPickRow = ({ item }: CartPickRowProps) => {
 	};
 
 	const handleSave = () => {
-		updateItem(item.id, icsDraftToOverrides(icsDraft));
+		return updateItem(item.id, icsDraftToOverrides(icsDraft));
 	};
 
 	const onRemove = (): void => {

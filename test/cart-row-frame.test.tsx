@@ -85,6 +85,78 @@ describe('cart row frame', () => {
 		expect(customItem()?.kind === 'custom' && customItem()?.title).toBe(
 			'Changed day',
 		);
+
+		clickNamedButton('Edit');
+		expect((screen.getByLabelText('Title') as HTMLInputElement).value).toBe(
+			'Changed day',
+		);
+	});
+
+	test('rejected duplicate edit keeps the dialog open', async () => {
+		useCalendarStore.getState().addItem({
+			lunarMonth: 1,
+			lunarDay: 1,
+			title: 'Other day',
+			description: '',
+		});
+		render(<CartStep />);
+
+		clickNamedButton('Edit', 2);
+		fireEvent.change(screen.getByLabelText('Title'), {
+			target: { value: 'Ancestor day' },
+		});
+		await act(async () => {
+			await Bun.sleep(TITLE_DELAY_IN_MS + 20);
+		});
+		fireEvent.click(screen.getByRole('button', { name: 'Save' }));
+
+		const saved = useCalendarStore
+			.getState()
+			.cart.filter((item) => item.kind === 'custom');
+		expect(saved[1]).toMatchObject({
+			title: 'Other day',
+			lunarMonth: 1,
+			lunarDay: 1,
+		});
+		expect((screen.getByLabelText('Title') as HTMLInputElement).value).toBe(
+			'Ancestor day',
+		);
+
+		fireEvent.click(screen.getByRole('button', { name: 'Cancel' }));
+		clickNamedButton('Edit', 2);
+		expect((screen.getByLabelText('Title') as HTMLInputElement).value).toBe(
+			'Other day',
+		);
+	});
+
+	test('rejected date-only duplicate keeps the custom draft open', () => {
+		useCalendarStore.getState().addItem({
+			lunarMonth: 2,
+			lunarDay: 2,
+			title: 'Ancestor day',
+			description: '',
+		});
+		render(<CartStep />);
+
+		clickNamedButton('Edit', 2);
+		const monthSelect = screen.getByLabelText('Lunar month');
+		fireEvent.keyDown(monthSelect, { key: 'Enter' });
+		fireEvent.click(screen.getByRole('option', { name: '正月' }));
+		const daySelect = screen.getByLabelText('Lunar day');
+		fireEvent.keyDown(daySelect, { key: 'Enter' });
+		fireEvent.click(screen.getByRole('option', { name: '1' }));
+		fireEvent.click(screen.getByRole('button', { name: 'Save' }));
+
+		const saved = useCalendarStore
+			.getState()
+			.cart.filter((item) => item.kind === 'custom');
+		expect(saved[1]).toMatchObject({
+			title: 'Ancestor day',
+			lunarMonth: 2,
+			lunarDay: 2,
+		});
+		expect(screen.getByLabelText('Lunar month')).toBeTruthy();
+		expect(screen.getByLabelText('Lunar day')).toBeTruthy();
 	});
 
 	test('pick edit cancel leaves the monthly row in place', () => {

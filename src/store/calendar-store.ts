@@ -32,7 +32,7 @@ type CalendarStore = {
 	setLoopYears: (loopYears: number) => void;
 	setStartYear: (startYear: number) => void;
 	addItem: (item: CartItemInput) => void;
-	updateItem: (id: string, patch: Partial<CartItemInput>) => void;
+	updateItem: (id: string, patch: Partial<CartItemInput>) => boolean;
 	removeItem: (id: string) => void;
 	confirmAndExpand: () => void;
 	clearAll: () => void;
@@ -125,18 +125,18 @@ export const useCalendarStore = create<CalendarStore>((set, get) => {
 			const index = cart.findIndex((item) => item.id === id);
 			const current = cart[index];
 			if (index === -1 || !current) {
-				return;
+				return false;
 			}
 
-			const updateCart = (item: CartItem) => {
+			const updateCart = (item: CartItem): true => {
 				const next = [...cart];
 				next[index] = item;
 				set({ cart: next });
+				return true;
 			};
 
 			if (current.kind !== 'custom') {
-				updateCart({ ...current, ...pickIcsPatch(patch) });
-				return;
+				return updateCart({ ...current, ...pickIcsPatch(patch) });
 			}
 
 			const updated: CustomCartItem = { ...current, ...patch };
@@ -146,9 +146,9 @@ export const useCalendarStore = create<CalendarStore>((set, get) => {
 					description:
 						'There is already an event with the same lunar date and title in the cart.',
 				});
-				return;
+				return false;
 			}
-			updateCart(updated);
+			return updateCart(updated);
 		},
 
 		removeItem: (id) => {
