@@ -5,7 +5,7 @@ import EditDialog from './EditDialog';
 type CartRowFrameProps = {
 	summary: ReactNode;
 	form: ReactNode;
-	onSave: () => void;
+	onSave: () => boolean;
 	onRemove: () => void;
 	onReset: () => void;
 };
@@ -30,8 +30,9 @@ const CartRowFrame = ({
 	};
 
 	const handleSave = () => {
-		onSave();
-		setOpen(false);
+		if (onSave()) {
+			setOpen(false);
+		}
 	};
 
 	return (
