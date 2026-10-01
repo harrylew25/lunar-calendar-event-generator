@@ -99,12 +99,12 @@ src/
     wizard/                    # UI helpers (month list, loop presets, preview labels)
 test/
   happydom.ts                  # happy-dom preload (see bunfig.toml)
+  store/calendar-store.test.ts # Zustand store
   lunar-dates.test.ts          # expandMonthlyEvents
   lunar-dates-custom.test.ts   # collectCustomNotifications
   lunar-dates-wizard-api.test.ts  # cart-only custom path + resolveLunarMonthDay
   lunar-dates-cart-expand.test.ts  # notificationsFromCart (catalog + monthly)
   lunar-dates-ics.test.ts      # ICS formatting
-  calendar-store.test.ts       # Zustand store
   input-field.test.tsx         # InputField (Testing Library)
   use-debounce.test.ts
   use-debounce-controlled-input.test.ts

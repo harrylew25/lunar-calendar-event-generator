@@ -8,7 +8,10 @@ import type {
 	MonthlyCartRule,
 	MonthlyEventId,
 } from '@lunar-dates/lunar-dates.type';
+import { toast } from 'sonner';
 import { create } from 'zustand';
+import { ICS_KEYS } from '@/lib/ics/constants';
+import { assignIfPresent } from '@/lib/utils';
 
 type WizardStep = 'select' | 'cart' | 'preview';
 
@@ -51,148 +54,130 @@ const isDuplicate = (cart: CartItem[], item: CartItemInput): boolean => {
 		);
 };
 
-const assignIfPresent = <K extends keyof IcsEventOverrides>(
-	patch: Partial<CartItemInput>,
-	key: K,
-	overrides: IcsEventOverrides,
-): void => {
-	if (Object.hasOwn(patch, key)) {
-		overrides[key] = patch[key];
-	}
-};
-
-const ICS_KEYS = [
-	'location',
-	'alarmDaysBefore',
-	'alarmHour',
-	'alarmMinute',
-	'timeTransparent',
-	'visibility',
-] as const satisfies readonly (keyof IcsEventOverrides)[];
-
-const pickIcsPatch = (patch: Partial<CartItemInput>): IcsEventOverrides => {
-	const overrides: IcsEventOverrides = {};
-	ICS_KEYS.forEach((key) => {
-		assignIfPresent(patch, key, overrides);
-	});
-	return overrides;
-};
+const pickIcsPatch = (patch: Partial<CartItemInput>) =>
+	ICS_KEYS.reduce<IcsEventOverrides>((acc, key) => {
+		assignIfPresent(patch, key, acc);
+		return acc;
+	}, {});
 
 const toCartRule = ({ id: _id, ...rule }: CartItem) => rule;
 
-export const useCalendarStore = create<CalendarStore>((set, get) => ({
-	step: 'select',
-	startYear: CALENDAR_DEFAULTS.startYear,
-	loopYears: CALENDAR_DEFAULTS.numberOfYears,
-	cart: [],
-	expandedEvents: null,
+type RowKind =
+	| { kind: 'monthly'; monthlyId: MonthlyEventId }
+	| { kind: 'catalog'; catalogId: FestivalId };
 
-	setStep: (step) => set({ step }),
-	setStartYear: (startYear) => set({ startYear }),
-	setLoopYears: (loopYears) => set({ loopYears }),
-
-	setMonthlyEvent: (id, included) => {
+export const useCalendarStore = create<CalendarStore>((set, get) => {
+	const setupSetEvent = (included: boolean, row: RowKind) => {
 		const { cart } = get();
-		const withoutId = cart.filter(
-			(item) => !(item.kind === 'monthly' && item.monthlyId === id),
-		);
+		const filteredCart = cart.filter((item) => {
+			if (row.kind === 'monthly') {
+				return !(item.kind === 'monthly' && item.monthlyId === row.monthlyId);
+			}
+			return !(item.kind === 'catalog' && item.catalogId === row.catalogId);
+		});
+
 		if (!included) {
-			set({ cart: withoutId });
-			return;
-		}
-		if (withoutId.length !== cart.length) {
-			return;
-		}
-		set({
-			cart: [
-				...cart,
-				{ kind: 'monthly', monthlyId: id, id: crypto.randomUUID() },
-			],
-		});
-	},
-
-	setCatalogItem: (id, included) => {
-		const { cart } = get();
-		const withoutId = cart.filter(
-			(item) => !(item.kind === 'catalog' && item.catalogId === id),
-		);
-		if (!included) {
-			set({ cart: withoutId });
-			return;
-		}
-		if (withoutId.length !== cart.length) {
-			return;
-		}
-		set({
-			cart: [
-				...cart,
-				{ kind: 'catalog', catalogId: id, id: crypto.randomUUID() },
-			],
-		});
-	},
-
-	addItem: (item) => {
-		const { cart } = get();
-		if (isDuplicate(cart, item)) {
-			return;
-		}
-		set({
-			cart: [...cart, { ...item, kind: 'custom', id: crypto.randomUUID() }],
-		});
-	},
-
-	updateItem: (id, patch) => {
-		const { cart } = get();
-		const index = cart.findIndex((item) => item.id === id);
-		const current = cart[index];
-		if (index === -1 || !current) {
+			set({ cart: filteredCart });
 			return;
 		}
 
-		if (current.kind !== 'custom') {
-			const next = [...cart];
-			next[index] = { ...current, ...pickIcsPatch(patch) };
-			set({ cart: next });
+		if (filteredCart.length !== cart.length) {
 			return;
 		}
+		set({ cart: [...cart, { ...row, id: crypto.randomUUID() }] });
+	};
 
-		const updated: CustomCartItem = { ...current, ...patch };
-		const withoutSelf = cart.filter((item) => item.id !== id);
-		if (isDuplicate(withoutSelf, updated)) {
-			return;
-		}
+	return {
+		step: 'select',
+		startYear: CALENDAR_DEFAULTS.startYear,
+		loopYears: CALENDAR_DEFAULTS.numberOfYears,
+		cart: [],
+		expandedEvents: null,
 
-		const next = [...cart];
-		next[index] = updated;
-		set({ cart: next });
-	},
+		setStep: (step) => set({ step }),
+		setStartYear: (startYear) => set({ startYear }),
+		setLoopYears: (loopYears) => set({ loopYears }),
 
-	removeItem: (id) => {
-		set({ cart: get().cart.filter((item) => item.id !== id) });
-	},
+		setMonthlyEvent: (id, included) => {
+			setupSetEvent(included, { kind: 'monthly', monthlyId: id });
+		},
 
-	confirmAndExpand: () => {
-		const { cart, loopYears: numberOfYears, startYear } = get();
-		if (cart.length === 0) {
-			return;
-		}
+		setCatalogItem: (id, included) => {
+			setupSetEvent(included, { kind: 'catalog', catalogId: id });
+		},
 
-		set({
-			expandedEvents: notificationsFromCart(cart.map(toCartRule), {
-				startYear,
-				numberOfYears,
-			}),
-			step: 'preview',
-		});
-	},
+		addItem: (item) => {
+			const { cart } = get();
+			if (isDuplicate(cart, item)) {
+				toast.error('Duplicate event added', {
+					description:
+						'There is already an event with the same lunar date and title.',
+				});
+				return;
+			}
+			set({
+				cart: [...cart, { ...item, kind: 'custom', id: crypto.randomUUID() }],
+			});
+		},
 
-	clearAll: () => {
-		set({
-			cart: [],
-			expandedEvents: null,
-		});
-	},
-}));
+		updateItem: (id, patch) => {
+			const { cart } = get();
+			const index = cart.findIndex((item) => item.id === id);
+			const current = cart[index];
+			if (index === -1 || !current) {
+				return;
+			}
+
+			const updateCart = (item: CartItem) => {
+				const next = [...cart];
+				next[index] = item;
+				set({ cart: next });
+			};
+
+			if (current.kind !== 'custom') {
+				updateCart({ ...current, ...pickIcsPatch(patch) });
+				return;
+			}
+
+			const updated: CustomCartItem = { ...current, ...patch };
+			const filteredCart = cart.filter((item) => item.id !== id);
+			if (isDuplicate(filteredCart, updated)) {
+				toast.error('Duplicate event in cart', {
+					description:
+						'There is already an event with the same lunar date and title in the cart.',
+				});
+				return;
+			}
+			updateCart(updated);
+		},
+
+		removeItem: (id) => {
+			set({ cart: get().cart.filter((item) => item.id !== id) });
+		},
+
+		confirmAndExpand: () => {
+			const { cart, loopYears: numberOfYears, startYear } = get();
+			if (cart.length === 0) {
+				return;
+			}
+
+			set({
+				expandedEvents: notificationsFromCart(cart.map(toCartRule), {
+					startYear,
+					numberOfYears,
+				}),
+				step: 'preview',
+			});
+		},
+
+		clearAll: () => {
+			set({
+				cart: [],
+				expandedEvents: null,
+			});
+		},
+	};
+});
 
 export type {
 	CartItem,

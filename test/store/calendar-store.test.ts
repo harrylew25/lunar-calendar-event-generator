@@ -1,5 +1,12 @@
-import { beforeEach, describe, expect, test } from 'bun:test';
-import { useCalendarStore } from '@/store/calendar-store';
+import { beforeEach, describe, expect, mock, test } from 'bun:test';
+
+const toastError = mock((): number => 1);
+const toastOk = (): number => 1;
+mock.module('sonner', () => ({
+	toast: { error: toastError, success: toastOk, warning: toastOk },
+}));
+
+const { useCalendarStore } = await import('@/store/calendar-store');
 
 const resetStore = (): void => {
 	useCalendarStore.setState({
@@ -12,6 +19,7 @@ const resetStore = (): void => {
 
 describe('useCalendarStore', () => {
 	beforeEach(() => {
+		toastError.mockClear();
 		resetStore();
 	});
 
@@ -26,6 +34,10 @@ describe('useCalendarStore', () => {
 		useCalendarStore.getState().addItem(item);
 
 		expect(useCalendarStore.getState().cart).toHaveLength(1);
+		expect(toastError).toHaveBeenCalledWith('Duplicate event added', {
+			description:
+				'There is already an event with the same lunar date and title.',
+		});
 	});
 
 	test('addItem allows same lunar date with different titles', () => {
@@ -132,6 +144,20 @@ describe('useCalendarStore', () => {
 		expect(state.expandedEvents?.some((event) => event.type === 'chuyi')).toBe(
 			false,
 		);
+	});
+
+	test('updateItem rejects a duplicate custom rule and shows an error toast', () => {
+		const { addItem, updateItem } = useCalendarStore.getState();
+		addItem({ lunarMonth: 1, lunarDay: 15, title: 'A', description: '' });
+		addItem({ lunarMonth: 2, lunarDay: 2, title: 'B', description: 'kept' });
+		const id = useCalendarStore.getState().cart[1]?.id ?? '';
+		updateItem(id, { lunarMonth: 1, lunarDay: 15, title: 'A' });
+		const kept = useCalendarStore.getState().cart[1];
+		expect(kept).toMatchObject({ title: 'B', lunarMonth: 2, lunarDay: 2 });
+		expect(toastError).toHaveBeenCalledWith('Duplicate event in cart', {
+			description:
+				'There is already an event with the same lunar date and title in the cart.',
+		});
 	});
 
 	test('updateItem patches ICS fields on a custom item', () => {
