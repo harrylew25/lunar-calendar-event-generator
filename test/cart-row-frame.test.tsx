@@ -85,6 +85,45 @@ describe('cart row frame', () => {
 		expect(customItem()?.kind === 'custom' && customItem()?.title).toBe(
 			'Changed day',
 		);
+
+		clickNamedButton('Edit');
+		expect((screen.getByLabelText('Title') as HTMLInputElement).value).toBe(
+			'Changed day',
+		);
+	});
+
+	test('rejected duplicate edit shows the saved title again', async () => {
+		useCalendarStore.getState().addItem({
+			lunarMonth: 1,
+			lunarDay: 1,
+			title: 'Other day',
+			description: '',
+		});
+		render(<CartStep />);
+
+		clickNamedButton('Edit', 2);
+		fireEvent.change(screen.getByLabelText('Title'), {
+			target: { value: 'Ancestor day' },
+		});
+		await act(async () => {
+			await Bun.sleep(TITLE_DELAY_IN_MS + 20);
+		});
+		fireEvent.click(screen.getByRole('button', { name: 'Save' }));
+
+		const saved = useCalendarStore
+			.getState()
+			.cart.filter((item) => item.kind === 'custom');
+		expect(saved[1]).toMatchObject({
+			title: 'Other day',
+			lunarMonth: 1,
+			lunarDay: 1,
+		});
+		expect(screen.queryByLabelText('Title')).toBeNull();
+
+		clickNamedButton('Edit', 2);
+		expect((screen.getByLabelText('Title') as HTMLInputElement).value).toBe(
+			'Other day',
+		);
 	});
 
 	test('pick edit cancel leaves the monthly row in place', () => {

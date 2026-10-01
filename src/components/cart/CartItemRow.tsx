@@ -67,6 +67,17 @@ const CartItemRow = ({ item }: CartItemRowProps) => {
 			description: description.trim(),
 			...icsDraftToOverrides(icsDraft),
 		});
+		const saved = useCalendarStore
+			.getState()
+			.cart.find((row) => row.id === item.id);
+		if (!saved || saved.kind !== 'custom') {
+			return;
+		}
+		setLunarMonth(String(saved.lunarMonth));
+		setLunarDay(String(saved.lunarDay));
+		setTitle(saved.title.trim());
+		setDescription((saved.description ?? '').trim());
+		setIcsDraft(icsDraftFromItem(saved));
 	};
 
 	const onRemove = () => {
