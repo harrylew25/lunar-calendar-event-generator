@@ -26,8 +26,18 @@ describe('formatAppVersion', () => {
 describe('currentAppVersion', () => {
 	test('uses dev when the run number is missing', () => {
 		const now = new Date('2026-10-02T04:00:00.000Z');
+		const previous = process.env.GITHUB_RUN_NUMBER;
+		delete process.env.GITHUB_RUN_NUMBER;
 
-		expect(currentAppVersion(now, undefined)).toBe('26.40.dev');
+		try {
+			expect(currentAppVersion(now)).toBe('26.40.dev');
+		} finally {
+			if (previous === undefined) {
+				delete process.env.GITHUB_RUN_NUMBER;
+			} else {
+				process.env.GITHUB_RUN_NUMBER = previous;
+			}
+		}
 	});
 
 	test('copies a numeric run number through unpadded', () => {
