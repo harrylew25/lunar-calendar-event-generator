@@ -1,4 +1,5 @@
 import type { FestivalId, MonthRule } from './constants';
+import type { SolarTermId } from './solar-terms';
 
 type LunarDateType = 'chuyi' | 'shiwu' | 'custom';
 
@@ -82,7 +83,16 @@ type CatalogCartRule = {
 	catalogId: FestivalId;
 } & IcsEventOverrides;
 
-type CartRule = CustomCartRule | MonthlyCartRule | CatalogCartRule;
+type SolarTermCartRule = {
+	kind: 'solarTerm';
+	solarTermId: SolarTermId;
+} & IcsEventOverrides;
+
+type CartRule =
+	| CustomCartRule
+	| MonthlyCartRule
+	| CatalogCartRule
+	| SolarTermCartRule;
 
 export type {
 	CartRule,
@@ -103,4 +113,5 @@ export type {
 	MonthlyEventId,
 	MonthRule,
 	SolarCustomDateInput,
+	SolarTermCartRule,
 };

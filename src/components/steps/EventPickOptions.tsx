@@ -64,7 +64,7 @@ const EventPickOptions = () => {
 					Add these lunar dates once per year (leap month follows the start
 					year).
 				</FieldDescription>
-				<FieldGroup data-slot="checkbox-group">
+				<FieldGroup data-slot="checkbox-group" className="grid grid-cols-2">
 					{FESTIVALS.map((event) => {
 						const inputId = `include-${event.id}`;
 

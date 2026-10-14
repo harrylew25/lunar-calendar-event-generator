@@ -5,6 +5,7 @@ import { LOOP_YEAR_PRESETS } from '@/lib/wizard/constants';
 import { useCalendarStore } from '@/store/calendar-store';
 import CustomRuleForm from './CustomRuleForm';
 import EventPickOptions from './EventPickOptions';
+import SolarTermPickOptions from './SolarTermPickOptions';
 
 const currentYear = new Date().getFullYear();
 const RANGE = 5;
@@ -61,6 +62,7 @@ const DateSelectionStep = (): ReactElement => {
 
 			{/* TODO: use accordion for these */}
 			<EventPickOptions />
+			<SolarTermPickOptions />
 			{/* TODO: rename this date form */}
 			<CustomRuleForm />
 			<p className="text-muted-foreground text-sm">

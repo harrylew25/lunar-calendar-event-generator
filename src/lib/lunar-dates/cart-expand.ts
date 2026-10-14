@@ -11,6 +11,7 @@ import type {
 	LunarDateNotification,
 	MonthlyEventId,
 } from './lunar-dates.type';
+import { expandSolarTerm } from './solar-terms';
 
 const festivalById = new Map(
 	FESTIVALS.map((festival) => [festival.id, festival] as const),
@@ -47,6 +48,7 @@ const notificationsFromCart = (
 ): LunarDateNotification[] => {
 	const customInputs: LunarCustomDateInput[] = [];
 	const catalogInputs: LunarCustomDateInput[] = [];
+	const solarTermNotifications: LunarDateNotification[] = [];
 	const monthly: Record<MonthlyEventId, boolean> = {
 		chuyi: false,
 		shiwu: false,
@@ -63,6 +65,13 @@ const notificationsFromCart = (
 		if (item.kind === 'monthly') {
 			monthly[item.monthlyId] = true;
 			monthlyOverrides[item.monthlyId] = icsFields(item);
+			continue;
+		}
+
+		if (item.kind === 'solarTerm') {
+			solarTermNotifications.push(
+				...expandSolarTerm(item.solarTermId, yearRange, icsFields(item)),
+			);
 			continue;
 		}
 
@@ -84,6 +93,7 @@ const notificationsFromCart = (
 			[...customInputs, ...catalogInputs],
 			yearRange,
 		),
+		...solarTermNotifications,
 		...expandMonthlyEvents(yearRange, monthly, monthlyOverrides),
 	];
 };
