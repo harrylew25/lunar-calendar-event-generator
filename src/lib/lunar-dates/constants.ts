@@ -1,5 +1,5 @@
 const CALENDAR_DEFAULTS = {
-	startYear: 2026,
+	startYear: new Date().getFullYear(),
 	startMonth: 1,
 	numberOfYears: 10,
 } as const;
