@@ -1,10 +1,10 @@
+import { cn } from 'cn';
 import type { ChangeEvent, JSX } from 'react';
 import { FieldError } from '@/components/ui/field';
 import Input from '@/components/ui/input';
 import Label from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { useDebouncedControlledInput } from '@/hooks/useDebounceControlledInput';
-import { cn } from '@/lib/utils';
 
 type InputType =
 	| 'text'

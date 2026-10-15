@@ -1,5 +1,5 @@
+import { cn } from 'cn';
 import type { ComponentProps, JSX } from 'react';
-import { cn } from '@/lib/utils';
 
 const Input = ({
 	className,

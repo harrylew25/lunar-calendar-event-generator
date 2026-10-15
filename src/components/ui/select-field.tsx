@@ -1,3 +1,4 @@
+import { cn } from 'cn';
 import Label from '@/components/ui/label';
 import {
 	Select,
@@ -6,7 +7,6 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from '@/components/ui/select';
-import { cn } from '@/lib/utils';
 
 export type SelectFieldOption = {
 	label: string;

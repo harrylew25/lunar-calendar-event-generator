@@ -162,7 +162,6 @@ const FESTIVALS = [
 	createFestivalEvent('yuanxiao', 1, 15, '元宵节'),
 	createFestivalEvent('laojun', 2, 15, '太上老君圣诞'),
 	createFestivalEvent('guanyin-birth', 2, 19, '观音诞(诞辰)'),
-	createFestivalEvent('vesak', 4, 15, '卫塞节'),
 	createFestivalEvent('duanwu', 5, 5, '端午节'),
 	createFestivalEvent('guanyin-enlightenment', 6, 19, '观音诞(成道)'),
 	createFestivalEvent('qixi', 7, 7, '七夕节'),
