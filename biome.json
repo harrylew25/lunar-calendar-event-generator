@@ -16,7 +16,17 @@
 		"enabled": true,
 		"rules": {
 			"preset": "recommended",
+			"complexity": {
+				"useMaxParams": "error"
+			},
+			"suspicious": {
+				"noVar": "error"
+			},
+			"nursery": {
+				"useExhaustiveSwitchCases": "error"
+			},
 			"style": {
+				"noUselessElse": "error",
 				"useBlockStatements": "error",
 				"useNamingConvention": {
 					"level": "error",
