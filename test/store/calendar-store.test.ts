@@ -146,6 +146,47 @@ describe('useCalendarStore', () => {
 		);
 	});
 
+	test('setSolarTerm adds one row and ignores a second check', () => {
+		const { setSolarTerm } = useCalendarStore.getState();
+		setSolarTerm('lichun', true);
+		setSolarTerm('lichun', true);
+
+		const cart = useCalendarStore.getState().cart;
+		expect(cart).toHaveLength(1);
+		expect(cart[0]).toMatchObject({ kind: 'solarTerm', solarTermId: 'lichun' });
+	});
+
+	test('setSolarTerm false drops the solar term row', () => {
+		useCalendarStore.getState().setSolarTerm('qingming', true);
+		useCalendarStore.getState().setSolarTerm('qingming', false);
+		expect(useCalendarStore.getState().cart).toHaveLength(0);
+	});
+
+	test('setCatalogItem keeps a checked solar term in the cart', () => {
+		useCalendarStore.getState().setSolarTerm('lichun', true);
+		useCalendarStore.getState().setCatalogItem('duanwu', true);
+
+		const cart = useCalendarStore.getState().cart;
+		expect(cart).toHaveLength(2);
+		expect(cart.some((item) => item.kind === 'solarTerm')).toBe(true);
+		expect(cart.some((item) => item.kind === 'catalog')).toBe(true);
+	});
+
+	test('confirmAndExpand with only 立春 emits the 2026 Malaysia date', () => {
+		useCalendarStore.setState({ startYear: 2026, loopYears: 0 });
+		useCalendarStore.getState().setSolarTerm('lichun', true);
+		useCalendarStore.getState().confirmAndExpand();
+
+		const state = useCalendarStore.getState();
+		expect(state.step).toBe('preview');
+		expect(state.expandedEvents).toHaveLength(1);
+		expect(state.expandedEvents?.[0]).toMatchObject({
+			date: [2026, 2, 4],
+			title: '立春',
+			type: 'custom',
+		});
+	});
+
 	test('confirmAndExpand applies stored ICS overrides to every occurrence', () => {
 		useCalendarStore.getState().addItem({
 			lunarMonth: 1,

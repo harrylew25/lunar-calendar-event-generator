@@ -157,6 +157,76 @@ describe('notificationsFromCart', () => {
 		).toBe(true);
 	});
 
+	test('立春 expands once per inclusive Gregorian year', () => {
+		const result = notificationsFromCart(
+			[{ kind: 'solarTerm', solarTermId: 'lichun' }],
+			THREE_YEARS,
+		);
+
+		expect(result).toHaveLength(3);
+		expect(result.map((notification) => notification.date)).toEqual([
+			[2020, 2, 4],
+			[2021, 2, 3],
+			[2022, 2, 4],
+		]);
+		expect(
+			result.every(
+				(notification) =>
+					notification.type === 'custom' &&
+					notification.title === '立春' &&
+					notification.summary === '立春' &&
+					notification.description === '',
+			),
+		).toBe(true);
+	});
+
+	test('清明 for 2026 is 5 April and keeps ICS overrides', () => {
+		const result = notificationsFromCart(
+			[
+				{
+					kind: 'solarTerm',
+					solarTermId: 'qingming',
+					location: 'Cemetery',
+					alarmDaysBefore: 1,
+				},
+			],
+			{ startYear: 2026, numberOfYears: 0 },
+		);
+
+		expect(result).toHaveLength(1);
+		expect(result[0]).toMatchObject({
+			date: [2026, 4, 5],
+			title: '清明',
+			type: 'custom',
+			icsOverrides: { location: 'Cemetery', alarmDaysBefore: 1 },
+		});
+	});
+
+	test('solar terms expand after catalog festivals and before monthly events', () => {
+		const result = notificationsFromCart(
+			[
+				{ kind: 'monthly', monthlyId: 'chuyi' },
+				{ kind: 'solarTerm', solarTermId: 'lidong' },
+				{ kind: 'catalog', catalogId: duanwu.id },
+				{
+					kind: 'custom',
+					lunarMonth: 1,
+					lunarDay: 15,
+					title: 'Extra reminder',
+				},
+			],
+			YEAR_RANGE,
+		);
+
+		expect(result[0]?.title).toBe('Extra reminder');
+		expect(result[1]?.title).toBe('端午节');
+		expect(result[2]).toMatchObject({
+			title: '立冬',
+			date: [2020, 11, 7],
+		});
+		expect(result[3]?.type).toBe('chuyi');
+	});
+
 	test('monthly ICS overrides attach to every chuyi occurrence', () => {
 		const result = notificationsFromCart(
 			[

@@ -7,7 +7,9 @@ import type {
 	LunarDateNotification,
 	MonthlyCartRule,
 	MonthlyEventId,
+	SolarTermCartRule,
 } from '@lunar-dates/lunar-dates.type';
+import type { SolarTermId } from '@lunar-dates/solar-terms';
 import { toast } from 'sonner';
 import { create } from 'zustand';
 import { ICS_KEYS } from '@/lib/ics/constants';
@@ -18,7 +20,12 @@ type WizardStep = 'select' | 'cart' | 'preview';
 type CustomCartItem = CustomCartRule & { id: string };
 type MonthlyCartItem = MonthlyCartRule & { id: string };
 type CatalogCartItem = CatalogCartRule & { id: string };
-type CartItem = CustomCartItem | MonthlyCartItem | CatalogCartItem;
+type SolarTermCartItem = SolarTermCartRule & { id: string };
+type CartItem =
+	| CustomCartItem
+	| MonthlyCartItem
+	| CatalogCartItem
+	| SolarTermCartItem;
 type CartItemInput = Omit<CustomCartItem, 'id' | 'kind'>;
 
 type CalendarStore = {
@@ -38,6 +45,7 @@ type CalendarStore = {
 	clearAll: () => void;
 	setMonthlyEvent: (id: MonthlyEventId, included: boolean) => void;
 	setCatalogItem: (id: FestivalId, included: boolean) => void;
+	setSolarTerm: (id: SolarTermId, included: boolean) => void;
 };
 
 const isCustomItem = (item: CartItem): item is CustomCartItem =>
@@ -64,17 +72,23 @@ const toCartRule = ({ id: _id, ...rule }: CartItem) => rule;
 
 type RowKind =
 	| { kind: 'monthly'; monthlyId: MonthlyEventId }
-	| { kind: 'catalog'; catalogId: FestivalId };
+	| { kind: 'catalog'; catalogId: FestivalId }
+	| { kind: 'solarTerm'; solarTermId: SolarTermId };
+
+const isSamePick = (item: CartItem, row: RowKind): boolean => {
+	if (row.kind === 'monthly') {
+		return item.kind === 'monthly' && item.monthlyId === row.monthlyId;
+	}
+	if (row.kind === 'catalog') {
+		return item.kind === 'catalog' && item.catalogId === row.catalogId;
+	}
+	return item.kind === 'solarTerm' && item.solarTermId === row.solarTermId;
+};
 
 export const useCalendarStore = create<CalendarStore>((set, get) => {
 	const setupSetEvent = (included: boolean, row: RowKind) => {
 		const { cart } = get();
-		const filteredCart = cart.filter((item) => {
-			if (row.kind === 'monthly') {
-				return !(item.kind === 'monthly' && item.monthlyId === row.monthlyId);
-			}
-			return !(item.kind === 'catalog' && item.catalogId === row.catalogId);
-		});
+		const filteredCart = cart.filter((item) => !isSamePick(item, row));
 
 		if (!included) {
 			set({ cart: filteredCart });
@@ -104,6 +118,10 @@ export const useCalendarStore = create<CalendarStore>((set, get) => {
 
 		setCatalogItem: (id, included) => {
 			setupSetEvent(included, { kind: 'catalog', catalogId: id });
+		},
+
+		setSolarTerm: (id, included) => {
+			setupSetEvent(included, { kind: 'solarTerm', solarTermId: id });
 		},
 
 		addItem: (item) => {
@@ -185,5 +203,6 @@ export type {
 	CatalogCartItem,
 	CustomCartItem,
 	MonthlyCartItem,
+	SolarTermCartItem,
 	WizardStep,
 };

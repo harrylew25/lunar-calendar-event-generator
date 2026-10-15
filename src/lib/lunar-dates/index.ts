@@ -5,6 +5,7 @@ import {
 	expandMonthlyEvents,
 	resolveLunarMonthDay,
 } from './custom-dates';
+import { solarTermDate } from './solar-terms';
 
 export type { FestivalId } from './constants';
 export type {
@@ -23,7 +24,9 @@ export type {
 	MonthlyEventId,
 	MonthRule,
 	SolarCustomDateInput,
+	SolarTermCartRule,
 } from './lunar-dates.type';
+export type { SolarTermId } from './solar-terms';
 
 export {
 	CALENDAR_DEFAULTS,
@@ -32,4 +35,5 @@ export {
 	LUNAR_MILESTONE_DAYS,
 	notificationsFromCart,
 	resolveLunarMonthDay,
+	solarTermDate,
 };
