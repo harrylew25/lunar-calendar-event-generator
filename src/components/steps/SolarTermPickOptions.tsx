@@ -24,7 +24,7 @@ const SolarTermPickOptions = () => {
 	return (
 		<div className="flex flex-col gap-6">
 			<FieldLegend variant="label" className="-mb-4">
-				Solar
+				Solar terms
 			</FieldLegend>
 			<FieldDescription className="-mb-4">
 				Add a solar term once each Gregorian year in the loop.
