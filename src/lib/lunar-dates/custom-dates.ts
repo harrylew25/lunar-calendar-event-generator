@@ -17,20 +17,9 @@ export type LunarDateObj = {
 	day: number;
 };
 
-const LUNAR_DAY_LABELS: Record<
-	MonthlyEventId,
-	{ day: number; lunarLabel: string; eventLabel: string }
-> = {
-	chuyi: {
-		day: LUNAR_MILESTONE_DAYS.chuyi,
-		lunarLabel: '初一',
-		eventLabel: 'Day 1 (New Moon)',
-	},
-	shiwu: {
-		day: LUNAR_MILESTONE_DAYS.shiwu,
-		lunarLabel: '十五',
-		eventLabel: 'Day 15 (Full Moon)',
-	},
+const LUNAR_DAY_LABELS: Record<MonthlyEventId, string> = {
+	chuyi: '初一',
+	shiwu: '十五',
 };
 
 const monthRuleByValue = new Map<number, MonthRule>(
@@ -61,14 +50,14 @@ const createLunarDateNotification = (
 	rule: MonthRule,
 	overrides?: IcsEventOverrides,
 ): LunarDateNotification => {
-	const { day, lunarLabel, eventLabel } = LUNAR_DAY_LABELS[type];
+	const lunarLabel = LUNAR_DAY_LABELS[type];
 
 	return {
 		date,
 		type,
-		title: `${rule.en} Day ${day}`,
-		summary: `农历${rule.name}${lunarLabel} (${rule.en} Day ${day})`,
-		description: `Lunar Calendar: ${rule.en}, ${eventLabel}`,
+		title: lunarLabel,
+		summary: `农历${rule.name}${lunarLabel}`,
+		description: '',
 		icsOverrides: overrides ? pickIcsOverrides(overrides) : undefined,
 	};
 };

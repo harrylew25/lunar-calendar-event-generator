@@ -19,7 +19,7 @@ const YearPreviewGrid = ({ year, events }: YearPreviewGridProps) => {
 				);
 				return (
 					<MonthCard
-						key={monthName}
+						key={`${year}-${monthName}`}
 						monthName={monthName}
 						events={monthEvents}
 					/>

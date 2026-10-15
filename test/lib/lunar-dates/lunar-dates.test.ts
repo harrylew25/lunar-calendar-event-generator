@@ -28,7 +28,8 @@ describe('expandMonthlyEvents — flags', () => {
 		expect(notifications).toHaveLength(monthCount);
 		expect(notifications.every((n) => n.type === 'chuyi')).toBe(true);
 		expect(notifications.every((n) => n.summary.includes('初一'))).toBe(true);
-		expect(notifications[0]?.title).toContain('Day 1');
+		expect(notifications[0]?.title).toBe('初一');
+		expect(notifications[0]?.description).toBe('');
 	});
 
 	test('shiwu only emits type shiwu with 十五 summaries', () => {
@@ -41,7 +42,8 @@ describe('expandMonthlyEvents — flags', () => {
 		expect(notifications).toHaveLength(monthCount);
 		expect(notifications.every((n) => n.type === 'shiwu')).toBe(true);
 		expect(notifications.every((n) => n.summary.includes('十五'))).toBe(true);
-		expect(notifications[0]?.title).toContain('Day 15');
+		expect(notifications[0]?.title).toBe('十五');
+		expect(notifications[0]?.description).toBe('');
 	});
 
 	test('both flags emit two events per lunar month including leap 闰四月', () => {

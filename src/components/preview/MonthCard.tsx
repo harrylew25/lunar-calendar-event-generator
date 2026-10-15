@@ -27,7 +27,10 @@ const MonthCard = ({ monthName, events }: MonthCardProps) => {
 					<p className="text-muted-foreground text-xs">No events</p>
 				) : (
 					events.map((event) => (
-						<EventCard key={sanitizeId(event.title)} event={event} />
+						<EventCard
+							key={`${event.type}-${event.date.join('-')}-${event.title}`}
+							event={event}
+						/>
 					))
 				)}
 			</div>
