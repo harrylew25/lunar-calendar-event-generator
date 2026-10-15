@@ -1,3 +1,4 @@
+import { cn } from 'cn';
 import {
 	ChevronDownIcon,
 	ChevronLeftIcon,
@@ -10,7 +11,6 @@ import {
 	getDefaultClassNames,
 } from 'react-day-picker';
 import { Button, buttonVariants } from '@/components/ui/button';
-import { cn } from '@/lib/utils';
 
 const Calendar = ({
 	className,
