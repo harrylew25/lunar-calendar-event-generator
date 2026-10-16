@@ -1,6 +1,7 @@
 import type { LunarDateNotification } from '@lunar-dates/lunar-dates.type';
 import { format } from 'date-fns';
-import { getLunarObjectFromDate } from '@/lib/wizard/preview-format';
+import { useI18n, useT } from '@/lib/i18n/I18nProvider';
+import { formatPreviewLunarLine } from '@/lib/wizard/preview-format';
 
 type MonthCardProps = {
 	monthName: string;
@@ -16,6 +17,7 @@ const formatDate = (date: LunarDateNotification['date']) => {
 };
 
 const MonthCard = ({ monthName, events }: MonthCardProps) => {
+	const t = useT();
 	return (
 		<article
 			id={sanitizeId(monthName)}
@@ -24,7 +26,7 @@ const MonthCard = ({ monthName, events }: MonthCardProps) => {
 			<h3 className="font-medium">{monthName}</h3>
 			<div className="flex min-w-0 flex-col gap-2">
 				{events.length === 0 ? (
-					<p className="text-muted-foreground text-xs">No events</p>
+					<p className="text-muted-foreground text-xs">{t('noEvents')}</p>
 				) : (
 					events.map((event) => (
 						<EventCard
@@ -39,14 +41,15 @@ const MonthCard = ({ monthName, events }: MonthCardProps) => {
 };
 
 const EventCard = ({ event }: { event: LunarDateNotification }) => {
-	const lunarObj = getLunarObjectFromDate(event.date);
+	const { locale } = useI18n();
+	const lunarLabel = formatPreviewLunarLine(event.date, locale);
 	return (
 		<div
 			className="min-w-0 rounded-md border bg-muted/20 px-2 py-1 
 		transition-colors hover:bg-muted hover:shadow-sm">
 			<p className="truncate text-sm font-medium">{event.title}</p>
 			<p className="text-xs text-muted-foreground">
-				{lunarObj.label} - ({formatDate(event.date)})
+				{lunarLabel} - ({formatDate(event.date)})
 			</p>
 			{event.description ? (
 				<p className="line-clamp-2 sm:line-clamp-3">{event.description}</p>

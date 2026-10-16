@@ -4,6 +4,7 @@ import { useMemo, useState } from 'react';
 import YearPreviewGrid from '@/components/preview/YearPreviewGrid';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { useT } from '@/lib/i18n/I18nProvider';
 import { useCalendarStore } from '@/store/calendar-store';
 
 const sortArray = (list: number[]) => list.sort((a, b) => a - b);
@@ -11,6 +12,7 @@ const filterUniqueAndSort = (list: number[]) =>
 	sortArray(Array.from(new Set(list)));
 
 const PreviewStep = () => {
+	const t = useT();
 	const expandedEvents = useCalendarStore((state) => state.expandedEvents);
 	const setStep = useCalendarStore((state) => state.setStep);
 	const startYear = useCalendarStore((state) => state.startYear);
@@ -44,13 +46,13 @@ const PreviewStep = () => {
 	if (!expandedEvents?.length) {
 		return (
 			<div className="mx-auto flex w-full max-w-3xl flex-col gap-4">
-				<p className="text-muted-foreground">No expanded events to preview.</p>
+				<p className="text-muted-foreground">{t('noExpanded')}</p>
 				<Button
 					type="button"
 					variant="outline"
 					className="w-full sm:w-auto"
 					onClick={() => setStep('cart')}>
-					Back to cart
+					{t('backToCart')}
 				</Button>
 			</div>
 		);
@@ -60,11 +62,12 @@ const PreviewStep = () => {
 		<div className="mx-auto flex w-full max-w-6xl flex-col gap-6">
 			<div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
 				<div>
-					<h2 className="text-2xl font-semibold">Preview</h2>
+					<h2 className="text-2xl font-semibold">{t('previewTitle')}</h2>
 					<p className="text-muted-foreground mt-1">
-						<strong>{expandedEvents.length}</strong> events across{' '}
-						<strong>{availableYears.length}</strong> years from{' '}
-						<strong>{startYear}</strong> to <strong>{endYear}</strong>
+						<strong>{expandedEvents.length}</strong> {t('eventsAcross')}{' '}
+						<strong>{availableYears.length}</strong> {t('yearsFrom')}{' '}
+						<strong>{startYear}</strong> {t('rangeTo')}{' '}
+						<strong>{endYear}</strong>
 					</p>
 				</div>
 				<div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:justify-end">
@@ -73,20 +76,20 @@ const PreviewStep = () => {
 						variant="outline"
 						className="w-full sm:w-auto"
 						onClick={() => setStep('select')}>
-						Back to date selection
+						{t('backToDateSelection')}
 					</Button>
 					<Button
 						type="button"
 						variant="outline"
 						className="w-full sm:w-auto"
 						onClick={() => setStep('cart')}>
-						Back to cart
+						{t('backToCart')}
 					</Button>
 					<Button
 						type="button"
 						className="w-full sm:w-auto"
 						onClick={handleDownload}>
-						Download ICS
+						{t('downloadIcs')}
 					</Button>
 				</div>
 			</div>
@@ -100,7 +103,7 @@ const PreviewStep = () => {
 							size="icon"
 							onClick={() => setYearIndex((index) => Math.max(0, index - 1))}
 							disabled={yearIndex === 0}
-							aria-label="Previous year">
+							aria-label={t('previousYear')}>
 							<ChevronLeft className="size-4" />
 						</Button>
 						<span>{selectedYear}</span>
@@ -114,7 +117,7 @@ const PreviewStep = () => {
 								)
 							}
 							disabled={yearIndex >= availableYears.length - 1}
-							aria-label="Next year">
+							aria-label={t('nextYear')}>
 							<ChevronRight className="size-4" />
 						</Button>
 					</CardTitle>

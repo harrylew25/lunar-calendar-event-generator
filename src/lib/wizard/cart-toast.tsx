@@ -1,5 +1,7 @@
 import type { ReactElement } from 'react';
 import { toast } from 'sonner';
+import { getLocale } from '@/lib/i18n/locale';
+import { translate } from '@/lib/i18n/translate';
 
 type CartToastAction = 'added' | 'removed';
 
@@ -10,11 +12,6 @@ type ReportCartChangeInput = {
 	toastId?: string;
 };
 
-const CART_TOAST_TITLE: Record<CartToastAction, string> = {
-	added: 'Added',
-	removed: 'Removed',
-};
-
 const reportCartChange = ({
 	action,
 	title,
@@ -22,7 +19,6 @@ const reportCartChange = ({
 	toastId,
 }: ReportCartChangeInput): void => {
 	const customToast = action === 'added' ? toast.success : toast.warning;
-
 	const description: ReactElement = (
 		<>
 			<span className="block truncate">{title}</span>
@@ -30,11 +26,14 @@ const reportCartChange = ({
 		</>
 	);
 
-	customToast(CART_TOAST_TITLE[action], {
-		id: toastId,
-		description,
-		descriptionClassName: 'min-w-0',
-	});
+	customToast(
+		translate(getLocale(), action === 'added' ? 'added' : 'removed'),
+		{
+			id: toastId,
+			description,
+			descriptionClassName: 'min-w-0',
+		},
+	);
 };
 
 export { reportCartChange };

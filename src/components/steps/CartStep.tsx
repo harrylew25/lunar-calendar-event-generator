@@ -2,10 +2,12 @@ import type { ReactElement } from 'react';
 import CartPickRow from '@/components/cart/CartPickRow';
 import CustomCartItemRow from '@/components/cart/CustomCartItemRow';
 import { Button } from '@/components/ui/button';
+import { useT } from '@/lib/i18n/I18nProvider';
 import type { CartItem } from '@/store/calendar-store';
 import { useCalendarStore } from '@/store/calendar-store';
 
 const CartStep = () => {
+	const t = useT();
 	const cart = useCalendarStore((state) => state.cart);
 	const startYear = useCalendarStore((state) => state.startYear);
 	const loopYears = useCalendarStore((state) => state.loopYears);
@@ -17,24 +19,20 @@ const CartStep = () => {
 	return (
 		<div className="mx-auto flex w-full max-w-3xl flex-col gap-8">
 			<div>
-				<h2 className="text-2xl font-semibold">Cart</h2>
+				<h2 className="text-2xl font-semibold">{t('cartTitle')}</h2>
 				<p className="text-muted-foreground mt-1">
-					Review and edit your recurrence rules before expanding across{' '}
-					{loopYears + 1} lunar years.
+					{t('cartBody', { count: loopYears + 1 })}
 				</p>
 			</div>
 			<div className="space-y-2">
-				<h2>Loop years: {loopYears} years</h2>
-				<h2>
-					Expanding lunar years from <strong>{startYear}</strong> through{' '}
-					<strong>{endYear}</strong>
-				</h2>
+				<h2>{t('loopYearsHeading', { years: loopYears })}</h2>
+				<h2>{t('expandingRange', { start: startYear, end: endYear })}</h2>
 			</div>
 
 			<div className="flex flex-col gap-4">
 				{cart.length === 0 ? (
 					<p className="text-muted-foreground rounded-lg border border-dashed p-8 text-center">
-						Your cart is empty. Go back to add dates.
+						{t('cartEmpty')}
 					</p>
 				) : (
 					cart.map((item) => <CartRow key={item.id} item={item} />)
@@ -47,14 +45,14 @@ const CartStep = () => {
 					variant="outline"
 					className="w-full sm:w-auto"
 					onClick={() => setStep('select')}>
-					Back
+					{t('back')}
 				</Button>
 				<Button
 					type="button"
 					className="w-full sm:w-auto"
 					onClick={confirmAndExpand}
 					disabled={cart.length === 0}>
-					Confirm & preview
+					{t('confirmPreview')}
 				</Button>
 				<Button
 					type="button"
@@ -62,7 +60,7 @@ const CartStep = () => {
 					className="w-full sm:w-auto"
 					onClick={clearAll}
 					disabled={cart.length === 0}>
-					Clear all
+					{t('clearAll')}
 				</Button>
 			</div>
 		</div>

@@ -11,10 +11,14 @@ import {
 	FieldLegend,
 	FieldSet,
 } from '@/components/ui/field';
+import { seasonLabel, solarTermTitle } from '@/lib/i18n/catalog-labels';
+import { useI18n, useT } from '@/lib/i18n/I18nProvider';
 import { reportCartChange } from '@/lib/wizard/cart-toast';
 import { useCalendarStore } from '@/store/calendar-store';
 
 const SolarTermPickOptions = () => {
+	const t = useT();
+	const { locale } = useI18n();
 	const cart = useCalendarStore((state) => state.cart);
 	const setSolarTerm = useCalendarStore((state) => state.setSolarTerm);
 
@@ -24,17 +28,20 @@ const SolarTermPickOptions = () => {
 	return (
 		<div className="flex flex-col gap-6">
 			<FieldLegend variant="label" className="-mb-4">
-				Solar terms
+				{t('solarTerms')}
 			</FieldLegend>
 			<FieldDescription className="-mb-4">
-				Add a solar term once each Gregorian year in the loop.
+				{t('solarTermsBody')}
 			</FieldDescription>
 			{[...SOLAR_TERMS_BY_SEASON.values()].map((season) => (
 				<FieldSet key={season.id}>
-					<FieldLegend variant="label">{season.label}</FieldLegend>
+					<FieldLegend variant="label">
+						{seasonLabel(season.id, locale)}
+					</FieldLegend>
 					<FieldGroup data-slot="checkbox-group" className="grid grid-cols-2">
 						{season.terms.map((term) => {
 							const inputId = `include-solar-${term.id}`;
+							const title = solarTermTitle(term.id, locale);
 
 							return (
 								<Field key={term.id} orientation="horizontal">
@@ -46,14 +53,14 @@ const SolarTermPickOptions = () => {
 											setSolarTerm(term.id, included);
 											reportCartChange({
 												action: included ? 'added' : 'removed',
-												title: term.title,
-												lunarDate: term.title,
+												title,
+												lunarDate: title,
 												toastId: `solar-${term.id}`,
 											});
 										}}
 									/>
 									<FieldLabel htmlFor={inputId} className="font-normal">
-										{term.title}
+										{title}
 									</FieldLabel>
 								</Field>
 							);

@@ -12,6 +12,8 @@ import type {
 import type { SolarTermId } from '@lunar-dates/solar-terms';
 import { toast } from 'sonner';
 import { create } from 'zustand';
+import { getLocale } from '@/lib/i18n/locale';
+import { translate } from '@/lib/i18n/translate';
 import { ICS_KEYS } from '@/lib/ics/constants';
 import { assignIfPresent } from '@/lib/utils';
 
@@ -42,6 +44,7 @@ type CalendarStore = {
 	updateItem: (id: string, patch: Partial<CartItemInput>) => boolean;
 	removeItem: (id: string) => void;
 	confirmAndExpand: () => void;
+	reexpand: () => void;
 	clearAll: () => void;
 	setMonthlyEvent: (id: MonthlyEventId, included: boolean) => void;
 	setCatalogItem: (id: FestivalId, included: boolean) => void;
@@ -127,9 +130,9 @@ export const useCalendarStore = create<CalendarStore>((set, get) => {
 		addItem: (item) => {
 			const { cart } = get();
 			if (isDuplicate(cart, item)) {
-				toast.error('Duplicate event added', {
-					description:
-						'There is already an event with the same lunar date and title.',
+				const locale = getLocale();
+				toast.error(translate(locale, 'duplicateAddedTitle'), {
+					description: translate(locale, 'duplicateAddedBody'),
 				});
 				return;
 			}
@@ -160,9 +163,9 @@ export const useCalendarStore = create<CalendarStore>((set, get) => {
 			const updated: CustomCartItem = { ...current, ...patch };
 			const filteredCart = cart.filter((item) => item.id !== id);
 			if (isDuplicate(filteredCart, updated)) {
-				toast.error('Duplicate event in cart', {
-					description:
-						'There is already an event with the same lunar date and title in the cart.',
+				const locale = getLocale();
+				toast.error(translate(locale, 'duplicateCartTitle'), {
+					description: translate(locale, 'duplicateCartBody'),
 				});
 				return false;
 			}
@@ -180,11 +183,38 @@ export const useCalendarStore = create<CalendarStore>((set, get) => {
 			}
 
 			set({
-				expandedEvents: notificationsFromCart(cart.map(toCartRule), {
-					startYear,
-					numberOfYears,
-				}),
+				expandedEvents: notificationsFromCart(
+					cart.map(toCartRule),
+					{
+						startYear,
+						numberOfYears,
+					},
+					getLocale(),
+				),
 				step: 'preview',
+			});
+		},
+
+		reexpand: () => {
+			const {
+				cart,
+				loopYears: numberOfYears,
+				startYear,
+				expandedEvents,
+			} = get();
+			if (!expandedEvents || cart.length === 0) {
+				return;
+			}
+
+			set({
+				expandedEvents: notificationsFromCart(
+					cart.map(toCartRule),
+					{
+						startYear,
+						numberOfYears,
+					},
+					getLocale(),
+				),
 			});
 		},
 

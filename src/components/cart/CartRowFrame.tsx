@@ -1,5 +1,6 @@
 import { type ReactNode, useState } from 'react';
 import { Button } from '@/components/ui/button';
+import { useT } from '@/lib/i18n/I18nProvider';
 import EditDialog from './EditDialog';
 
 type CartRowFrameProps = {
@@ -18,6 +19,7 @@ const CartRowFrame = ({
 	onReset,
 }: CartRowFrameProps) => {
 	const [open, setOpen] = useState(false);
+	const t = useT();
 
 	const onDialogChange = (isOpen: boolean) => {
 		onReset();
@@ -38,7 +40,7 @@ const CartRowFrame = ({
 	return (
 		<>
 			<EditDialog
-				title="Edit Item"
+				title={t('editItem')}
 				open={open}
 				onOpenChange={onDialogChange}
 				onCancel={handleCancel}
@@ -49,10 +51,10 @@ const CartRowFrame = ({
 				<div className="min-w-0 flex-1">{summary}</div>
 				<div className="flex shrink-0 justify-end gap-2">
 					<Button type="button" variant="outline" onClick={() => setOpen(true)}>
-						Edit
+						{t('edit')}
 					</Button>
 					<Button type="button" variant="destructive" onClick={onRemove}>
-						Delete
+						{t('delete')}
 					</Button>
 				</div>
 			</div>
