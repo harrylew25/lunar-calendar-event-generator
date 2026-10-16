@@ -3,6 +3,7 @@ import { FieldDescription, FieldLegend, FieldSet } from '@/components/ui/field';
 import Input from '@/components/ui/input';
 import Label from '@/components/ui/label';
 import SelectField from '@/components/ui/select-field';
+import { useT } from '@/lib/i18n/I18nProvider';
 
 type IcsOverrideFieldsProps = {
 	idPrefix: string;
@@ -21,74 +22,62 @@ const formatReminderTime = (hour: string, minute: string): string => {
 	return `${padTwo(hour12)}:${padTwo(minuteNumber)} ${period}`;
 };
 
-const getLabelValuePair = (value: string, label: string) => ({
-	value,
-	label,
-});
-
-const DAY_AMOUNT_OPTIONS = [0, 1, 2, 3, 4, 5, 6].map((amount) =>
-	getLabelValuePair(
-		String(amount),
-		amount === 0 ? '0 (on the day)' : String(amount),
-	),
-);
-
-const WEEK_AMOUNT_OPTIONS = [1, 2, 3, 4].map((amount) =>
-	getLabelValuePair(String(amount), String(amount)),
-);
-
-const UNIT_OPTIONS = [
-	getLabelValuePair('days', 'days'),
-	getLabelValuePair('weeks', 'weeks'),
-];
-
-const HOUR_OPTIONS = Array.from({ length: 24 }, (_, hour) =>
-	getLabelValuePair(String(hour), padTwo(hour)),
-);
-
-const MINUTE_OPTIONS = [0, 15, 30, 45].map((minute) =>
-	getLabelValuePair(String(minute), padTwo(minute)),
-);
-
-const BUSY_OPTIONS = [
-	getLabelValuePair('TRANSPARENT', 'Free'),
-	getLabelValuePair('OPAQUE', 'Busy'),
-];
-
-const VISIBILITY_OPTIONS = [
-	getLabelValuePair('PUBLIC', 'Public'),
-	getLabelValuePair('PRIVATE', 'Private'),
-];
-
 const WEEK_AMOUNTS = new Set(['1', '2', '3', '4']);
-
-const amountOptionsForUnit = (unit: ReminderUnit) =>
-	unit === 'weeks' ? WEEK_AMOUNT_OPTIONS : DAY_AMOUNT_OPTIONS;
-
-const formatReminderDescription = (
-	amount: string,
-	unit: ReminderUnit,
-	hour: string,
-	minute: string,
-): string => {
-	const reminderDayOrWeek =
-		amount === '0' ? `On the day of` : `${amount} ${unit} before`;
-	return `${reminderDayOrWeek} the event at ${formatReminderTime(hour, minute)}`;
-};
 
 const IcsOverrideFields = ({
 	idPrefix,
 	value,
 	onChange,
 }: IcsOverrideFieldsProps) => {
+	const t = useT();
 	const locationId = `${idPrefix}-location`;
+	const dayAmountOptions = [0, 1, 2, 3, 4, 5, 6].map((amount) => ({
+		value: String(amount),
+		label: amount === 0 ? t('onTheDayOption') : String(amount),
+	}));
+	const weekAmountOptions = [1, 2, 3, 4].map((amount) => ({
+		value: String(amount),
+		label: String(amount),
+	}));
+	const unitOptions = [
+		{ value: 'days', label: t('days') },
+		{ value: 'weeks', label: t('weeks') },
+	];
+	const hourOptions = Array.from({ length: 24 }, (_, hour) => ({
+		value: String(hour),
+		label: padTwo(hour),
+	}));
+	const minuteOptions = [0, 15, 30, 45].map((minute) => ({
+		value: String(minute),
+		label: padTwo(minute),
+	}));
+	const busyOptions = [
+		{ value: 'TRANSPARENT', label: t('free') },
+		{ value: 'OPAQUE', label: t('busy') },
+	];
+	const visibilityOptions = [
+		{ value: 'PUBLIC', label: t('public') },
+		{ value: 'PRIVATE', label: t('private') },
+	];
+	const amountOptions =
+		value.unit === 'weeks' ? weekAmountOptions : dayAmountOptions;
+	const reminderText =
+		value.amount === '0'
+			? t('reminderOnDay', {
+					time: formatReminderTime(value.hour, value.minute),
+				})
+			: t('reminderBefore', {
+					amount: value.amount,
+					unit: value.unit === 'weeks' ? t('weeks') : t('days'),
+					time: formatReminderTime(value.hour, value.minute),
+				});
 
 	const handleUnitChange = (nextUnitValue: string): void => {
 		const unit: ReminderUnit = nextUnitValue === 'weeks' ? 'weeks' : 'days';
 		const amountValid =
 			unit === 'weeks'
 				? WEEK_AMOUNTS.has(value.amount)
-				: DAY_AMOUNT_OPTIONS.some((option) => option.value === value.amount);
+				: dayAmountOptions.some((option) => option.value === value.amount);
 		onChange({
 			...value,
 			unit,
@@ -99,58 +88,51 @@ const IcsOverrideFields = ({
 	return (
 		<div className="flex flex-col gap-4">
 			<div className="space-y-2">
-				<Label htmlFor={locationId}>Location</Label>
+				<Label htmlFor={locationId}>{t('location')}</Label>
 				<Input
 					id={locationId}
 					name="location"
 					value={value.location}
-					placeholder="Add location"
+					placeholder={t('locationPlaceholder')}
 					onChange={(event) =>
 						onChange({ ...value, location: event.target.value })
 					}
 				/>
 			</div>
 			<FieldSet>
-				<FieldLegend>Reminder</FieldLegend>
-				<FieldDescription>
-					{formatReminderDescription(
-						value.amount,
-						value.unit,
-						value.hour,
-						value.minute,
-					)}
-				</FieldDescription>
+				<FieldLegend>{t('reminder')}</FieldLegend>
+				<FieldDescription>{reminderText}</FieldDescription>
 				<div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
 					<SelectField
 						id={`${idPrefix}-reminder-amount`}
-						label="Anmount"
+						label={t('amount')}
 						value={value.amount}
 						onValueChange={(amount) => onChange({ ...value, amount })}
-						options={amountOptionsForUnit(value.unit)}
+						options={amountOptions}
 						triggerClassName="max-w-none"
 					/>
 					<SelectField
 						id={`${idPrefix}-reminder-unit`}
-						label="Unit"
+						label={t('unit')}
 						value={value.unit}
 						onValueChange={handleUnitChange}
-						options={UNIT_OPTIONS}
+						options={unitOptions}
 						triggerClassName="max-w-none"
 					/>
 					<SelectField
 						id={`${idPrefix}-reminder-hour`}
-						label="Hour"
+						label={t('hour')}
 						value={value.hour}
 						onValueChange={(hour) => onChange({ ...value, hour })}
-						options={HOUR_OPTIONS}
+						options={hourOptions}
 						triggerClassName="max-w-none"
 					/>
 					<SelectField
 						id={`${idPrefix}-reminder-minute`}
-						label="Minute"
+						label={t('minute')}
 						value={value.minute}
 						onValueChange={(minute) => onChange({ ...value, minute })}
-						options={MINUTE_OPTIONS}
+						options={minuteOptions}
 						triggerClassName="max-w-none"
 					/>
 				</div>
@@ -158,7 +140,7 @@ const IcsOverrideFields = ({
 			<div className="grid gap-4 md:grid-cols-2">
 				<SelectField
 					id={`${idPrefix}-busy`}
-					label="Show as"
+					label={t('showAs')}
 					value={value.timeTransparent}
 					onValueChange={(timeTransparent) =>
 						onChange({
@@ -167,12 +149,12 @@ const IcsOverrideFields = ({
 								timeTransparent === 'OPAQUE' ? 'OPAQUE' : 'TRANSPARENT',
 						})
 					}
-					options={BUSY_OPTIONS}
+					options={busyOptions}
 					triggerClassName="max-w-none"
 				/>
 				<SelectField
 					id={`${idPrefix}-visibility`}
-					label="Visibility"
+					label={t('visibility')}
 					value={value.visibility}
 					onValueChange={(visibility) =>
 						onChange({
@@ -180,7 +162,7 @@ const IcsOverrideFields = ({
 							visibility: visibility === 'PRIVATE' ? 'PRIVATE' : 'PUBLIC',
 						})
 					}
-					options={VISIBILITY_OPTIONS}
+					options={visibilityOptions}
 					triggerClassName="max-w-none"
 				/>
 			</div>

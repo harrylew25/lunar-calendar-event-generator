@@ -1,4 +1,6 @@
 import { Solar } from 'lunar-javascript';
+import { solarTermTitle } from '@/lib/i18n/catalog-labels';
+import type { Locale } from '@/lib/i18n/locale';
 import type {
 	CustomYearRange,
 	GregorianDateParts,
@@ -75,20 +77,22 @@ const expandSolarTerm = (
 	id: SolarTermId,
 	{ startYear, numberOfYears }: CustomYearRange,
 	overrides: IcsEventOverrides = {},
+	locale: Locale = 'zh-CN',
 ): LunarDateNotification[] => {
 	const term = solarTermById.get(id);
 	if (!term) {
 		return [];
 	}
 
+	const title = solarTermTitle(id, locale);
 	const notifications: LunarDateNotification[] = [];
 	for (let offset = 0; offset <= numberOfYears; offset++) {
 		const year = startYear + offset;
 		notifications.push({
 			date: solarTermDate(year, id),
 			type: 'custom',
-			title: term.title,
-			summary: term.title,
+			title,
+			summary: title,
 			description: '',
 			icsOverrides: pickIcsOverrides(overrides),
 		});

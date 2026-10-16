@@ -1,4 +1,6 @@
 import { Lunar, LunarMonth, LunarYear, Solar } from 'lunar-javascript';
+import { monthlySummary, monthlyTitle } from '@/lib/i18n/catalog-labels';
+import type { Locale } from '@/lib/i18n/locale';
 import { LUNAR_MILESTONE_DAYS, monthRules } from './constants';
 import type {
 	CustomDateInput,
@@ -15,11 +17,6 @@ export type LunarDateObj = {
 	year: number;
 	month: number;
 	day: number;
-};
-
-const LUNAR_DAY_LABELS: Record<MonthlyEventId, string> = {
-	chuyi: '初一',
-	shiwu: '十五',
 };
 
 const monthRuleByValue = new Map<number, MonthRule>(
@@ -48,15 +45,14 @@ const createLunarDateNotification = (
 	date: GregorianDateParts,
 	type: MonthlyEventId,
 	rule: MonthRule,
+	locale: Locale,
 	overrides?: IcsEventOverrides,
 ): LunarDateNotification => {
-	const lunarLabel = LUNAR_DAY_LABELS[type];
-
 	return {
 		date,
 		type,
-		title: lunarLabel,
-		summary: `农历${rule.name}${lunarLabel}`,
+		title: monthlyTitle(type),
+		summary: monthlySummary(rule.value, type, locale),
 		description: '',
 		icsOverrides: overrides ? pickIcsOverrides(overrides) : undefined,
 	};
@@ -163,6 +159,7 @@ const expandMonthlyEvents = (
 	{ startYear, numberOfYears }: CustomYearRange,
 	events: Record<MonthlyEventId, boolean>,
 	overrides: Partial<Record<MonthlyEventId, IcsEventOverrides>> = {},
+	locale: Locale = 'zh-CN',
 ): LunarDateNotification[] => {
 	if (!events.chuyi && !events.shiwu) {
 		return [];
@@ -186,6 +183,7 @@ const expandMonthlyEvents = (
 						chuyiDate,
 						'chuyi',
 						rule,
+						locale,
 						overrides.chuyi,
 					),
 				);
@@ -196,6 +194,7 @@ const expandMonthlyEvents = (
 						shiwuDate,
 						'shiwu',
 						rule,
+						locale,
 						overrides.shiwu,
 					),
 				);

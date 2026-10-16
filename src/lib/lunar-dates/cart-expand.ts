@@ -1,3 +1,5 @@
+import { festivalTitle } from '@/lib/i18n/catalog-labels';
+import type { Locale } from '@/lib/i18n/locale';
 import { FESTIVALS } from './constants';
 import {
 	collectCustomNotifications,
@@ -45,6 +47,7 @@ const toCustomInput = (
 const notificationsFromCart = (
 	cart: CartRule[],
 	yearRange: CustomYearRange,
+	locale: Locale = 'zh-CN',
 ): LunarDateNotification[] => {
 	const customInputs: LunarCustomDateInput[] = [];
 	const catalogInputs: LunarCustomDateInput[] = [];
@@ -70,7 +73,12 @@ const notificationsFromCart = (
 
 		if (item.kind === 'solarTerm') {
 			solarTermNotifications.push(
-				...expandSolarTerm(item.solarTermId, yearRange, icsFields(item)),
+				...expandSolarTerm(
+					item.solarTermId,
+					yearRange,
+					icsFields(item),
+					locale,
+				),
 			);
 			continue;
 		}
@@ -81,7 +89,7 @@ const notificationsFromCart = (
 				toCustomInput({
 					lunarMonth: festival.lunarMonth,
 					lunarDay: festival.lunarDay,
-					title: festival.title,
+					title: festivalTitle(festival.id, locale),
 					...icsFields(item),
 				}),
 			);
@@ -94,7 +102,7 @@ const notificationsFromCart = (
 			yearRange,
 		),
 		...solarTermNotifications,
-		...expandMonthlyEvents(yearRange, monthly, monthlyOverrides),
+		...expandMonthlyEvents(yearRange, monthly, monthlyOverrides, locale),
 	];
 };
 

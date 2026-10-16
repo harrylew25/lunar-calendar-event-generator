@@ -1,12 +1,8 @@
 import { icsDraftFromItem, icsDraftToOverrides } from '@ics';
 import { type ReactElement, useState } from 'react';
-import {
-	dayNameByValue,
-	type LUNAR_DAY_NAMES,
-	monthNameByValue,
-} from '@/lib/lunar-dates/constants';
+import { lunarDayLabel, lunarMonthLabel } from '@/lib/i18n/catalog-labels';
+import { useI18n, useT } from '@/lib/i18n/I18nProvider';
 import { reportCartChange } from '@/lib/wizard/cart-toast';
-import { MESSAGES } from '@/lib/wizard/constants';
 import type { CartItemInput, CustomCartItem } from '@/store/calendar-store';
 import { useCalendarStore } from '@/store/calendar-store';
 import AlertToolTip from './AlertToolTip';
@@ -36,14 +32,14 @@ const patchFromDraft = (draft: CustomCartItemDraft): CartItemInput => ({
 });
 
 const CustomCartItemRow = ({ item }: CustomCartItemRowProps): ReactElement => {
+	const t = useT();
+	const { locale } = useI18n();
 	const removeItem = useCalendarStore((state) => state.removeItem);
 	const updateItem = useCalendarStore((state) => state.updateItem);
 	const [draft, setDraft] = useState(() => draftFromItem(item));
 
-	const monthName = monthNameByValue.get(item.lunarMonth);
-	const dayName = dayNameByValue.get(
-		item.lunarDay as (typeof LUNAR_DAY_NAMES)[number]['value'],
-	);
+	const monthName = lunarMonthLabel(item.lunarMonth, locale);
+	const dayName = lunarDayLabel(item.lunarDay, locale);
 	const isLeapMonth = item.lunarMonth < 0;
 	const is30thLunarDay = item.lunarDay === 30;
 
@@ -58,7 +54,7 @@ const CustomCartItemRow = ({ item }: CustomCartItemRowProps): ReactElement => {
 		reportCartChange({
 			action: 'removed',
 			title: item.title,
-			lunarDate: `${monthName ?? ''}${dayName ?? ''}`,
+			lunarDate: `${monthName}${locale === 'en' ? ' ' : ''}${dayName}`,
 			toastId: item.id,
 		});
 	};
@@ -75,8 +71,8 @@ const CustomCartItemRow = ({ item }: CustomCartItemRowProps): ReactElement => {
 						{monthName}
 						{isLeapMonth ? (
 							<AlertToolTip
-								label="Leap month"
-								description={MESSAGES.leapMonth}
+								label={t('leapMonth')}
+								description={t('leapMonthHelp')}
 								iconType="octagon"
 								color="yellow"
 							/>
@@ -85,8 +81,8 @@ const CustomCartItemRow = ({ item }: CustomCartItemRowProps): ReactElement => {
 						{dayName}
 						{is30thLunarDay ? (
 							<AlertToolTip
-								label="End of month"
-								description={MESSAGES.endOfMonth}
+								label={t('endOfMonth')}
+								description={t('endOfMonthHelp')}
 								color="yellow"
 							/>
 						) : null}

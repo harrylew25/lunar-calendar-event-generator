@@ -8,6 +8,7 @@ import {
 	DialogHeader,
 	DialogTitle,
 } from '@/components/ui/dialog';
+import { useT } from '@/lib/i18n/I18nProvider';
 
 interface EditDialogProps {
 	title: string;
@@ -28,6 +29,7 @@ const EditDialog = ({
 	onCancel,
 	onSave,
 }: EditDialogProps) => {
+	const t = useT();
 	const handleSubmit = (event: SubmitEvent<HTMLFormElement>): void => {
 		event.preventDefault();
 		onSave();
@@ -47,10 +49,10 @@ const EditDialog = ({
 					<DialogFooter>
 						<div className="mt-4 flex justify-end gap-2">
 							<Button type="button" variant="outline" onClick={onCancel}>
-								Cancel
+								{t('cancel')}
 							</Button>
 							<Button type="submit" variant="default">
-								Save
+								{t('save')}
 							</Button>
 						</div>
 					</DialogFooter>
