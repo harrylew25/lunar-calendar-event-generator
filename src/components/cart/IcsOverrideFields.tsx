@@ -2,7 +2,9 @@ import type { IcsOverrideDraft, ReminderUnit } from '@ics';
 import { FieldDescription, FieldLegend, FieldSet } from '@/components/ui/field';
 import Input from '@/components/ui/input';
 import Label from '@/components/ui/label';
-import SelectField from '@/components/ui/select-field';
+import SelectField, {
+	type SelectFieldOption,
+} from '@/components/ui/select-field';
 import { useT } from '@/lib/i18n/I18nProvider';
 
 type IcsOverrideFieldsProps = {
@@ -23,6 +25,24 @@ const formatReminderTime = (hour: string, minute: string): string => {
 };
 
 const WEEK_AMOUNTS = new Set(['1', '2', '3', '4']);
+const DAY_AMOUNTS = new Set(['0', '1', '2', '3', '4', '5', '6']);
+
+const numberOptions = (values: number[]): SelectFieldOption[] =>
+	values.map((value) => ({
+		value: String(value),
+		label: padTwo(value),
+	}));
+
+const HOUR_OPTIONS = numberOptions(
+	Array.from({ length: 24 }, (_, hour) => hour),
+);
+const MINUTE_OPTIONS = numberOptions([0, 15, 30, 45]);
+const WEEK_AMOUNT_OPTIONS: SelectFieldOption[] = [...WEEK_AMOUNTS].map(
+	(amount) => ({
+		value: amount,
+		label: amount,
+	}),
+);
 
 const IcsOverrideFields = ({
 	idPrefix,
@@ -31,26 +51,14 @@ const IcsOverrideFields = ({
 }: IcsOverrideFieldsProps) => {
 	const t = useT();
 	const locationId = `${idPrefix}-location`;
-	const dayAmountOptions = [0, 1, 2, 3, 4, 5, 6].map((amount) => ({
-		value: String(amount),
-		label: amount === 0 ? t('onTheDayOption') : String(amount),
-	}));
-	const weekAmountOptions = [1, 2, 3, 4].map((amount) => ({
-		value: String(amount),
-		label: String(amount),
+	const dayAmountOptions = [...DAY_AMOUNTS].map((amount) => ({
+		value: amount,
+		label: amount === '0' ? t('onTheDayOption') : amount,
 	}));
 	const unitOptions = [
 		{ value: 'days', label: t('days') },
 		{ value: 'weeks', label: t('weeks') },
 	];
-	const hourOptions = Array.from({ length: 24 }, (_, hour) => ({
-		value: String(hour),
-		label: padTwo(hour),
-	}));
-	const minuteOptions = [0, 15, 30, 45].map((minute) => ({
-		value: String(minute),
-		label: padTwo(minute),
-	}));
 	const busyOptions = [
 		{ value: 'TRANSPARENT', label: t('free') },
 		{ value: 'OPAQUE', label: t('busy') },
@@ -60,7 +68,7 @@ const IcsOverrideFields = ({
 		{ value: 'PRIVATE', label: t('private') },
 	];
 	const amountOptions =
-		value.unit === 'weeks' ? weekAmountOptions : dayAmountOptions;
+		value.unit === 'weeks' ? WEEK_AMOUNT_OPTIONS : dayAmountOptions;
 	const reminderText =
 		value.amount === '0'
 			? t('reminderOnDay', {
@@ -77,7 +85,7 @@ const IcsOverrideFields = ({
 		const amountValid =
 			unit === 'weeks'
 				? WEEK_AMOUNTS.has(value.amount)
-				: dayAmountOptions.some((option) => option.value === value.amount);
+				: DAY_AMOUNTS.has(value.amount);
 		onChange({
 			...value,
 			unit,
@@ -124,7 +132,7 @@ const IcsOverrideFields = ({
 						label={t('hour')}
 						value={value.hour}
 						onValueChange={(hour) => onChange({ ...value, hour })}
-						options={hourOptions}
+						options={HOUR_OPTIONS}
 						triggerClassName="max-w-none"
 					/>
 					<SelectField
@@ -132,7 +140,7 @@ const IcsOverrideFields = ({
 						label={t('minute')}
 						value={value.minute}
 						onValueChange={(minute) => onChange({ ...value, minute })}
-						options={minuteOptions}
+						options={MINUTE_OPTIONS}
 						triggerClassName="max-w-none"
 					/>
 				</div>

@@ -11,6 +11,7 @@ import {
 	solarTermTitle,
 } from '@/lib/i18n/catalog-labels';
 import { useI18n, useT } from '@/lib/i18n/I18nProvider';
+import type { Locale } from '@/lib/i18n/locale';
 import { reportCartChange } from '@/lib/wizard/cart-toast';
 import type {
 	CatalogCartItem,
@@ -21,8 +22,20 @@ import { useCalendarStore } from '@/store/calendar-store';
 import CartRowFrame from './CartRowFrame';
 import IcsOverrideFields from './IcsOverrideFields';
 
+type CartPickItem = MonthlyCartItem | CatalogCartItem | SolarTermCartItem;
+
 type CartPickRowProps = {
-	item: MonthlyCartItem | CatalogCartItem | SolarTermCartItem;
+	item: CartPickItem;
+};
+
+const pickLabel = (item: CartPickItem, locale: Locale): string => {
+	if (item.kind === 'monthly') {
+		return monthlyCartLabel(item.monthlyId, locale);
+	}
+	if (item.kind === 'solarTerm') {
+		return solarTermTitle(item.solarTermId, locale);
+	}
+	return festivalCartLabel(item.catalogId, locale);
 };
 
 const CartPickRow = ({ item }: CartPickRowProps) => {
@@ -31,12 +44,7 @@ const CartPickRow = ({ item }: CartPickRowProps) => {
 	const [icsDraft, setIcsDraft] = useState(() => icsDraftFromItem(item));
 	const removeItem = useCalendarStore((state) => state.removeItem);
 	const updateItem = useCalendarStore((state) => state.updateItem);
-	const label =
-		item.kind === 'monthly'
-			? monthlyCartLabel(item.monthlyId, locale)
-			: item.kind === 'solarTerm'
-				? solarTermTitle(item.solarTermId, locale)
-				: festivalCartLabel(item.catalogId, locale);
+	const label = pickLabel(item, locale);
 
 	const resetDraftFromItem = () => {
 		setIcsDraft(icsDraftFromItem(item));

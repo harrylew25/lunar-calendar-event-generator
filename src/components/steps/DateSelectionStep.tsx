@@ -10,6 +10,10 @@ import SolarTermPickOptions from './SolarTermPickOptions';
 
 const currentYear = new Date().getFullYear();
 const RANGE = 5;
+const YEAR_VALUES = Array.from(
+	{ length: RANGE * 2 + 1 },
+	(_, index) => currentYear - RANGE + index,
+);
 
 const DateSelectionStep = (): ReactElement => {
 	const t = useT();
@@ -20,10 +24,7 @@ const DateSelectionStep = (): ReactElement => {
 	const setLoopYears = useCalendarStore((state) => state.setLoopYears);
 	const setStartYear = useCalendarStore((state) => state.setStartYear);
 
-	const yearOptions = Array.from(
-		{ length: RANGE * 2 + 1 },
-		(_, index) => currentYear - RANGE + index,
-	).map((years) => ({
+	const yearOptions = YEAR_VALUES.map((years) => ({
 		label:
 			years === currentYear ? `${years} ${t('currentYear')}` : String(years),
 		value: String(years),
@@ -34,10 +35,9 @@ const DateSelectionStep = (): ReactElement => {
 		value: String(years),
 	}));
 
-	const cartCount =
-		cart.length === 1
-			? t('cartCountOne', { count: cart.length })
-			: t('cartCountOther', { count: cart.length });
+	const cartCount = t(cart.length === 1 ? 'cartCountOne' : 'cartCountOther', {
+		count: cart.length,
+	});
 
 	return (
 		<div className="mx-auto flex w-full max-w-3xl flex-col gap-8">
