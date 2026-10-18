@@ -1,4 +1,5 @@
 import { beforeEach, describe, expect, mock, test } from 'bun:test';
+import { commitLocale } from '@/lib/i18n/locale';
 
 const toastError = mock((): number => 1);
 const toastOk = (): number => 1;
@@ -20,6 +21,7 @@ const resetStore = (): void => {
 describe('useCalendarStore', () => {
 	beforeEach(() => {
 		toastError.mockClear();
+		commitLocale('en');
 		resetStore();
 	});
 
@@ -139,7 +141,9 @@ describe('useCalendarStore', () => {
 			state.expandedEvents?.every((event) => event.type === 'custom'),
 		).toBe(true);
 		expect(
-			state.expandedEvents?.some((event) => event.title === '端午节'),
+			state.expandedEvents?.some(
+				(event) => event.title === 'Dragon Boat Festival',
+			),
 		).toBe(true);
 		expect(state.expandedEvents?.some((event) => event.type === 'chuyi')).toBe(
 			false,
@@ -182,9 +186,28 @@ describe('useCalendarStore', () => {
 		expect(state.expandedEvents).toHaveLength(1);
 		expect(state.expandedEvents?.[0]).toMatchObject({
 			date: [2026, 2, 4],
-			title: '立春',
+			title: 'Start of Spring',
 			type: 'custom',
 		});
+	});
+
+	test('reexpand rebuilds catalog titles for the active locale', () => {
+		useCalendarStore.getState().setCatalogItem('yuanxiao', true);
+		useCalendarStore.getState().confirmAndExpand();
+		expect(
+			useCalendarStore
+				.getState()
+				.expandedEvents?.some((event) => event.title === 'Lantern Festival'),
+		).toBe(true);
+
+		commitLocale('zh-TW');
+		useCalendarStore.getState().reexpand();
+
+		const state = useCalendarStore.getState();
+		expect(state.step).toBe('preview');
+		expect(
+			state.expandedEvents?.some((event) => event.title === '元宵節'),
+		).toBe(true);
 	});
 
 	test('confirmAndExpand applies stored ICS overrides to every occurrence', () => {

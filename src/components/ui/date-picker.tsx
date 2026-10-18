@@ -14,6 +14,7 @@ import {
 	PopoverContent,
 	PopoverTrigger,
 } from '@/components/ui/popover';
+import { useT } from '@/lib/i18n/I18nProvider';
 
 const formatDate = (date?: Date) => (date ? format(date, 'yyyy-MM-dd') : '');
 
@@ -28,6 +29,7 @@ const DatePickerInput = ({
 	onChange,
 	error,
 }: DatePickerInputProps) => {
+	const t = useT();
 	const [open, setOpen] = useState(false);
 	const [month, setMonth] = useState<Date | undefined>(new Date());
 
@@ -59,7 +61,7 @@ const DatePickerInput = ({
 
 	return (
 		<Field className="my-2" data-invalid={error ? 'true' : undefined}>
-			<FieldLabel htmlFor="date-required">Solar Date</FieldLabel>
+			<FieldLabel htmlFor="date-required">{t('solarDate')}</FieldLabel>
 			<InputGroup>
 				<InputGroupInput
 					id="date-required"
@@ -76,9 +78,9 @@ const DatePickerInput = ({
 								id="date-picker"
 								variant="ghost"
 								size="icon-xs"
-								aria-label="Select date">
+								aria-label={t('selectDate')}>
 								<CalendarIcon />
-								<span className="sr-only">Select date</span>
+								<span className="sr-only">{t('selectDate')}</span>
 							</InputGroupButton>
 						</PopoverTrigger>
 

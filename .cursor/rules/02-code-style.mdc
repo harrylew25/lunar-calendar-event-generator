@@ -1,5 +1,5 @@
 ---
-description: TypeScript typing standards and Tailwind conventions not covered by Biome.
+description: TypeScript typing, module scope, and Tailwind conventions not covered by Biome.
 alwaysApply: false
 globs: src/**/*.{ts,tsx},test/**/*.{ts,tsx}
 ---
@@ -14,6 +14,12 @@ Formatting, lint, import order, block statements, and naming conventions are enf
 - **Strict typing:** Never use `any`; use `unknown` when the type is not known.
 - When creating complex UI component, leverage react composition pattern using compound components.
 - When making new non-UI logic, plan out with TDD patterns, and then execute them.
+
+## Module scope
+
+Define a function or value outside the component when it does not use that component's state, props, or anything else that exists only during render. Defining it inside creates a new function or object on every render.
+
+Keep it inside when it needs those values.
 
 ## Tailwind CSS v4
 

@@ -169,7 +169,7 @@ describe('generateLunarCalendarIcs', () => {
 		expect(ics).toContain('BEGIN:VCALENDAR');
 		expect(ics).toContain('VERSION:2.0');
 		expect(ics).toContain('PRODID:-//Lunar Calendar Event Generator//EN');
-		expect(ics).toContain('X-WR-CALNAME:Lunar 1st & 15th Milestones');
+		expect(ics).toContain('X-WR-CALNAME:Lunar Calendar');
 		expect(ics).toContain('BEGIN:VEVENT');
 		expect(ics).toContain('END:VCALENDAR');
 	});
@@ -181,7 +181,7 @@ describe('generateLunarCalendarIcs', () => {
 		});
 
 		expect(ics).toContain('X-WR-CALNAME:My Lunar Rituals');
-		expect(ics).not.toContain('X-WR-CALNAME:Lunar 1st & 15th Milestones');
+		expect(ics).not.toContain('X-WR-CALNAME:Lunar Calendar');
 	});
 });
 

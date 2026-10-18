@@ -1,7 +1,17 @@
 import { icsDraftFromItem, icsDraftToOverrides } from '@ics';
-import { getCatalogItem, getMonthlyEvent } from '@lunar-dates/constants';
-import { getSolarTerm } from '@lunar-dates/solar-terms';
+import { getCatalogItem } from '@lunar-dates/constants';
 import { useState } from 'react';
+import {
+	festivalCartLabel,
+	festivalTitle,
+	lunarDayLabel,
+	lunarMonthLabel,
+	monthlyCartLabel,
+	monthlyTitle,
+	solarTermTitle,
+} from '@/lib/i18n/catalog-labels';
+import { useI18n, useT } from '@/lib/i18n/I18nProvider';
+import type { Locale } from '@/lib/i18n/locale';
 import { reportCartChange } from '@/lib/wizard/cart-toast';
 import type {
 	CatalogCartItem,
@@ -12,27 +22,29 @@ import { useCalendarStore } from '@/store/calendar-store';
 import CartRowFrame from './CartRowFrame';
 import IcsOverrideFields from './IcsOverrideFields';
 
+type CartPickItem = MonthlyCartItem | CatalogCartItem | SolarTermCartItem;
+
 type CartPickRowProps = {
-	item: MonthlyCartItem | CatalogCartItem | SolarTermCartItem;
+	item: CartPickItem;
 };
 
-const cartPickLabel = (
-	item: MonthlyCartItem | CatalogCartItem | SolarTermCartItem,
-): string => {
+const pickLabel = (item: CartPickItem, locale: Locale): string => {
 	if (item.kind === 'monthly') {
-		return getMonthlyEvent(item.monthlyId)?.cartLabel ?? item.monthlyId;
+		return monthlyCartLabel(item.monthlyId, locale);
 	}
 	if (item.kind === 'solarTerm') {
-		return getSolarTerm(item.solarTermId)?.title ?? item.solarTermId;
+		return solarTermTitle(item.solarTermId, locale);
 	}
-	return getCatalogItem(item.catalogId)?.cartLabel ?? item.catalogId;
+	return festivalCartLabel(item.catalogId, locale);
 };
 
 const CartPickRow = ({ item }: CartPickRowProps) => {
+	const t = useT();
+	const { locale } = useI18n();
 	const [icsDraft, setIcsDraft] = useState(() => icsDraftFromItem(item));
 	const removeItem = useCalendarStore((state) => state.removeItem);
 	const updateItem = useCalendarStore((state) => state.updateItem);
-	const label = cartPickLabel(item);
+	const label = pickLabel(item, locale);
 
 	const resetDraftFromItem = () => {
 		setIcsDraft(icsDraftFromItem(item));
@@ -45,19 +57,18 @@ const CartPickRow = ({ item }: CartPickRowProps) => {
 	const onRemove = (): void => {
 		removeItem(item.id);
 		if (item.kind === 'monthly') {
-			const event = getMonthlyEvent(item.monthlyId);
-			const title = event?.title ?? item.monthlyId;
+			const title = monthlyTitle(item.monthlyId);
 			reportCartChange({
 				action: 'removed',
 				title,
-				lunarDate: `每月${title}`,
+				lunarDate: t('everyMonthDate', { title }),
 				toastId: item.id,
 			});
 			return;
 		}
 
 		if (item.kind === 'solarTerm') {
-			const title = getSolarTerm(item.solarTermId)?.title ?? item.solarTermId;
+			const title = solarTermTitle(item.solarTermId, locale);
 			reportCartChange({
 				action: 'removed',
 				title,
@@ -68,10 +79,14 @@ const CartPickRow = ({ item }: CartPickRowProps) => {
 		}
 
 		const event = getCatalogItem(item.catalogId);
+		const title = festivalTitle(item.catalogId, locale);
+		const month = event ? lunarMonthLabel(event.lunarMonth, locale) : '';
+		const day = event ? lunarDayLabel(event.lunarDay, locale) : '';
+		const separator = locale === 'en' ? ' ' : '';
 		reportCartChange({
 			action: 'removed',
-			title: event?.title ?? item.catalogId,
-			lunarDate: `${event?.lunarMonthLabel ?? ''}${event?.lunarDayLabel ?? ''}`,
+			title,
+			lunarDate: `${month}${separator}${day}`,
 			toastId: item.id,
 		});
 	};

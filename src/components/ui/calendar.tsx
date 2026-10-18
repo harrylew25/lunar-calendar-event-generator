@@ -11,6 +11,8 @@ import {
 	getDefaultClassNames,
 } from 'react-day-picker';
 import { Button, buttonVariants } from '@/components/ui/button';
+import { dateFnsLocale } from '@/lib/i18n/date-locale';
+import { useI18n } from '@/lib/i18n/I18nProvider';
 
 const Calendar = ({
 	className,
@@ -24,6 +26,7 @@ const Calendar = ({
 }: ComponentProps<typeof DayPicker> & {
 	buttonVariant?: ComponentProps<typeof Button>['variant'];
 }) => {
+	const { locale } = useI18n();
 	const defaultClassNames = getDefaultClassNames();
 
 	return (
@@ -172,6 +175,7 @@ const Calendar = ({
 				...components,
 			}}
 			{...props}
+			locale={dateFnsLocale(locale)}
 		/>
 	);
 };

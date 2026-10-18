@@ -141,10 +141,10 @@ describe('cart row frame', () => {
 		clickNamedButton('Edit', 2);
 		const monthSelect = screen.getByLabelText('Lunar month');
 		fireEvent.keyDown(monthSelect, { key: 'Enter' });
-		fireEvent.click(screen.getByRole('option', { name: '正月' }));
+		fireEvent.click(screen.getByRole('option', { name: 'January' }));
 		const daySelect = screen.getByLabelText('Lunar day');
 		fireEvent.keyDown(daySelect, { key: 'Enter' });
-		fireEvent.click(screen.getByRole('option', { name: '1' }));
+		fireEvent.click(screen.getByRole('option', { name: '1st' }));
 		fireEvent.click(screen.getByRole('button', { name: 'Save' }));
 
 		const saved = useCalendarStore

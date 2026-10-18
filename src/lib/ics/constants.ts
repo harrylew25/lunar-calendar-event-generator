@@ -1,6 +1,6 @@
 import type { IcsEventOverrides } from '@lunar-dates/lunar-dates.type';
 
-const DEFAULT_CALENDAR_NAME = 'Lunar 1st & 15th Milestones';
+const DEFAULT_CALENDAR_NAME = 'Lunar Calendar';
 
 const ICS_ALARM_TIMEZONE = 'Asia/Kuala_Lumpur';
 

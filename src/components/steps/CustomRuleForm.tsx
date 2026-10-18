@@ -1,9 +1,4 @@
 import { resolveLunarMonthDay } from '@lunar-dates';
-import {
-	dayNameByValue,
-	type LUNAR_DAY_NAMES,
-	monthNameByValue,
-} from '@lunar-dates/constants';
 import { getDate, getMonth, getYear, isMatch, isValid, parse } from 'date-fns';
 import { type ReactElement, useState } from 'react';
 import AlertToolTip from '@/components/cart/AlertToolTip';
@@ -13,18 +8,18 @@ import { Button } from '@/components/ui/button';
 import DatePickerInput from '@/components/ui/date-picker';
 import SelectField from '@/components/ui/select-field';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { lunarDayLabel, lunarMonthLabel } from '@/lib/i18n/catalog-labels';
+import { useI18n, useT } from '@/lib/i18n/I18nProvider';
 import { reportCartChange } from '@/lib/wizard/cart-toast';
-import {
-	dedupedMonthRules,
-	LUNAR_DAY_OPTIONS,
-	MESSAGES,
-} from '@/lib/wizard/constants';
+import { dedupedMonthRules, LUNAR_DAY_OPTIONS } from '@/lib/wizard/constants';
 import { useCalendarStore } from '@/store/calendar-store';
 
 const is30thLunarDay = (lunarDay: number): boolean => lunarDay === 30;
 const isLeapMonth = (lunarMonth: number): boolean => lunarMonth < 0;
 
 const CustomRuleForm = (): ReactElement => {
+	const t = useT();
+	const { locale } = useI18n();
 	const addItem = useCalendarStore((state) => state.addItem);
 
 	const [lunarMonth, setLunarMonth] = useState('1');
@@ -59,15 +54,13 @@ const CustomRuleForm = (): ReactElement => {
 		});
 		const postSubmitCartLength = useCalendarStore.getState().cart.length;
 		if (postSubmitCartLength > currentCartLength) {
-			const monthName = monthNameByValue.get(nextLunarMonth) ?? '';
-			const dayName =
-				dayNameByValue.get(
-					nextLunarDay as (typeof LUNAR_DAY_NAMES)[number]['value'],
-				) ?? '';
+			const monthName = lunarMonthLabel(nextLunarMonth, locale);
+			const dayName = lunarDayLabel(nextLunarDay, locale);
+			const separator = locale === 'en' ? ' ' : '';
 			reportCartChange({
 				action: 'added',
 				title: trimmedTitle,
-				lunarDate: `${monthName}${dayName}`,
+				lunarDate: `${monthName}${separator}${dayName}`,
 			});
 		}
 		resetForm();
@@ -100,7 +93,7 @@ const CustomRuleForm = (): ReactElement => {
 
 	const solarDateError =
 		solarDate.length > 0 && !isMatch(solarDate, 'yyyy-MM-dd')
-			? 'Invalid date format. Please use YYYY-MM-DD.'
+			? t('invalidDate')
 			: null;
 
 	return (
@@ -108,19 +101,19 @@ const CustomRuleForm = (): ReactElement => {
 			defaultValue="lunar"
 			onValueChange={(value) => setInputMode(value as 'lunar' | 'solar')}>
 			<TabsList>
-				<TabsTrigger value="lunar">Lunar</TabsTrigger>
-				<TabsTrigger value="solar">Solar</TabsTrigger>
+				<TabsTrigger value="lunar">{t('lunar')}</TabsTrigger>
+				<TabsTrigger value="solar">{t('solar')}</TabsTrigger>
 			</TabsList>
 			<div className="space-y-4 rounded-xl border p-6">
 				<InputField
 					id="event-title"
 					type="text"
-					label="Event title"
+					label={t('eventTitle')}
 					value={title}
 					onChange={setTitle}
-					placeholder="e.g. 正月十五 reminder"
+					placeholder={t('eventTitlePlaceholder')}
 					onBlur={() => setTitleTouched(true)}
-					error={titleError ? 'Title is required' : undefined}
+					error={titleError ? t('titleRequired') : undefined}
 				/>
 
 				<TabsContent value="lunar">
@@ -129,20 +122,20 @@ const CustomRuleForm = (): ReactElement => {
 							showAlert={isLeapMonth(Number(lunarMonth))}
 							alert={
 								<AlertToolTip
-									label="Leap month"
-									description={MESSAGES.leapMonth}
+									label={t('leapMonth')}
+									description={t('leapMonthHelp')}
 									color="yellow"
 								/>
 							}>
 							<SelectField
 								id="lunar-month"
-								label="Lunar month"
+								label={t('lunarMonth')}
 								value={lunarMonth}
 								onValueChange={setLunarMonth}
 								className="min-w-0"
 								triggerClassName="w-full max-w-none"
 								options={dedupedMonthRules.map((rule) => ({
-									label: rule.name,
+									label: lunarMonthLabel(rule.value, locale),
 									value: String(rule.value),
 								}))}
 							/>
@@ -152,20 +145,20 @@ const CustomRuleForm = (): ReactElement => {
 							showAlert={is30thLunarDay(Number(lunarDay))}
 							alert={
 								<AlertToolTip
-									label="End of month"
-									description={MESSAGES.endOfMonth}
+									label={t('endOfMonth')}
+									description={t('endOfMonthHelp')}
 									color="yellow"
 								/>
 							}>
 							<SelectField
 								id="lunar-day"
-								label="Lunar day"
+								label={t('lunarDay')}
 								value={lunarDay}
 								onValueChange={setLunarDay}
 								className="min-w-0"
 								triggerClassName="w-full max-w-none"
 								options={LUNAR_DAY_OPTIONS.map((day) => ({
-									label: String(day),
+									label: lunarDayLabel(day, locale),
 									value: String(day),
 								}))}
 							/>
@@ -183,10 +176,10 @@ const CustomRuleForm = (): ReactElement => {
 				<InputField
 					id="event-description"
 					type="textarea"
-					label="Description"
+					label={t('description')}
 					value={description}
 					onChange={setDescription}
-					placeholder="e.g. 元宵节提醒"
+					placeholder={t('descriptionPlaceholder')}
 				/>
 				<Button
 					type="button"
@@ -196,7 +189,7 @@ const CustomRuleForm = (): ReactElement => {
 						!!solarDateError ||
 						!!titleError
 					}>
-					Add to cart
+					{t('addToCart')}
 				</Button>
 			</div>
 		</Tabs>

@@ -1,33 +1,14 @@
 import type { GregorianDateParts } from '@lunar-dates/lunar-dates.type';
-import { LunarMonth, Solar } from 'lunar-javascript';
+import { Solar } from 'lunar-javascript';
+import { previewLunarLine } from '@/lib/i18n/catalog-labels';
+import type { Locale } from '@/lib/i18n/locale';
 
-type LunarDateObject = {
-	solarDate: GregorianDateParts;
-	lunarMonth: string;
-	lunarDay: string;
-	lunarYear: string;
-	label: string;
-	isLeapMonth: boolean;
-	daysInMonth: number;
-};
-
-export const getLunarObjectFromDate = (
+const formatPreviewLunarLine = (
 	date: GregorianDateParts,
-): LunarDateObject => {
-	const lunarDate = Solar.fromYmd(date[0], date[1], date[2]).getLunar();
-	const isLeapMonth = LunarMonth.fromYm(date[0], date[1])?.isLeap() ?? false;
-	const daysInMonth = LunarMonth.fromYm(date[0], date[1])?.getDayCount() ?? 0;
-	const lunarMonth = lunarDate.getMonthInChinese();
-	const lunarDay = lunarDate.getDayInChinese();
-	const lunarYear = lunarDate.getYearInChinese();
-
-	return {
-		solarDate: date,
-		lunarMonth,
-		lunarDay,
-		lunarYear,
-		isLeapMonth,
-		daysInMonth,
-		label: `${lunarMonth}月${lunarDay}日`,
-	};
+	locale: Locale,
+): string => {
+	const lunar = Solar.fromYmd(date[0], date[1], date[2]).getLunar();
+	return previewLunarLine(lunar.getMonth(), lunar.getDay(), locale);
 };
+
+export { formatPreviewLunarLine };
