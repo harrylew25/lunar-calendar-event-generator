@@ -52,7 +52,17 @@ export const formatAppVersion = (now: Date, buildId: string): string => {
 	return `${year}.${twoDigits(week)}.${buildId}`;
 };
 
+const present = (value: string | undefined): string | undefined =>
+	value === undefined || value === '' ? undefined : value;
+
+const shortCommit = (commit: string | undefined): string | undefined => {
+	const value = present(commit);
+	return value === undefined ? undefined : value.slice(0, 7);
+};
+
 export const currentAppVersion = (
 	now: Date = new Date(),
 	runNumber: string | undefined = process.env.GITHUB_RUN_NUMBER,
-): string => formatAppVersion(now, runNumber === undefined ? 'dev' : runNumber);
+	commit: string | undefined = process.env.RENDER_GIT_COMMIT,
+): string =>
+	formatAppVersion(now, present(runNumber) ?? shortCommit(commit) ?? 'dev');
