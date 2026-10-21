@@ -71,7 +71,7 @@ const festivalCartLabel = (id: FestivalId, locale: Locale): string => {
 	if (locale === 'en') {
 		return `${title} — ${month} ${day}`;
 	}
-	return `${title} — ${month}${day}`;
+	return `${title} · ${month}${day}`;
 };
 
 const solarTermTitle = (id: SolarTermId, locale: Locale): string => {

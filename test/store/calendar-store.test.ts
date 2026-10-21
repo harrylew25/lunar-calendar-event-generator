@@ -186,7 +186,7 @@ describe('useCalendarStore', () => {
 		expect(state.expandedEvents).toHaveLength(1);
 		expect(state.expandedEvents?.[0]).toMatchObject({
 			date: [2026, 2, 4],
-			title: 'Start of Spring',
+			title: 'Beginning of Spring(Lìchūn)',
 			type: 'custom',
 		});
 	});

@@ -32,14 +32,14 @@ describe('catalog locale', () => {
 		expect(events.some((event) => event.title === 'Lantern Festival')).toBe(
 			true,
 		);
-		expect(events.some((event) => event.title === 'Awakening of Insects')).toBe(
-			true,
-		);
+		expect(
+			events.some((event) => event.title === 'Awakening of Insects(Jīngzhé)'),
+		).toBe(true);
 		expect(
 			events.find((event) => event.date.join('-') === '2020-1-25'),
 		).toMatchObject({
 			title: '1st',
-			summary: 'Lunar January 1st',
+			summary: 'Lunar 1st Month 1st',
 		});
 		expect(
 			events.find((event) => event.title === 'Family dinner'),
@@ -89,18 +89,18 @@ describe('catalog locale', () => {
 			'初一 — 每個農曆月（含閏月）',
 		);
 		expect(festivalCartLabel('yuanxiao', 'en')).toBe(
-			'Lantern Festival — January 15th',
+			'Lantern Festival — 1st Month 15th',
 		);
-		expect(festivalCartLabel('yuanxiao', 'zh-CN')).toBe('元宵节 — 正月十五');
-		expect(festivalCartLabel('yuanxiao', 'zh-TW')).toBe('元宵節 — 正月十五');
+		expect(festivalCartLabel('yuanxiao', 'zh-CN')).toBe('元宵节 · 正月十五');
+		expect(festivalCartLabel('yuanxiao', 'zh-TW')).toBe('元宵節 · 正月十五');
 		expect(monthlySummary(-1, 'chuyi', 'zh-CN')).toBe('农历闰正月初一');
 		expect(monthlySummary(-1, 'chuyi', 'zh-TW')).toBe('農曆閏正月初一');
-		expect(monthlySummary(-1, 'chuyi', 'en')).toBe('Lunar Leap January 1st');
+		expect(monthlySummary(-1, 'chuyi', 'en')).toBe('Lunar Leap 1st Month 1st');
 		expect(previewLunarLine(1, 1, 'zh-CN')).toBe('正月初一');
 		expect(previewLunarLine(1, 1, 'zh-TW')).toBe('正月初一');
-		expect(previewLunarLine(1, 1, 'en')).toBe('January 1st');
+		expect(previewLunarLine(1, 1, 'en')).toBe('1st Month 1st');
 		expect(previewLunarLine(-1, 1, 'zh-CN')).toBe('闰正月初一');
 		expect(previewLunarLine(-1, 1, 'zh-TW')).toBe('閏正月初一');
-		expect(previewLunarLine(-1, 1, 'en')).toBe('Leap January 1st');
+		expect(previewLunarLine(-1, 1, 'en')).toBe('Leap 1st Month 1st');
 	});
 });

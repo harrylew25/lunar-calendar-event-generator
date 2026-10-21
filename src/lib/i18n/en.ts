@@ -26,7 +26,7 @@ const enMessages = {
 	seasonAutumn: '🍁 Autumn',
 	seasonWinter: '❄️ Winter',
 	eventTitle: 'Event title',
-	eventTitlePlaceholder: 'e.g. 正月十五 reminder',
+	eventTitlePlaceholder: 'e.g. Festival Day reminder',
 	titleRequired: 'Title is required',
 	lunar: 'Lunar',
 	solar: 'Solar',
@@ -39,7 +39,7 @@ const enMessages = {
 	endOfMonthHelp:
 		"Not every lunar month has 30 days. We will use 29th if the month doesn't have 30 days.",
 	description: 'Description',
-	descriptionPlaceholder: 'e.g. 元宵节提醒',
+	descriptionPlaceholder: 'e.g. Festival Day description',
 	addToCart: 'Add to cart',
 	invalidDate: 'Invalid date format. Please use YYYY-MM-DD.',
 	solarDate: 'Solar Date',

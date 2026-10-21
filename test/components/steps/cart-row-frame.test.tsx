@@ -141,7 +141,7 @@ describe('cart row frame', () => {
 		clickNamedButton('Edit', 2);
 		const monthSelect = screen.getByLabelText('Lunar month');
 		fireEvent.keyDown(monthSelect, { key: 'Enter' });
-		fireEvent.click(screen.getByRole('option', { name: 'January' }));
+		fireEvent.click(screen.getByRole('option', { name: '1st Month' }));
 		const daySelect = screen.getByLabelText('Lunar day');
 		fireEvent.keyDown(daySelect, { key: 'Enter' });
 		fireEvent.click(screen.getByRole('option', { name: '1st' }));
