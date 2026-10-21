@@ -91,8 +91,8 @@ describe('catalog locale', () => {
 		expect(festivalCartLabel('yuanxiao', 'en')).toBe(
 			'Lantern Festival — 1st Month 15th',
 		);
-		expect(festivalCartLabel('yuanxiao', 'zh-CN')).toBe('元宵节 — 正月十五');
-		expect(festivalCartLabel('yuanxiao', 'zh-TW')).toBe('元宵節 — 正月十五');
+		expect(festivalCartLabel('yuanxiao', 'zh-CN')).toBe('元宵节 · 正月十五');
+		expect(festivalCartLabel('yuanxiao', 'zh-TW')).toBe('元宵節 · 正月十五');
 		expect(monthlySummary(-1, 'chuyi', 'zh-CN')).toBe('农历闰正月初一');
 		expect(monthlySummary(-1, 'chuyi', 'zh-TW')).toBe('農曆閏正月初一');
 		expect(monthlySummary(-1, 'chuyi', 'en')).toBe('Lunar Leap 1st Month 1st');
