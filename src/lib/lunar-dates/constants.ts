@@ -11,18 +11,18 @@ const SOLAR_MONTH = {
 } as const;
 
 const LUNAR_MONTH_NAMES = [
-	{ name: '正月', en: 'January' },
-	{ name: '二月', en: 'February' },
-	{ name: '三月', en: 'March' },
-	{ name: '四月', en: 'April' },
-	{ name: '五月', en: 'May' },
-	{ name: '六月', en: 'June' },
-	{ name: '七月', en: 'July' },
-	{ name: '八月', en: 'August' },
-	{ name: '九月', en: 'September' },
-	{ name: '十月', en: 'October' },
-	{ name: '十一月(冬月)', en: 'November' },
-	{ name: '十二月(腊月)', en: 'December' },
+	{ name: '正月', en: '1st Month' },
+	{ name: '二月', en: '2nd Month' },
+	{ name: '三月', en: '3rd Month' },
+	{ name: '四月', en: '4th Month' },
+	{ name: '五月', en: '5th Month' },
+	{ name: '六月', en: '6th Month' },
+	{ name: '七月', en: '7th Month' },
+	{ name: '八月', en: '8th Month' },
+	{ name: '九月', en: '9th Month' },
+	{ name: '十月', en: '10th Month' },
+	{ name: '十一月(冬月)', en: '11th Month' },
+	{ name: '十二月(腊月)', en: '12th Month' },
 ] as const;
 
 type LunarMonthName = (typeof LUNAR_MONTH_NAMES)[number]['name'];
