@@ -1,4 +1,4 @@
-import { describe, expect, mock, test } from 'bun:test';
+import { describe, expect, jest, mock, test } from 'bun:test';
 import { renderHook } from '@testing-library/react';
 import { act } from 'react';
 import { useDebouncedControlledInput } from '@/hooks/useDebounceControlledInput';
@@ -61,31 +61,36 @@ describe('useDebouncedControlledInput', () => {
 		expect(onChange).toHaveBeenCalledWith('十五');
 	});
 
-	test('keeps the last local value when it changes again before the delay', async () => {
-		const onChange = mock((_: string) => {});
-		const { result } = renderHook(() =>
-			useDebouncedControlledInput('', onChange, DELAY_IN_MS),
-		);
+	test('keeps the last local value when it changes again before the delay', () => {
+		jest.useFakeTimers();
+		try {
+			const onChange = mock((_: string) => {});
+			const { result } = renderHook(() =>
+				useDebouncedControlledInput('', onChange, DELAY_IN_MS),
+			);
 
-		act(() => {
-			result.current.setLocalValue('初一');
-		});
-		await act(async () => {
-			await Bun.sleep(DELAY_IN_MS / 2);
-		});
-		act(() => {
-			result.current.setLocalValue('十五');
-		});
+			act(() => {
+				result.current.setLocalValue('初一');
+			});
+			act(() => {
+				jest.advanceTimersByTime(DELAY_IN_MS / 2);
+			});
+			act(() => {
+				result.current.setLocalValue('十五');
+			});
 
-		expect(result.current.localValue).toBe('十五');
-		expect(onChange).not.toHaveBeenCalled();
+			expect(result.current.localValue).toBe('十五');
+			expect(onChange).not.toHaveBeenCalled();
 
-		await act(async () => {
-			await Bun.sleep(DELAY_IN_MS + 10);
-		});
+			act(() => {
+				jest.advanceTimersByTime(DELAY_IN_MS);
+			});
 
-		expect(onChange).toHaveBeenCalledTimes(1);
-		expect(onChange).toHaveBeenCalledWith('十五');
+			expect(onChange).toHaveBeenCalledTimes(1);
+			expect(onChange).toHaveBeenCalledWith('十五');
+		} finally {
+			jest.useRealTimers();
+		}
 	});
 
 	test('syncs localValue when the parent value changes', () => {
