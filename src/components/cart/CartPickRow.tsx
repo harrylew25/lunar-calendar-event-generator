@@ -57,7 +57,7 @@ const CartPickRow = ({ item }: CartPickRowProps) => {
 	const onRemove = (): void => {
 		removeItem(item.id);
 		if (item.kind === 'monthly') {
-			const title = monthlyTitle(item.monthlyId);
+			const title = monthlyTitle(item.monthlyId, locale);
 			reportCartChange({
 				action: 'removed',
 				title,

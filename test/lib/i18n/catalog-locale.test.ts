@@ -38,7 +38,7 @@ describe('catalog locale', () => {
 		expect(
 			events.find((event) => event.date.join('-') === '2020-1-25'),
 		).toMatchObject({
-			title: '初一',
+			title: '1st',
 			summary: 'Lunar January 1st',
 		});
 		expect(
@@ -77,7 +77,10 @@ describe('catalog locale', () => {
 
 	test('cart lines, leap summaries, and preview lines follow the locale', () => {
 		expect(monthlyCartLabel('chuyi', 'en')).toBe(
-			'初一 — every lunar month (incl. leap)',
+			'1st — every lunar month (incl. leap)',
+		);
+		expect(monthlyCartLabel('shiwu', 'en')).toBe(
+			'15th — every lunar month (incl. leap)',
 		);
 		expect(monthlyCartLabel('chuyi', 'zh-CN')).toBe(
 			'初一 — 每个农历月（含闰月）',

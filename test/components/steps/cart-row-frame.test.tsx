@@ -164,12 +164,12 @@ describe('cart row frame', () => {
 
 		clickNamedButton('Edit', 1);
 		expect(
-			screen.getAllByText('初一 — every lunar month (incl. leap)').length,
+			screen.getAllByText('1st — every lunar month (incl. leap)').length,
 		).toBeGreaterThan(1);
 		fireEvent.click(screen.getByRole('button', { name: 'Cancel' }));
 
 		expect(
-			screen.getAllByText('初一 — every lunar month (incl. leap)'),
+			screen.getAllByText('1st — every lunar month (incl. leap)'),
 		).toHaveLength(1);
 		expect(useCalendarStore.getState().cart).toHaveLength(2);
 	});
@@ -178,12 +178,12 @@ describe('cart row frame', () => {
 		render(<CartStep />);
 
 		expect(
-			screen.getByText('初一 — every lunar month (incl. leap)'),
+			screen.getByText('1st — every lunar month (incl. leap)'),
 		).toBeTruthy();
 		clickNamedButton('Delete', 1);
 
 		expect(
-			screen.queryByText('初一 — every lunar month (incl. leap)'),
+			screen.queryByText('1st — every lunar month (incl. leap)'),
 		).toBeNull();
 		expect(screen.getByText('Ancestor day').className).toContain('truncate');
 		expect(screen.getByText('Family visit').className).toContain(
