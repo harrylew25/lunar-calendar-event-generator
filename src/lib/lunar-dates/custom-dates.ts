@@ -51,7 +51,7 @@ const createLunarDateNotification = (
 	return {
 		date,
 		type,
-		title: monthlyTitle(type),
+		title: monthlyTitle(type, locale),
 		summary: monthlySummary(rule.value, type, locale),
 		description: '',
 		icsOverrides: overrides ? pickIcsOverrides(overrides) : undefined,

@@ -41,7 +41,7 @@ const EventPickOptions = () => {
 				<FieldGroup data-slot="checkbox-group">
 					{MONTHLY_EVENTS.map((event) => {
 						const inputId = `include-${event.id}`;
-						const title = monthlyTitle(event.id);
+						const title = monthlyTitle(event.id, locale);
 
 						return (
 							<Field key={event.id} orientation="horizontal">

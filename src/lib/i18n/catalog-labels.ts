@@ -88,15 +88,11 @@ const solarTermTitle = (id: SolarTermId, locale: Locale): string => {
 	return term.title;
 };
 
-const monthlyTitle = (id: MonthlyEventId): string => {
-	const day = LUNAR_DAY_NAMES.find(
-		(entry) => entry.value === LUNAR_MILESTONE_DAYS[id],
-	);
-	return day?.name ?? id;
-};
+const monthlyTitle = (id: MonthlyEventId, locale: Locale): string =>
+	lunarDayLabel(LUNAR_MILESTONE_DAYS[id], locale);
 
 const monthlyCartLabel = (id: MonthlyEventId, locale: Locale): string =>
-	`${monthlyTitle(id)} — ${translate(locale, 'monthlyCartSuffix')}`;
+	`${monthlyTitle(id, locale)} — ${translate(locale, 'monthlyCartSuffix')}`;
 
 const monthlySummary = (
 	monthValue: number,
