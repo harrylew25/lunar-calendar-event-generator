@@ -1,7 +1,7 @@
 const CALENDAR_DEFAULTS = {
 	startYear: new Date().getFullYear(),
 	startMonth: 1,
-	numberOfYears: 10,
+	numberOfYears: 50,
 } as const;
 
 const SOLAR_MONTH = {
