@@ -1,0 +1,10 @@
+# Paths that still need a review from the owner.
+# The required build check on develop applies to every pull request.
+# A bot approval does not satisfy the review on these paths.
+
+.github/CODEOWNERS @harrylew25
+.github/workflows/ @harrylew25
+.cursor/hooks/ @harrylew25
+src/store/calendar-store.ts @harrylew25
+src/lib/lunar-dates/ @harrylew25
+src/lib/ics/ @harrylew25
