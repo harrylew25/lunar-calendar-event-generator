@@ -56,3 +56,7 @@ Tests pin `TZ=Asia/Kuala_Lumpur` so lunar and Gregorian conversions stay stable.
 ## Contributing
 
 Commits follow [Conventional Commits](https://www.conventionalcommits.org/). `bun install` installs [Lefthook](https://lefthook.dev/), which formats staged files on commit and runs the typecheck and tests before push. Pull requests run the same typecheck, tests, lint, and build. A scheduled workflow deletes merged pull-request branches after they have been idle.
+
+## License
+
+This project is licensed under the [MIT License](LICENSE). Copyright (c) 2026 Harry Lew.
